@@ -4,11 +4,12 @@ import { defineConfig } from 'vitepress'
 export default defineConfig({
   title: "SDI Exercises",
   description: "Documentation for the exercises in the lecture Software-Defined-Infrastructure",
+  base: '/sdi/',
+  lastUpdated: true,
   themeConfig: {
     search: {
       provider: 'local'
     },
-
     // https://vitepress.dev/reference/default-theme-config
     nav: [
       { text: 'Home', link: '/' },
