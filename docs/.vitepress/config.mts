@@ -5,6 +5,7 @@ export default defineConfig({
   title: "SDI Exercises",
   description: "Documentation for the exercises in the lecture Software-Defined-Infrastructure",
   base: '/sdi/',
+  cleanUrls: true,
   lastUpdated: true,
   themeConfig: {
     search: {
@@ -13,14 +14,14 @@ export default defineConfig({
     // https://vitepress.dev/reference/default-theme-config
     nav: [
       { text: 'Home', link: '/' },
-      { text: 'Examples', link: '/markdown-examples' }
+      { text: 'Exercises', link: '/exercises/hetzner-cloud' }
     ],
 
     sidebar: [
       {
         text: 'Exercises',
         items: [
-          { text: 'Hetzner Cloud', link: '/exercises/01-hetzner-cloud' },
+          { text: 'Hetzner Cloud', link: '/exercises/hetzner-cloud' },
         ]
       }
     ],
