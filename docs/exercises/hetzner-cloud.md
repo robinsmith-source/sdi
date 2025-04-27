@@ -11,17 +11,16 @@
 3. Consider enabling two-factor authentication for added security
 
 ## 2. Creating Your First Server
-1. Navigate to https://www.hetzner.com and log in
-2. Click the square dropdown menu in the top-right corner
-3. Select "Cloud"
-4. Choose your project
-5. In the left navigation, select "Servers" and click "Add Server"
-6. Configure your server with:
+1. Navigate to https://www.hetzner.com and click on "Login" in the top-right corner
+2. Select "Cloud" from the dropdown menu
+3. Choose your project
+4. In the left navigation, select `Server` and click `Add Server`
+5. Configure your server with:
    - **Location**: Helsinki or Frankfurt
    - **Image**: Debian 12
    - **Type**: Shared vCPU / x86 (Intel/AMD) / CXC22 or CPX11 depending on availability
    - **Name**: Choose a name for your server
-7. Click "Create & Buy Now"
+6. Click "Create & Buy Now"
 
 ## 3. Accessing Your Server (Initial Method)
 1. Click on your new server in the list
@@ -56,10 +55,10 @@ Your initial server setup has several security vulnerabilities:
      ```
 
 ## 6. Improving Server Security
-1. Go to "Firewalls" in the left navigation and create a new firewall with:
+1. Go to `Firewalls` in the left navigation and create a new firewall with:
    - Rule 1: TCP, Port 22 (SSH access)
    - Rule 2: ICMP (ping functionality)
-2. Go to the "Security" tab and add your SSH key:
+2. Go to the `Security` tab and add your SSH key:
    - Copy the contents of your `id_ed25519.pub` file
    - Paste it into the SSH key field and give it a name
 3. Delete your current server to avoid charges
