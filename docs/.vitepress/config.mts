@@ -22,6 +22,7 @@ export default defineConfig({
         text: 'Exercises',
         items: [
           { text: 'Hetzner Cloud', link: '/exercises/hetzner-cloud' },
+          { text: 'Working with Terraform', link: '/exercises/working-with-terraform' },
         ]
       }
     ],
