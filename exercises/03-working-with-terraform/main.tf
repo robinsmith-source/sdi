@@ -8,12 +8,6 @@ terraform {
   required_version = ">= 0.13"
 }
 
-# Configure the Hetzner Cloud API token
-provider "hcloud" {
-  token = var.hcloud_token
-}
-
-
 resource "hcloud_firewall" "sshFw" {
   name = "ssh-firewall"
   rule {
