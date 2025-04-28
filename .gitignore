@@ -14,6 +14,7 @@ yarn-error.log*
 # Dependency directories
 /.pnp
 .pnp.js
+**/.terraform
 
 # Build output
 dist/
@@ -24,6 +25,7 @@ docs/.vitepress/cache/
 .env
 .env.local
 .env.*.local
+**/secret.auto.tfvars
 
 # IDE files
 .idea/
