@@ -4,11 +4,25 @@ layout: home
 
 hero:
   name: "SDI Exercises"
-  tagline: "Documentation for the exercises in the lecture Software-Defined-Infrastructure"
+  text: "Software-Defined Infrastructure"
+  tagline: "Explore practical exercises and essential utilities for mastering Software-Defined Infrastructure concepts."
   actions:
     - theme: brand
-      text: Exercises
+      text: View Exercises
       link: /exercises/hetzner-cloud
+    - theme: alt
+      text: Explore Utils
+      link: /utils/ssh
+
+features:
+  - icon: 🛠️
+    title: Hands-On Exercises
+    details: Step-by-step guides for practical infrastructure setup using tools like Terraform and Ansible.
+    link: /exercises/hetzner-cloud
+  - icon: ⚙️
+    title: Essential Utilities
+    details: Documentation for crucial tools and techniques like SSH, Git, and command-line basics.
+    link: /utils/ssh
 ---
 
 <script setup>
