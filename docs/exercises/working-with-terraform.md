@@ -111,19 +111,23 @@ provider "hcloud" {
 This tells the `hcloud` provider to use the value of the `hcloud_token` variable for authentication.
 
 3.  Create a file named `secret.auto.tfvars` in the same directory:
-::: details Bash {open}
+    ::: details Bash {open}
+
 ```bash
 export TF_VAR_hcloud_token="your_api_key"
 ```
+
 :::
 
 ::: details Windows Powershell {open}
+
 ```bash
 $env:TF_VAR_hcloud_token="your_api_key"
 ```
+
 :::
 
-**Do not version this `secret.auto.tfvars` file, make sure to add the line `**/secret.auto.tfvars` to your `.gitignore` to ignore all occurances of this file** 
+**Do not version this `secret.auto.tfvars` file, make sure to add the line `**/secret.auto.tfvars`to your`.gitignore` to ignore all occurances of this file\*\*
 
 ### Adding a Firewall
 
@@ -185,16 +189,16 @@ Terraform outputs allow you to easily retrieve information about your created re
 
 1.  Create a new file named `outputs.tf` in the same directory:
 
-   ```hcl
-   output "hello_ip_addr" {
-   value       = hcloud_server.helloServer.ipv4_address
-   description = "The server's IPv4 address"
-   }
+```hcl
+output "hello_ip_addr" {
+value       = hcloud_server.helloServer.ipv4_address
+description = "The server's IPv4 address"
+}
 
-   output "hello_datacenter" {
-   value       = hcloud_server.helloServer.datacenter
-   description = "The server's datacenter"
-   }
-   ```
+output "hello_datacenter" {
+value       = hcloud_server.helloServer.datacenter
+description = "The server's datacenter"
+}
+```
 
 Now, after running `terraform apply`, Terraform will display the values of these outputs in your terminal.

@@ -1,4 +1,6 @@
-# Hetzner Cloud: Creating and Securing Your First Server
+# Hetzner Cloud
+
+This guide will help you set up a Hetzner Cloud server, improve its security, and connect to it using SSH keys.
 
 ## Prerequisites
 
