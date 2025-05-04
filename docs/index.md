@@ -8,8 +8,8 @@ hero:
   tagline: "Explore practical exercises and essential utilities for mastering Software-Defined Infrastructure concepts."
   actions:
     - theme: brand
-      text: View Exercises
-      link: /exercises/hetzner-cloud
+      text: View Chapters
+      link: /chapters/hetzner-cloud
     - theme: alt
       text: Explore Utils
       link: /utils/ssh
@@ -18,7 +18,7 @@ features:
   - icon: 🛠️
     title: Hands-On Exercises
     details: Step-by-step guides for practical infrastructure setup using tools like Terraform and Ansible.
-    link: /exercises/hetzner-cloud
+    link: /chapters/hetzner-cloud
   - icon: ⚙️
     title: Essential Utilities
     details: Documentation for crucial tools and techniques like SSH, Git, and command-line basics.

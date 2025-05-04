@@ -1,11 +1,6 @@
----
-title: SSH - Secure Shell
-description: A structured guide to SSH keys, configuration, and secure remote access
----
-
 # SSH <Badge type="info" text="Security" />
 
-Secure Shell (SSH) provides encrypted connections to remote systems, enabling secure administration, file transfers, and Git operations.
+Secure Shell (SSH) provides encrypted connections to remote systems, allowing secure file transfers and remote command execution. It's widely used for server management, especially in cloud environments.
 
 ## Core Concepts
 
@@ -125,7 +120,8 @@ ssh-add -l
 
 ::: details Agent Forwarding
 Use `ssh -A user@host` to use your local keys on the remote server.
-⚠️ Only use with trusted servers to prevent security risks.
+
+This is useful for accessing other servers from the remote host without copying keys.
 :::
 
 ## Configuration
@@ -181,16 +177,20 @@ SSH enables secure file transfers through SCP and SFTP:
 
 ### SCP (Secure Copy)
 
-```bash
-# Copy local file TO remote
+::: code-group
+
+```bash [Copy local file TO remote]
 scp local_file.txt user@remotehost:/remote/path/
+```
 
-# Copy remote file TO local
+```bash [Copy remote file TO local]
 scp user@remotehost:/remote/path/file.txt ./local/path/
+```
 
-# Copy directory recursively
+```bash [Copy directory recursively]
 scp -r local_directory user@remotehost:/remote/path/
 ```
+:::
 
 ### SFTP (Interactive File Transfer)
 
@@ -224,11 +224,3 @@ sftp user@remotehost
 - Verify the SSH port is correct and open
 - Test basic connectivity: `ping hostname`
   :::
-
-## Security Best Practices
-
-- Use strong, unique passphrases for each key
-- Prefer Ed25519 keys over older algorithms
-- Disable password authentication on servers where possible
-- Regularly audit and rotate SSH keys
-- Use separate keys for different services/purposes

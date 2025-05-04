@@ -1,8 +1,3 @@
----
-title: Terraform Deep Dive
-description: Mastering Infrastructure as Code with Terraform
----
-
 # Terraform <Badge type="info" text="IaC" />
 
 Terraform is a powerful **Infrastructure as Code (IaC)** tool by HashiCorp. It allows you to define, provision, and manage cloud and on-prem infrastructure using a declarative configuration language called **HCL (HashiCorp Configuration Language)**.
@@ -21,7 +16,7 @@ Terraform is a powerful **Infrastructure as Code (IaC)** tool by HashiCorp. It a
 Terraform follows a simple yet powerful workflow: **Write -> Plan -> Apply**.
 
 1.  **Write:** Define your infrastructure resources in `.tf` configuration files using HCL.
-2.  **Plan:** Run `terraform plan` to preview the changes Terraform will make to reach your desired state. This is a crucial safety step.
+2.  **Plan:** Run `terraform plan` to preview the changes Terraform will make to reach your desired state.
 3.  **Apply:** Run `terraform apply` to execute the changes outlined in the plan.
 
 ### Key Concepts Explained
@@ -49,54 +44,57 @@ Mastering these commands is key to using Terraform effectively.
 ::: code-group
 
 ```bash [1. Initialize]
-# terraform init
+terraform init
+
 # Downloads provider plugins and modules
 # Run once per project, or after adding new providers/modules
-terraform init
 ```
 
 ```bash [2. Format & Validate]
-# terraform fmt
-# Automatically formats your .tf files for consistency
 terraform fmt
 
-# terraform validate
-# Checks syntax and basic configuration errors locally
+# Automatically formats your .tf files for consistency
+
 terraform validate
+
+# Checks syntax and basic configuration errors locally
 ```
 
 ```bash [3. Plan]
-# terraform plan
-# Shows what changes Terraform will make
-# (+) create, (-) destroy, (~) update in-place
-# CRITICAL: Always review the plan carefully!
 terraform plan
 
-# Save the plan to a file for later application
+# Shows what changes Terraform will make
+# (+) create, (-) destroy, (~) update in-place
+
 terraform plan -out=tfplan
+
+# Save the plan to a file for later application
 ```
 
 ```bash [4. Apply]
-# terraform apply
-# Executes the changes outlined in the plan
-# Prompts for confirmation unless -auto-approve is used
 terraform apply
 
-# Apply a previously saved plan file
+# Executes the changes outlined in the plan
+# Prompts for confirmation unless -auto-approve is used
+
 terraform apply tfplan
 
-# Auto-approve (Use with caution, e.g., in CI/CD)
+# Apply a previously saved plan file
+
 terraform apply -auto-approve
+
+# Auto-approve (Use with caution, e.g., in CI/CD)
 ```
 
 ```bash [5. Destroy]
-# terraform destroy
-# Removes all resources managed by this configuration
-# Shows a plan first, prompts for confirmation
 terraform destroy
 
-# Auto-approve destruction (Use with extreme caution!)
+# Removes all resources managed by this configuration
+# Shows a plan first, prompts for confirmation
+
 terraform destroy -auto-approve
+
+# Auto-approve destruction (Use with extreme caution!)
 ```
 
 :::
@@ -114,11 +112,11 @@ Terraform records the infrastructure it manages in a **state file** (usually `te
 - **Performance:** Improves planning for large infrastructures.
 
 ::: danger State File Sensitivity
-The state file can contain sensitive information. **Do not commit `terraform.tfstate` directly to Git** unless you are certain it contains no secrets and are working alone.
+The state file can contain sensitive information. **Do not commit `terraform.tfstate` directly to Git** or share it publicly. Use `.gitignore` to exclude it!
 :::
 
 ::: tip Remote Backends
-For team collaboration and better security/reliability, use **remote backends** (like AWS S3, Azure Blob Storage, HashiCorp Terraform Cloud/Enterprise) to store the state file remotely, manage locking, and prevent conflicts.
+For team collaboration and better security/reliability, use **remote backends** (like AWS S3, Azure Blob Storage, Google Cloud Storage, HashiCorp Cloud, or GitLab Managed Terraform State) to store the state file remotely, manage locking, and prevent conflicts.
 
 ```hcl
 # Example backend configuration (main.tf or backend.tf)
@@ -132,6 +130,8 @@ terraform {
   }
 }
 ```
+
+:::
 
 ## Providers, Resources, Variables & Modules
 
@@ -190,11 +190,6 @@ resource "hcloud_server" "web_server" {
   server_type = var.server_type # Reference the variable
   # ...
 }
-
-# Set variable values via:
-# 1. Command line: terraform apply -var="server_type=cpx21"
-# 2. Environment variables: TF_VAR_server_type=cpx21 terraform apply
-# 3. .tfvars file: terraform apply -var-file="production.tfvars"
 ```
 
 ### Modules <Badge type="tip" text="Reusability" />

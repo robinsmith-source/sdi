@@ -14,18 +14,18 @@ export default defineConfig({
     },
     // https://vitepress.dev/reference/default-theme-config
     nav: [
-      { text: "Exercises", link: "/exercises/hetzner-cloud" },
+      { text: "Chapters", link: "/chapters/hetzner-cloud" },
       { text: "Utils", link: "/utils/ssh" },
     ],
 
     sidebar: [
       {
-        text: "Exercises",
+        text: "Chapters",
         items: [
-          { text: "Hetzner Cloud", link: "/exercises/hetzner-cloud" },
+          { text: "Hetzner Cloud", link: "/chapters/hetzner-cloud" },
           {
             text: "Working with Terraform",
-            link: "/exercises/working-with-terraform",
+            link: "/chapters/working-with-terraform",
           },
         ],
       },
