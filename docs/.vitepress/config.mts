@@ -27,8 +27,8 @@ export default defineConfig({
             link: "/chapters/working-with-terraform",
           },
           {
-            text: "Working on Cloud-Init",
-            link: "/chapters/working-on-cloud-init",
+            text: "Server Initialization",
+            link: "/chapters/server-initialization",
           },
         ],
       },
