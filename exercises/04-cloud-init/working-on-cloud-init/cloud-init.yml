@@ -3,7 +3,7 @@ users:
   - name: devops
     groups: [sudo]
     shell: /bin/bash
-    sudo: ['ALL=(ALL) NOPASSWD:ALL']
+    sudo: ["ALL=(ALL) NOPASSWD:ALL"]
     ssh_authorized_keys:
       - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOn0s6GaBWiZhImfjB2KJaKsbSL5qbsdxo6LbELF8X3p
 
@@ -44,4 +44,3 @@ runcmd:
   - systemctl start fail2ban
   - updatedb
   - systemctl restart fail2ban
-

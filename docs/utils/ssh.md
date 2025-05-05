@@ -190,6 +190,7 @@ scp user@remotehost:/remote/path/file.txt ./local/path/
 ```bash [Copy directory recursively]
 scp -r local_directory user@remotehost:/remote/path/
 ```
+
 :::
 
 ### SFTP (Interactive File Transfer)
