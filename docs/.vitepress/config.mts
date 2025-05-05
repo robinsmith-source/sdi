@@ -5,7 +5,6 @@ export default defineConfig({
   title: "SDI Exercises",
   description:
     "Documentation for the exercises in the lecture Software-Defined-Infrastructure",
-  base: "/sdi/",
   cleanUrls: true,
   lastUpdated: true,
   themeConfig: {
