@@ -26,6 +26,10 @@ export default defineConfig({
           {
             text: "Working with Terraform",
             link: "/chapters/working-with-terraform",
+          }, 
+          {
+            text: "Working on Cloud-Init",
+            link: "/chapters/working-on-cloud-init",
           },
         ],
       },
@@ -33,7 +37,8 @@ export default defineConfig({
         text: "Utils",
         items: [
           { text: "SSH", link: "/utils/ssh" },
-          { text: "Terraform", link: "/utils/terraform" },
+          { text: "Terraform", link: "/utils/terraform" }, 
+          { text: "Cloud-Init", link: "/utils/cloud-init" },
         ],
       },
     ],

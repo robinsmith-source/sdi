@@ -1,0 +1,47 @@
+#cloud-config
+users:
+  - name: devops
+    groups: [sudo]
+    shell: /bin/bash
+    sudo: ['ALL=(ALL) NOPASSWD:ALL']
+    ssh_authorized_keys:
+      - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOn0s6GaBWiZhImfjB2KJaKsbSL5qbsdxo6LbELF8X3p
+
+ssh_pwauth: false
+
+package_update: true
+package_upgrade: true
+package_reboot_if_required: true
+
+packages:
+  - nginx
+  - fail2ban
+  - plocate
+  - python3-systemd # Add python3-systemd for fail2ban backend
+
+write_files:
+  path: /etc/fail2ban/jail.local
+  content: |
+    [DEFAULT]
+    # Ban hosts for 1 hour:
+    bantime = 1h
+
+    # Override /etc/fail2ban/jail.d/defaults-debian.conf:
+    backend = systemd
+
+    [sshd]
+    enabled = true
+    # To use internal sshd filter variants
+
+runcmd:
+  # Existing Nginx setup
+  - systemctl enable nginx
+  - rm /var/www/html/*
+  - >
+    echo "I'm Nginx @ $(dig -4 TXT +short o-o.myaddr.l.google.com @ns1.google.com)
+    created $(date -u)" >> /var/www/html/index.html
+  - systemctl enable fail2ban
+  - systemctl start fail2ban
+  - updatedb
+  - systemctl restart fail2ban
+
