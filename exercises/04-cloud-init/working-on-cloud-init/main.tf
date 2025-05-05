@@ -32,3 +32,18 @@ resource "hcloud_server" "helloServer" {
   ssh_keys     = [hcloud_ssh_key.loginRobin.id]
   user_data    = file("cloud-init.yaml")
 }
+
+resource "local_file" "known_hosts" {
+  content         = "${hcloud_server.helloServer.ipv4_address}  ${tls_private_key.host.public_key_openssh}"
+  filename        = "gen/known_hosts"
+  file_permission = "644"
+}
+
+resource "local_file" "ssh_script" {
+  content = templatefile("tpl/ssh.sh", {
+    ip = hcloud_server.hello.ipv4_address
+  })
+  filename        = "bin/ssh"
+  file_permission = "700"
+  depends_on      = [local_file.known_hosts]
+}
