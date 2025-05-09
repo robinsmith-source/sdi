@@ -1,84 +1,85 @@
 # Hetzner Cloud
 
-This guide will help you set up a Hetzner Cloud server, improve its security, and connect to it using SSH keys.
+> This guide explains how to set up a Hetzner Cloud server, enhance its security, and establish an SSH key-based connection.
 
 ## Prerequisites
 
-- Basic knowledge of command-line interfaces
-- A web browser
-- SSH client (built into macOS/Linux, Windows users can use Windows Terminal or PuTTY)
+To follow this guide, you will need:
+- Familiarity with command-line interfaces.
+- A web browser.
+- An SSH client: macOS and Linux include a built-in client. Windows users can use Windows Terminal or PuTTY.
 
 ## 1. Creating a Hetzner Account
 
-1. Sign up at https://accounts.hetzner.com/signUp
-2. Complete account verification (ID verification may be required)
-3. Consider enabling two-factor authentication for added security
+1. Register at https://accounts.hetzner.com/signUp.
+2. Complete the account verification process (ID verification may be requested).
+3. For enhanced account security, enable two-factor authentication (2FA).
 
 ## 2. Creating Your First Server
 
-1. Navigate to https://www.hetzner.com and click on "Login" in the top-right corner
-2. Select "Cloud" from the dropdown menu
-3. Choose your project
-4. In the left navigation, select `Server` and click `Add Server`
-5. Configure your server with:
-   - **Location**: Helsinki or Frankfurt
-   - **Image**: Debian 12
-   - **Type**: Shared vCPU / x86 (Intel/AMD) / CXC22 or CPX11 depending on availability
-   - **Name**: Choose a name for your server
-6. Click "Create & Buy Now"
+1. Go to https://www.hetzner.com and click "Login" in the top-right corner.
+2. From the dropdown menu, select "Cloud".
+3. Choose your project or create a new one.
+4. In the left-hand navigation panel, select `Server`, then click `Add Server`.
+5. Configure your server with the following settings:
+   - **Location**: Choose Helsinki or Frankfurt.
+   - **Image**: Select Debian 12.
+   - **Type**: Opt for Shared vCPU / x86 (Intel/AMD). CXC22 or CPX11 are good starting points, depending on availability and your needs.
+   - **Name**: Assign a descriptive name to your server.
+6. Click "Create & Buy Now".
 
 ## 3. Accessing Your Server (Initial Method)
 
-1. Click on your new server in the list
-2. Go to the "Rescue" tab
-3. Click "Reset Root Password" and copy the generated password
-4. Open the console by clicking the `>_` symbol in the upper right
-5. Log in with:
+1. In your server list, click on your newly created server.
+2. Navigate to the "Rescue" tab.
+3. Click "Reset Root Password" and carefully copy the generated password.
+4. Open the web-based console by clicking the `>_` icon in the upper-right corner of the server details page.
+5. Log in using:
    - Username: `root`
-   - Password: _paste the generated password_
+   - Password: (paste the password you copied)
 
-## 4. Security Considerations
+## 4. Key Security Vulnerabilities of the Initial Setup
 
-Your initial server setup has several security vulnerabilities:
+Be aware that the default server configuration has several security weaknesses:
 
-- Password-based authentication (vulnerable to brute force attacks)
-- No automatic updates (potentially outdated software)
-- No firewall (all ports potentially exposed)
-- No restricted access to services (databases, etc.)
+- **Password-based authentication**: This is susceptible to brute-force attacks.
+- **No automatic updates**: Software can become outdated and vulnerable over time.
+- **No firewall**: All server ports are potentially exposed to the internet.
+- **Unrestricted service access**: Services like databases may be accessible without limitation.
 
 ## 5. Creating SSH Keys for Secure Authentication
 
-1. Open a terminal on your local machine
-2. Generate an SSH key pair:
-   ```bash
+1. Open a terminal window on your local computer.
+2. Generate a new SSH key pair:
+   ```sh
    ssh-keygen -t ed25519
    ```
-3. When prompted, press Enter to use the default file location (usually `~/.ssh/id_ed25519`)
-4. It's strongly recommended to set a secure passphrase for additional security
-5. Ensure your `.ssh` directory contains:
-   - Private key (`id_ed25519`)
-   - Public key (`id_ed25519.pub`)
-   - Known hosts file (`known_hosts`) - create if it doesn't exist:
-     ```bash
+3. When prompted for the file location, press Enter to accept the default (usually `~/.ssh/id_ed25519`).
+4. For optimal key security, set a strong passphrase when prompted.
+5. Verify that your `~/.ssh` directory now contains:
+   - Private key: `id_ed25519`
+   - Public key: `id_ed25519.pub`
+   - `known_hosts` file. If `known_hosts` is missing, create it with:
+     ```sh
      touch ~/.ssh/known_hosts
      ```
 
 ## 6. Improving Server Security
 
-1. Go to `Firewalls` in the left navigation and create a new firewall with:
-   - Rule 1: TCP, Port 22 (SSH access)
-   - Rule 2: ICMP (ping functionality)
-2. Go to the `Security` tab and add your SSH key:
-   - Copy the contents of your `id_ed25519.pub` file
-   - Paste it into the SSH key field and give it a name
-3. Delete your current server to avoid charges
-4. Create a new server, selecting your firewall and SSH key during setup
+1. In the Hetzner Cloud Console, navigate to `Firewalls`. Create a new firewall with these rules:
+   - Rule 1: Allow TCP traffic on Port 22 (for SSH access).
+   - Rule 2: Allow ICMP traffic (for ping functionality).
+2. Next, go to the `Security` tab in the Cloud Console to add your public SSH key:
+   - Copy the entire contents of your public key file (`~/.ssh/id_ed25519.pub`).
+   - Paste the copied public key into the designated field and assign it a descriptive name (e.g., "My Laptop Key").
+3. To avoid unnecessary charges, delete the server you created initially (which used password authentication).
+4. Create a new server. During this setup process, ensure you select the firewall you just configured and your newly added SSH key.
 
 ## 7. Testing Server Connectivity
 
-1. Copy your server's IP address from the server details page
-2. Test if your server is reachable:
-   ```bash
+1. From your server's details page in the Hetzner Cloud Console, copy its IP address.
+2. Verify network connectivity to your server:
+   ```sh
    ping YOUR_SERVER_IP
    ```
-   You should see successful ping responses
+   Successful pings indicate your server is reachable on the network.

@@ -20,7 +20,7 @@ Use **Ed25519** for modern security and performance.
 
 ### Creating Your Keys
 
-```bash
+```sh
 # Generate a new Ed25519 key
 ssh-keygen -t ed25519 -C "your_email@example.com"
 
@@ -31,7 +31,7 @@ ssh-keygen -t ed25519 -C "your_email@example.com"
 
 ### Verifying Your Keys
 
-```bash
+```sh
 # List your keys
 ls ~/.ssh/id_ed25519*
 
@@ -55,7 +55,7 @@ ls ~/.ssh/id_ed25519*
 
     ::: code-group
 
-    ```bash [macOS]
+    ```sh [macOS]
     cat ~/.ssh/id_ed25519.pub | pbcopy
     ```
 
@@ -63,7 +63,7 @@ ls ~/.ssh/id_ed25519*
     cat ~/.ssh/id_ed25519.pub | clip
     ```
 
-    ```bash Linux
+    ```sh Linux
     cat ~/.ssh/id_ed25519.pub | xclip -selection clipboard
     ```
 
@@ -79,7 +79,7 @@ ls ~/.ssh/id_ed25519*
 
 3.  **Verify connection:**
 
-    ```bash
+    ```sh
     ssh -T git@github.com
     # Expect: "Hi username! You've successfully authenticated..."
     ```
@@ -92,7 +92,7 @@ The SSH agent stores your key's passphrase in memory, so you don't need to re-en
 
 ::: code-group
 
-```bash [Linux/macOS Setup]
+```sh [Linux/macOS Setup]
 # Start agent
 eval "$(ssh-agent -s)"
 
@@ -113,7 +113,7 @@ ssh-add ~/.ssh/id_ed25519
 
 #### Verify Loaded Keys
 
-```bash
+```sh
 # List keys in the agent
 ssh-add -l
 ```
@@ -130,7 +130,7 @@ This is useful for accessing other servers from the remote host without copying 
 
 Create `~/.ssh/config` to simplify connections:
 
-```bash
+```sh
 # Example ~/.ssh/config
 
 # Server with custom port
@@ -154,7 +154,7 @@ Host internal-db
 
 Connect with simple commands:
 
-```bash
+```sh
 ssh myserver
 ssh github.com
 ssh internal-db
@@ -179,15 +179,15 @@ SSH enables secure file transfers through SCP and SFTP:
 
 ::: code-group
 
-```bash [Copy local file TO remote]
+```sh [Copy local file TO remote]
 scp local_file.txt user@remotehost:/remote/path/
 ```
 
-```bash [Copy remote file TO local]
+```sh [Copy remote file TO local]
 scp user@remotehost:/remote/path/file.txt ./local/path/
 ```
 
-```bash [Copy directory recursively]
+```sh [Copy directory recursively]
 scp -r local_directory user@remotehost:/remote/path/
 ```
 
@@ -195,7 +195,7 @@ scp -r local_directory user@remotehost:/remote/path/
 
 ### SFTP (Interactive File Transfer)
 
-```bash
+```sh
 # Start an SFTP session
 sftp user@remotehost
 

@@ -43,14 +43,14 @@ Mastering these commands is key to using Terraform effectively.
 
 ::: code-group
 
-```bash [1. Initialize]
+```sh [1. Initialize]
 terraform init
 
 # Downloads provider plugins and modules
 # Run once per project, or after adding new providers/modules
 ```
 
-```bash [2. Format & Validate]
+```sh [2. Format & Validate]
 terraform fmt
 
 # Automatically formats your .tf files for consistency
@@ -60,7 +60,7 @@ terraform validate
 # Checks syntax and basic configuration errors locally
 ```
 
-```bash [3. Plan]
+```sh [3. Plan]
 terraform plan
 
 # Shows what changes Terraform will make
@@ -71,7 +71,7 @@ terraform plan -out=tfplan
 # Save the plan to a file for later application
 ```
 
-```bash [4. Apply]
+```sh [4. Apply]
 terraform apply
 
 # Executes the changes outlined in the plan
@@ -86,7 +86,7 @@ terraform apply -auto-approve
 # Auto-approve (Use with caution, e.g., in CI/CD)
 ```
 
-```bash [5. Destroy]
+```sh [5. Destroy]
 terraform destroy
 
 # Removes all resources managed by this configuration

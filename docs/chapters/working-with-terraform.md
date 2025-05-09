@@ -1,6 +1,15 @@
 # Working with Terraform
 
-This guide explains how to use Terraform to provision and manage resources on Hetzner Cloud.
+> This guide explains how to use Terraform to provision and manage resources on Hetzner Cloud.
+
+## Prerequisites
+
+Before you start, ensure you have the following:
+
+*   A Hetzner Cloud account. If you don't have one, you can sign up on the [Hetzner Cloud website](https://www.hetzner.com/cloud) or follow our guide on [Creating a Hetzner Account](../chapters/hetzner-cloud.md#1-creating-a-hetzner-account).
+*   Familiarity with using the command line interface (CLI).
+*   Terraform installed on your local machine.
+*   A Hetzner Cloud API Token.
 
 ## 1. Install Terraform
 
@@ -53,38 +62,13 @@ Terraform uses configuration files to define the infrastructure you want to mana
 
 ## 4. Creating and Managing the Server
 
-You can now use Terraform commands to initialize your project, plan the changes, and apply them to create the server.
-
-1.  Open your terminal and navigate to the directory containing your `main.tf` file.
-2.  Initialize the Terraform project. This downloads the necessary provider plugins:
-    ```bash
-    terraform init
-    ```
-3.  Generate an execution plan. This shows you which actions Terraform will perform:
-    ```bash
-    terraform plan
-    ```
-4.  Apply the configuration to create the server:
-
-    ```bash
-    terraform apply
-    ```
-
-    Terraform will show you the plan again and ask for confirmation before creating the resources. You will be prompted to enter `yes` to proceed.
-
-5.  Verify the server creation by logging into the [Hetzner Cloud Console](https://console.hetzner.cloud/).
-
-6.  After you are finished, you can destroy the created resources using:
-    ```bash
-    terraform destroy
-    ```
-    Terraform will show you the resources to be destroyed and ask for confirmation.
+For a list of essential Terraform commands and their explanations, refer to our [Terraform Commands Utility Page](../utils/terraform.md).
 
 ## 5. Improving the Server Configuration
 
 The basic configuration has some limitations, including hardcoded secrets and lack of essential security features like firewalls and SSH key access.
 
-### Securely Storing the API Token
+### 5.1 Securely Storing the API Token
 
 Storing secrets like API tokens directly in your configuration files is insecure, especially if you use version control. Terraform variables provide a secure way to handle sensitive data.
 
@@ -113,7 +97,7 @@ This tells the `hcloud` provider to use the value of the `hcloud_token` variable
 3.  Create a file named `secret.auto.tfvars` in the same directory:
     ::: details Bash {open}
 
-```bash
+```sh
 export TF_VAR_hcloud_token="your_api_key"
 ```
 
@@ -121,7 +105,7 @@ export TF_VAR_hcloud_token="your_api_key"
 
 ::: details Windows Powershell {open}
 
-```bash
+```sh
 $env:TF_VAR_hcloud_token="your_api_key"
 ```
 
@@ -129,7 +113,7 @@ $env:TF_VAR_hcloud_token="your_api_key"
 
 **Do not version this `secret.auto.tfvars` file, make sure to add the line `**/secret.auto.tfvars`to your`.gitignore` to ignore all occurances of this file\*\*
 
-### Adding a Firewall
+### 5.2 Adding a Firewall
 
 Firewalls are essential for securing your server by controlling incoming and outgoing traffic.
 
@@ -158,7 +142,7 @@ Firewalls are essential for securing your server by controlling incoming and out
     }
     ```
 
-### Adding SSH Keys
+### 5.3 Adding SSH Keys
 
 Adding SSH keys allows you to securely log in to your server without using passwords.
 
@@ -183,7 +167,7 @@ Adding SSH keys allows you to securely log in to your server without using passw
     }
     ```
 
-### Terraform Output
+### 5.4 Terraform Output
 
 Terraform outputs allow you to easily retrieve information about your created resources after applying the configuration.
 
