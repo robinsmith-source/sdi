@@ -3,7 +3,7 @@
 Cloud-init is the industry standard multi-distribution method for cross-platform cloud instance initialization. It allows you to define configurations and run scripts on a cloud server during its very first boot, automating the initial setup process.
 
 ::: info Purpose
-Cloud-init bridges the gap between provisioning a base OS image and having a fully configured, ready-to-use server instance. It handles tasks that need to run *inside* the instance after it boots for the first time.
+Cloud-init bridges the gap between provisioning a base OS image and having a fully configured, ready-to-use server instance. It handles tasks that need to run _inside_ the instance after it boots for the first time.
 :::
 
 ## Core Workflow & Concepts {#core-workflow}
@@ -27,14 +27,15 @@ A YAML-based format starting with `#cloud-config` or `#!cloud-config`. It's the 
 
 ::: details Cloud-init Modules
 Cloud-init operates through modules, each responsible for a specific configuration task. User data directives map to these modules. Common modules include:
-*   `packages`: Install, upgrade, or remove software packages.
-*   `runcmd`: Execute arbitrary shell commands late in the boot process.
-*   `users`: Create or modify users and groups, set passwords, and add SSH keys.
-*   `write_files`: Create or append to files on the filesystem.
-*   `ssh`: Configure SSH server options.
-*   `apt`/`yum`: Configure package manager sources.
-*   `mounts`: Define filesystem mounts.
-:::
+
+- `packages`: Install, upgrade, or remove software packages.
+- `runcmd`: Execute arbitrary shell commands late in the boot process.
+- `users`: Create or modify users and groups, set passwords, and add SSH keys.
+- `write_files`: Create or append to files on the filesystem.
+- `ssh`: Configure SSH server options.
+- `apt`/`yum`: Configure package manager sources.
+- `mounts`: Define filesystem mounts.
+  :::
 
 ::: details Execution Stages
 Cloud-init runs tasks in specific stages during the boot process (network, config, final). Understanding the order can be important for dependencies (e.g., ensuring network is up before downloading a file). See the official Cloud-init documentation for stage details.
@@ -64,7 +65,7 @@ Here are some practical examples using the `#cloud-config` format:
 
 This example updates all packages and installs the `nginx` web server.
 
-````yaml
+```yaml
 #cloud-config
 package_update: true
 package_upgrade: true
@@ -73,42 +74,42 @@ packages:
 runcmd:
   - systemctl enable nginx
   - systemctl start nginx
-````
+```
 
 **2. Create a User and Add SSH Key:**
 
 This creates a user named `devops`, adds them to the `sudo` group, grants passwordless sudo, and authorizes an SSH public key for login.
 
-````yaml
+```yaml
 #cloud-config
 users:
   - name: devops
     groups: sudo
     shell: /bin/bash
-    sudo: ['ALL=(ALL) NOPASSWD:ALL']
+    sudo: ["ALL=(ALL) NOPASSWD:ALL"]
     ssh_authorized_keys:
       - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGEXAMPLEKEY... user@example.com
-````
+```
 
 **3. Write a Configuration File:**
 
 This example writes a simple text file to `/etc/motd` (Message of the Day).
 
-````yaml
+```yaml
 #cloud-config
 write_files:
   - path: /etc/motd
-    permissions: '0644'
+    permissions: "0644"
     content: |
       Welcome to this Cloud-init configured server!
       Managed by DevOps Team.
-````
+```
 
 **4. Combining Multiple Modules:**
 
 This example combines package installation, file writing, and command execution.
 
-````yaml
+```yaml
 #cloud-config
 packages:
   - git
@@ -123,7 +124,7 @@ runcmd:
   - pip3 install flask
   - git clone https://github.com/example/my-app.git /opt/app/repo
   - echo "Setup complete at $(date)" > /opt/app/setup.log
-````
+```
 
 ## Best Practices
 

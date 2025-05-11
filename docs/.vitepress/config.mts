@@ -22,6 +22,7 @@ export default defineConfig({
         text: "Chapters",
         items: [
           { text: "Hetzner Cloud", link: "/chapters/hetzner-cloud" },
+          { text: "Using SSH", link: "/chapters/using-ssh" },
           {
             text: "Working with Terraform",
             link: "/chapters/working-with-terraform",

@@ -5,6 +5,7 @@
 ## Prerequisites
 
 To follow this guide, you will need:
+
 - Familiarity with command-line interfaces.
 - A web browser.
 - An SSH client: macOS and Linux include a built-in client. Windows users can use Windows Terminal or PuTTY.

@@ -8,9 +8,9 @@ This guide explores two primary methods for server initialization: basic Bash sc
 
 Before you begin, ensure you have:
 
-*   A Hetzner Cloud account and API Token.
-*   Terraform installed.
-*   An SSH key pair, with the public key added to your Hetzner Cloud project.
+- A Hetzner Cloud account and API Token.
+- Terraform installed.
+- An SSH key pair, with the public key added to your Hetzner Cloud project.
 
 ## 1. Using Bash Init Scripts for Server Initialization
 
@@ -68,6 +68,7 @@ Cloud-Init is the industry standard for cross-platform cloud instance initializa
 To use Cloud-Init, create a cloud-config YAML file (e.g., `userData.yml`) and reference it in your Terraform configuration. The following example installs Nginx and generates a dynamic index page:
 
 ::: code-group
+
 ```hcl [main.tf]
 # ... (ensure other necessary configurations like provider setup are present) ...
 
@@ -101,12 +102,14 @@ runcmd:
   # Restart SSH service (recommended if SSH configurations were modified by cloud-init)
   - systemctl restart sshd
 ```
+
 :::
 
 Upon server creation, Cloud-Init will execute the tasks defined in `tpl/userData.yml`. You can verify the Nginx installation by connecting to the server via SSH and checking its status (e.g., `systemctl status nginx`).
 
 ::: details **Firewall Configuration for Web Access**
 Note that accessing the web server on port 80 requires a firewall rule. Here's how to configure it in Terraform:
+
 ```hcl {9-14}
 resource "hcloud_firewall" "webAccessFw" { // Renamed for clarity
   name = "web-access-firewall"
@@ -124,6 +127,7 @@ resource "hcloud_firewall" "webAccessFw" { // Renamed for clarity
   }
 }
 ```
+
 Ensure your server is associated with this firewall.
 :::
 
@@ -134,30 +138,31 @@ Cloud-Init excels at tasks like managing user accounts and SSH access. Furthermo
 Update your cloud-config template (`tpl/userData.yml`) to include user creation, SSH access restrictions, and variable usage:
 
 :::code-group
+
 ```yml [tpl/userData.yml]
 #cloud-config
 # Define user accounts
 users:
- - name: ${loginUser}           # Username (e.g., "devops"), injected from Terraform
-   groups: sudo                # Add user to the sudo group
-   shell: /bin/bash            # Set default shell
-   sudo: ALL=(ALL) NOPASSWD:ALL # Grant sudo privileges without password prompt
-   ssh_authorized_keys:        # List of authorized public SSH keys
-    - ${public_key_one}        # First public key, injected from Terraform
-    - ${public_key_two}        # Second public key, injected from Terraform
-    # Add more public keys as needed
+  - name: ${loginUser} # Username (e.g., "devops"), injected from Terraform
+    groups: sudo # Add user to the sudo group
+    shell: /bin/bash # Set default shell
+    sudo: ALL=(ALL) NOPASSWD:ALL # Grant sudo privileges without password prompt
+    ssh_authorized_keys: # List of authorized public SSH keys
+      - ${public_key_one} # First public key, injected from Terraform
+      - ${public_key_two} # Second public key, injected from Terraform
+      # Add more public keys as needed
 
 # Write configuration files to the server
 write_files:
- - content: |                   # Content for SSH daemon configuration snippet
-    # SSH Access Restrictions
-    AllowUsers ${loginUser}     # Only permit login for the specified user
-    PasswordAuthentication no   # Disable password-based SSH authentication
-    PermitRootLogin no          # Prohibit root login via SSH
-    ChallengeResponseAuthentication no # Disable challenge-response authentication
-    UsePAM yes                  # Keep Pluggable Authentication Modules (PAM) enabled
-   path: /etc/ssh/sshd_config.d/99-restrict-ssh.conf # Path for the custom SSH configuration
-   permissions: '0644'         # Standard file permissions for configuration files
+  - content: | # Content for SSH daemon configuration snippet
+      # SSH Access Restrictions
+      AllowUsers ${loginUser}     # Only permit login for the specified user
+      PasswordAuthentication no   # Disable password-based SSH authentication
+      PermitRootLogin no          # Prohibit root login via SSH
+      ChallengeResponseAuthentication no # Disable challenge-response authentication
+      UsePAM yes                  # Keep Pluggable Authentication Modules (PAM) enabled
+    path: /etc/ssh/sshd_config.d/99-restrict-ssh.conf # Path for the custom SSH configuration
+    permissions: "0644" # Standard file permissions for configuration files
 
 # Install necessary packages (can be combined with other directives)
 packages:
@@ -173,6 +178,7 @@ runcmd:
   # Restart SSH service to apply new access configurations
   - systemctl restart sshd
 ```
+
 :::
 
 To process this template and inject the defined variables:
@@ -209,9 +215,10 @@ resource "local_file" "user_data_rendered" {
 
 # ... (other resources, including the hcloud_server resource) ...
 ```
+
 :::
 
-4.  Update your `hcloud_server` resource to use the content of the *rendered* template:
+4.  Update your `hcloud_server` resource to use the content of the _rendered_ template:
 
 ::: code-group
 
@@ -225,9 +232,11 @@ resource "hcloud_server" "cloudInitServer" {
 
 # ... (rest of your Terraform configuration) ...
 ```
+
 :::
 
 Running `terraform apply` will now:
+
 1.  Generate the `gen/userData.rendered.yml` file with your specified values substituted for the variables.
 2.  Pass this rendered YAML content to the Hetzner Cloud server during its creation.
 
@@ -248,9 +257,10 @@ While a comprehensive solution involves managing persistent host keys (e.g., gen
 
 1.  **Generate a `known_hosts` Entry with Terraform:**
     Create a `local_file` resource that stores the server's IP address and its expected public host key.
-    *(Important Note: This approach is most effective if you manage the server's host key via Terraform, for example, using `tls_private_key`. If the server generates its own host key ephemerally on each boot, this method alone won't prevent the warning without a more advanced cloud-init setup to install the pre-generated key on the server.)*
+    _(Important Note: This approach is most effective if you manage the server's host key via Terraform, for example, using `tls_private_key`. If the server generates its own host key ephemerally on each boot, this method alone won't prevent the warning without a more advanced cloud-init setup to install the pre-generated key on the server.)_
 
 ::: code-group
+
 ```hcl [main.tf]
 # Example: Assume tls_private_key.host_key manages the server's host key pair
 resource "tls_private_key" "host_key" {
@@ -263,12 +273,14 @@ resource "local_file" "known_hosts_entry" {
   filename = "gen/known_hosts_for_server" // Descriptive filename in the 'gen' directory
 }
 ```
+
 :::
 
 2.  **Create an SSH Helper Script Template:**
     Develop a script template (`tpl/ssh_helper.sh`) that instructs the SSH client to use your generated `known_hosts` file.
 
 ::: code-group
+
 ```sh [tpl/ssh_helper.sh]
 #!/usr/bin/env bash
 
@@ -291,12 +303,14 @@ ssh -o UserKnownHostsFile="$KNOWN_HOSTS_FILE" \
     -o StrictHostKeyChecking=yes \ # Optional: Enforce strict checking
     ${user}@${ip} "$@" # Pass username, IP, and any additional SSH arguments
 ```
+
 :::
 
 3.  **Generate an Executable SSH Script from the Template:**
     Use another `local_file` resource to render the script template, inject necessary variables (like server IP and username), and set executable permissions. Store the generated script in a convenient location, such as a `bin` directory.
 
 ::: code-group
+
 ```hcl [main.tf]
 # Generate the executable SSH helper script
 resource "local_file" "ssh_script" {
@@ -311,6 +325,7 @@ resource "local_file" "ssh_script" {
   depends_on = [local_file.known_hosts_entry]
 }
 ```
+
 :::
 
 After applying your Terraform configuration (`terraform apply`), you can connect to your server using the generated helper script. This method avoids the SSH host key mismatch warnings by using a dedicated `known_hosts` file for the connection.
