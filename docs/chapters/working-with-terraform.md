@@ -4,12 +4,12 @@
 
 ## Prerequisites
 
-Before you start, ensure you have the following:
+Before you begin, ensure you have:
 
-- A Hetzner Cloud account. If you don't have one, you can sign up on the [Hetzner Cloud website](https://www.hetzner.com/cloud) or follow our guide on [Creating a Hetzner Account](../chapters/hetzner-cloud.md#1-creating-a-hetzner-account).
-- Familiarity with using the command line interface (CLI).
-- Terraform installed on your local machine.
-- A Hetzner Cloud API Token.
+- A Hetzner Cloud account (if you don't have one, follow our guide on [Creating a Hetzner Account](../chapters/hetzner-cloud.md#1-creating-a-hetzner-account))
+- Familiarity with command-line interfaces
+- Terraform installed on your local machine
+- A Hetzner Cloud API Token
 
 ## 1. Install Terraform
 

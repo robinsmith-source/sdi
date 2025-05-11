@@ -4,11 +4,13 @@
 
 ## Prerequisites
 
-To follow this guide, you will need:
+Before you begin, ensure you have:
 
-- Familiarity with command-line interfaces.
-- A web browser.
-- An SSH client: macOS and Linux include a built-in client. Windows users can use Windows Terminal or PuTTY.
+- A web browser
+- Familiarity with command-line interfaces
+- An SSH client:
+  - macOS and Linux: Built-in OpenSSH client
+  - Windows: Windows Terminal with OpenSSH or PuTTY
 
 ## 1. Creating a Hetzner Account
 

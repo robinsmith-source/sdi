@@ -8,9 +8,10 @@ This guide explores two primary methods for server initialization: basic Bash sc
 
 Before you begin, ensure you have:
 
-- A Hetzner Cloud account and API Token.
-- Terraform installed.
-- An SSH key pair, with the public key added to your Hetzner Cloud project.
+- A Hetzner Cloud account
+- A Hetzner Cloud API Token
+- Terraform installed on your local machine
+- An SSH key pair with the public key added to your Hetzner Cloud project
 
 ## 1. Using Bash Init Scripts for Server Initialization
 

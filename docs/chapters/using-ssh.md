@@ -4,13 +4,17 @@
 
 ## Prerequisites
 
-To follow this guide, you will need:
+Before you begin, ensure you have:
 
-- Familiarity with command-line interfaces.
-- An SSH client installed on your local machine (e.g., OpenSSH, which is built-in on macOS and most Linux distributions; Windows users can use Windows Terminal with OpenSSH or PuTTY).
-- Access to at least one remote server that you can connect to using SSH.
-- For some exercises (like host hopping and X11 forwarding), you will need access to specific server setups as described in those exercises. This may include two distinct remote servers or a server with a graphical environment.
-- For X11 forwarding exercises, if your local machine is not running Linux, you will need an X11 server application installed and running (e.g., XQuartz for macOS, VcXsrv or Xming for Windows).
+- Familiarity with command-line interfaces
+- An SSH client:
+  - macOS and Linux: Built-in OpenSSH client
+  - Windows: Windows Terminal with OpenSSH or PuTTY
+- Access to at least one remote server that you can connect to using SSH
+- For X11 forwarding exercises (if applicable):
+  - macOS: XQuartz installed
+  - Windows: Windows Terminal already provides needed utilities
+  - Linux: X11 server already included
 
 ## 1. Understanding SSH Passphrases
 
