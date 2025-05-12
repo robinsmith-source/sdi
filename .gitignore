@@ -17,6 +17,7 @@ yarn-error.log*
 # Ignore .terraform directories anywhere in the project
 **/.terraform/
 
+**/gen/
 # .tfstate files
 *.tfstate
 *.tfstate.*

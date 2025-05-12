@@ -8,6 +8,10 @@ terraform {
   required_version = ">= 0.13"
 }
 
+resource "tls_private_key" "host" {
+  algorithm = "ED25519"
+}
+
 resource "hcloud_firewall" "sshFw" {
   name = "ssh-firewall"
   rule {
@@ -27,23 +31,32 @@ resource "hcloud_ssh_key" "loginRobin" {
 resource "hcloud_server" "helloServer" {
   name         = "hello"
   image        = "debian-12"
-  server_type  = "cx22"
+  server_type  = "cpx11"
   firewall_ids = [hcloud_firewall.sshFw.id]
   ssh_keys     = [hcloud_ssh_key.loginRobin.id]
-  user_data    = file("cloud-init.yaml")
+  user_data    = local_file.user_data.content
 }
 
 resource "local_file" "known_hosts" {
-  content         = "${hcloud_server.helloServer.ipv4_address}  ${tls_private_key.host.public_key_openssh}"
+  content         = "${hcloud_server.helloServer.ipv4_address} ${tls_private_key.host.public_key_fingerprint_sha256}"
   filename        = "gen/known_hosts"
   file_permission = "644"
 }
 
 resource "local_file" "ssh_script" {
   content = templatefile("tpl/ssh.sh", {
-    ip = hcloud_server.hello.ipv4_address
+    ip = hcloud_server.helloServer.ipv4_address
   })
   filename        = "bin/ssh"
   file_permission = "700"
   depends_on      = [local_file.known_hosts]
+}
+
+resource "local_file" "user_data" {
+  content = templatefile("tpl/userData.yml", {
+    public_key_robin = hcloud_ssh_key.loginRobin.public_key
+    tls_private_key     = indent(4, tls_private_key.host.private_key_openssh)
+    tls_public_key      = tls_private_key.host.public_key_openssh
+  })
+  filename = "gen/userData.yml"
 }
