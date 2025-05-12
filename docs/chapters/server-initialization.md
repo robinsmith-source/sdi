@@ -2,7 +2,7 @@
 
 > Efficiently initialize your servers with Terraform by running setup commands, installing packages, or configuring users upon creation.
 
-This guide explores two primary methods for server initialization: basic Bash scripts and the more robust Cloud-Init with Cloud-Config.
+This guide explores two primary methods for server initialization: basic `Bash` scripts and the more robust Cloud-Init with Cloud-Config.
 
 ## Prerequisites
 
@@ -11,13 +11,12 @@ Before you begin, ensure you have:
 - A Hetzner Cloud account
 - A Hetzner Cloud API Token
 - Terraform installed on your local machine
-- An SSH key pair with the public key added to your Hetzner Cloud project
 
 ## 1. Using Bash Init Scripts for Server Initialization
 
-A straightforward approach to server initialization involves providing a Bash script that executes during the server's first boot.
+A straightforward approach to server initialization involves providing a `Bash` script that executes during the server's first boot.
 
-This example demonstrates passing a Bash script via Terraform to update the server's packages:
+This example demonstrates passing a `Bash` script via Terraform to update the server's packages:
 
 ::: code-group
 
@@ -46,14 +45,14 @@ You can extend this script for more complex tasks, such as software installation
 apt update && apt upgrade -y
 
 # Install Nginx web server
-apt install -y nginx
+apt install -y nginx # [!code ++]
 
 # Create a simple default HTML page
-echo "Hello from my Terraform server!" > /var/www/html/index.html
+echo "Hello from my Terraform server!" > /var/www/html/index.html # [!code ++]
 
 # Start Nginx and enable it to start on boot
-systemctl start nginx
-systemctl enable nginx
+systemctl start nginx # [!code ++]
+systemctl enable nginx  # [!code ++]
 ```
 
 This script performs package updates, installs Nginx, starts the Nginx service, enables it for auto-start on boot, and creates a basic `index.html`.
@@ -62,11 +61,11 @@ While Bash scripts are effective for simple initializations, managing intricate 
 
 ## 2. Introduction to Cloud-Init for Server Initialization
 
-Cloud-Init is the industry standard for cross-platform cloud instance initialization. It leverages configuration files, commonly written in YAML format using the `#cloud-config` directive, to define tasks such as package installation, user creation, file writing, and command execution.
+Cloud-Init is the industry standard for cross-platform cloud instance initialization. It leverages configuration files, commonly written in YAML format using the `#cloud-config` directive, to define tasks such as package installation, user creation, file writing, and command execution. For further information take a look at [this](../utils/cloud-init.md).
 
 ## 3. Cloud-Init: Installing Packages
 
-To use Cloud-Init, create a cloud-config YAML file (e.g., `userData.yml`) and reference it in your Terraform configuration. The following example installs Nginx and generates a dynamic index page:
+To use Cloud-Init, create a cloud-config `YAML` file (e.g., `userData.yml`) and reference it in your Terraform configuration. The following example installs Nginx and generates a dynamic index page:
 
 ::: code-group
 
@@ -129,7 +128,7 @@ resource "hcloud_firewall" "webAccessFw" { // Renamed for clarity
 }
 ```
 
-Ensure your server is associated with this firewall.
+Ensure your server is associated with this firewall. Otherwise you can also use ssh port forwarding like described [here](./using-ssh.md#4-ssh-port-forwarding).
 :::
 
 ## 4. Cloud-Init: User Management and Templating
@@ -141,8 +140,7 @@ Update your cloud-config template (`tpl/userData.yml`) to include user creation,
 :::code-group
 
 ```yml [tpl/userData.yml]
-#cloud-config
-# Define user accounts
+# Define user accounts  
 users:
   - name: ${loginUser} # Username (e.g., "devops"), injected from Terraform
     groups: sudo # Add user to the sudo group
@@ -203,8 +201,8 @@ resource "hcloud_ssh_key" "userKeyTwo" {
   public_key = file("~/.ssh/another_key.pub") // Path to your second public key
 }
 
-# Render the cloud-init template with variables
-resource "local_file" "user_data_rendered" {
+# Render the cloud-init template with variables  // [!code ++:10]
+resource "local_file" "user_data_rendered" { 
   content = templatefile("tpl/userData.yml", {
     loginUser      = "devops"                             // Define the username to create
     public_key_one = hcloud_ssh_key.userKeyOne.public_key // Pass the first public key
@@ -226,7 +224,7 @@ resource "local_file" "user_data_rendered" {
 ```hcl [main.tf]
 # ... (existing configuration) ...
 
-resource "hcloud_server" "cloudInitServer" {
+resource "hcloud_server" "cloudInitServer" { // [!code focus:4]
   // ... (other server arguments: name, image, server_type, etc.)
   user_data = local_file.user_data_rendered.content // Use the rendered template content
 }
