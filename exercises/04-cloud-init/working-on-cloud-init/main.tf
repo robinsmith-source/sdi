@@ -37,19 +37,20 @@ resource "hcloud_server" "helloServer" {
   user_data    = local_file.user_data.content
 }
 
-resource "local_file" "known_hosts" {
+resource "local_file" "known_hosts_entry" {
   content         = "${hcloud_server.helloServer.ipv4_address} ${tls_private_key.host.public_key_fingerprint_sha256}"
-  filename        = "gen/known_hosts"
+  filename        = "gen/known_hosts_for_server"
   file_permission = "644"
 }
 
 resource "local_file" "ssh_script" {
-  content = templatefile("tpl/ssh.sh", {
+  content = templatefile("tpl/ssh_helper.sh", {
     ip = hcloud_server.helloServer.ipv4_address
+    user = "devops"
   })
   filename        = "bin/ssh"
   file_permission = "700"
-  depends_on      = [local_file.known_hosts]
+  depends_on      = [local_file.known_hosts_entry]
 }
 
 resource "local_file" "user_data" {

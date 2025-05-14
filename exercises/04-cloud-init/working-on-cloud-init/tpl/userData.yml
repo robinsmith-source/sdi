@@ -1,11 +1,12 @@
 #cloud-config
 users:
-  - name: devops
+  - name: ${loginUser}
     groups: [sudo]
     shell: /bin/bash
     sudo: ["ALL=(ALL) NOPASSWD:ALL"]
     ssh_authorized_keys:
       - ${public_key_robin}
+      
 ssh_keys:
   ed25519_private: |
     ${tls_private_key}

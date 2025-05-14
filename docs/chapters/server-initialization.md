@@ -140,42 +140,62 @@ Update your cloud-config template (`tpl/userData.yml`) to include user creation,
 :::code-group
 
 ```yml [tpl/userData.yml]
-# Define user accounts  
+#cloud-config
 users:
   - name: ${loginUser} # Username (e.g., "devops"), injected from Terraform
     groups: sudo # Add user to the sudo group
     shell: /bin/bash # Set default shell
     sudo: ALL=(ALL) NOPASSWD:ALL # Grant sudo privileges without password prompt
     ssh_authorized_keys: # List of authorized public SSH keys
-      - ${public_key_one} # First public key, injected from Terraform
-      - ${public_key_two} # Second public key, injected from Terraform
-      # Add more public keys as needed
+        - ${public_key_one} # First public key, injected from Terraform
+        - ${public_key_two} # Second public key, injected from Terraform
+        # Add more public keys as needed
 
-# Write configuration files to the server
-write_files:
-  - content: | # Content for SSH daemon configuration snippet
-      # SSH Access Restrictions
-      AllowUsers ${loginUser}     # Only permit login for the specified user
-      PasswordAuthentication no   # Disable password-based SSH authentication
-      PermitRootLogin no          # Prohibit root login via SSH
-      ChallengeResponseAuthentication no # Disable challenge-response authentication
-      UsePAM yes                  # Keep Pluggable Authentication Modules (PAM) enabled
-    path: /etc/ssh/sshd_config.d/99-restrict-ssh.conf # Path for the custom SSH configuration
-    permissions: "0644" # Standard file permissions for configuration files
+ssh_keys:
+  ed25519_private: |
+    ${tls_private_key}
+ssh_pwauth: false
+
+package_update: true
+package_upgrade: true
+package_reboot_if_required: true
 
 # Install necessary packages (can be combined with other directives)
 packages:
   - nginx
+  - fail2ban
+  - plocate
+  - python3-systemd # Add python3-systemd for fail2ban backend
+
+write_files:
+  path: /etc/fail2ban/jail.local
+  content: |
+    [DEFAULT]
+    # Ban hosts for 1 hour:
+    bantime = 1h
+
+    # Override /etc/fail2ban/jail.d/defaults-debian.conf:
+    backend = systemd
+
+    [sshd]
+    enabled = true
+    # To use internal sshd filter variants
 
 # Execute commands after users and files are set up
 runcmd:
+  # Existing Nginx setup
   - systemctl enable nginx
   - rm /var/www/html/*
   - >
     echo "I'm Nginx @ $(dig -4 TXT +short o-o.myaddr.l.google.com @ns1.google.com)
     created $(date -u)" >> /var/www/html/index.html
+    
   # Restart SSH service to apply new access configurations
-  - systemctl restart sshd
+  - systemctl enable fail2ban
+  - systemctl start fail2ban
+  - updatedb
+  - systemctl restart fail2ban
+
 ```
 
 :::
@@ -270,6 +290,7 @@ resource "tls_private_key" "host_key" {
 resource "local_file" "known_hosts_entry" {
   content  = "${hcloud_server.cloudInitServer.ipv4_address} ${tls_private_key.host_key.public_key_openssh}"
   filename = "gen/known_hosts_for_server" // Descriptive filename in the 'gen' directory
+  file_permission = "644" // Set read-write permissions 
 }
 ```
 
@@ -283,24 +304,9 @@ resource "local_file" "known_hosts_entry" {
 ```sh [tpl/ssh_helper.sh]
 #!/usr/bin/env bash
 
-# Determine the script's directory to locate sibling directories
-SCRIPT_DIR=$(dirname "$0")
-# Path to the generated 'gen' directory (assuming 'bin' and 'gen' are siblings)
-GEN_DIR="$SCRIPT_DIR/../gen"
-# Specific known_hosts file for this server
-KNOWN_HOSTS_FILE="$GEN_DIR/known_hosts_for_server"
+GEN_DIR=$(dirname "$0")/../gen
 
-# Verify the generated known_hosts file exists
-if [ ! -f "$KNOWN_HOSTS_FILE" ]; then
-  echo "Error: $KNOWN_HOSTS_FILE not found. Please run 'terraform apply'."
-  exit 1
-fi
-
-# Execute SSH, forcing the use of our specific known_hosts file
-# This bypasses the default ~/.ssh/known_hosts for this connection.
-ssh -o UserKnownHostsFile="$KNOWN_HOSTS_FILE" \
-    -o StrictHostKeyChecking=yes \ # Optional: Enforce strict checking
-    ${user}@${ip} "$@" # Pass username, IP, and any additional SSH arguments
+ssh -o UserKnownHostsFile="$GEN_DIR/known_hosts" devops@${ip} "$@"
 ```
 
 :::
@@ -318,7 +324,7 @@ resource "local_file" "ssh_script" {
     user = "devops"                                   // Inject the login username
   })
   filename        = "bin/ssh-to-server"      // Output script path (e.g., project_root/bin/ssh-to-server)
-  file_permission = "0700"                   // Set executable permissions (rwx------)
+  file_permission = "700"                   // Set executable permissions
 
   # Ensure the known_hosts file is generated before this script
   depends_on = [local_file.known_hosts_entry]
