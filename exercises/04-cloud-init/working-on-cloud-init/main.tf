@@ -28,7 +28,7 @@ resource "hcloud_ssh_key" "loginRobin" {
 }
 
 # Create a server
-resource "hcloud_server" "helloServer" {
+resource "hcloud_server" "basicServer" {
   name         = "hello"
   image        = "debian-12"
   server_type  = "cpx11"
@@ -38,14 +38,14 @@ resource "hcloud_server" "helloServer" {
 }
 
 resource "local_file" "known_hosts_entry" {
-  content         = "${hcloud_server.helloServer.ipv4_address} ${tls_private_key.host.public_key_fingerprint_sha256}"
+  content         = "${hcloud_server.basicServer.ipv4_address} ${tls_private_key.host.public_key_fingerprint_sha256}"
   filename        = "gen/known_hosts_for_server"
   file_permission = "644"
 }
 
 resource "local_file" "ssh_script" {
   content = templatefile("tpl/ssh_helper.sh", {
-    ip = hcloud_server.helloServer.ipv4_address
+    ip = hcloud_server.basicServer.ipv4_address
     user = "devops"
   })
   filename        = "bin/ssh"

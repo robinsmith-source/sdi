@@ -59,7 +59,7 @@ srwxr-xr-x. 1 robin robin 0 Apr 12 09:58 /run/user/21100/keyring/ssh
 
 _Note: The "s" in `srwxr-xr-x` indicates a domain socket._
 
-### Exercise 1: `ssh-agent` Installation and Use
+### `ssh-agent` Installation and Use
 
 1. Ensure `ssh-agent` is running on your system. On many systems, it starts automatically with your desktop session. You can check with `ps aux | grep ssh-agent`.
 2. If you haven't already, add your SSH key to the agent:
@@ -70,7 +70,7 @@ _Note: The "s" in `srwxr-xr-x` indicates a domain socket._
 3. You will be prompted for your passphrase.
 4. Try multiple SSH logins to different servers. You should find that entering your passphrase is now required only once (when adding the key to the agent) per login session.
 
-### Exercise 2: MI Gitlab Access by SSH
+### MI Gitlab Access by SSH
 
 1. Familiarize yourself with GitLab's documentation on using SSH keys: "Use SSH keys to communicate with GitLab".
 2. Ensure your public SSH key (the one whose private counterpart is managed by `ssh-agent`) is added to your MI Gitlab profile.
@@ -101,7 +101,7 @@ To address this, you have a few options:
 
 _Note: Agent forwarding relies on the agent authentication socket (`SSH_AUTH_SOCK`) being available and forwarded from your originating client host._
 
-### 3.1. Enabling SSH Agent Forwarding
+### Enabling SSH Agent Forwarding
 
 Agent forwarding allows you to use your local SSH keys for authentication even when you are on a remote server, without copying your private keys to that server.
 

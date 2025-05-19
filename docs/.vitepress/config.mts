@@ -43,6 +43,7 @@ export default defineConfig({
           { text: "SSH", link: "/utils/ssh" },
           { text: "Terraform", link: "/utils/terraform" },
           { text: "Cloud-Init", link: "/utils/cloud-init" },
+          { text: "Volumes", link: "/utils/volumes" },
         ],
       },
     ],
