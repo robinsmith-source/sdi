@@ -12,6 +12,17 @@ Before you begin, ensure you have:
   - macOS and Linux: Built-in OpenSSH client
   - Windows: Windows Terminal with OpenSSH or PuTTY
 
+## External Resources
+
+For more in-depth information about Hetzner Cloud and server security:
+
+- [Hetzner Cloud Documentation](https://docs.hetzner.com/cloud/) - Official Hetzner Cloud documentation
+- [Arch Wiki: Firewalls](https://wiki.archlinux.org/title/Firewalls) - Firewall configuration guide
+- [Arch Wiki: Security](https://wiki.archlinux.org/title/Security) - General security best practices
+- [Arch Wiki: SSH Keys](https://wiki.archlinux.org/title/SSH_keys) - SSH key management
+- [Arch Wiki: Systemd](https://wiki.archlinux.org/title/Systemd) - Systemd service management
+
+
 ## 1. Creating a Hetzner Account
 
 1. Register at https://accounts.hetzner.com/signUp.

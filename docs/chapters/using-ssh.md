@@ -16,6 +16,16 @@ Before you begin, ensure you have:
   - Windows: Windows Terminal already provides needed utilities
   - Linux: X11 server already included
 
+## External Resources
+
+For more in-depth information about SSH and related topics:
+
+- [OpenSSH Manual](https://www.openssh.com/manual.html) - Official OpenSSH documentation
+- [Arch Wiki: SSH](https://wiki.archlinux.org/title/SSH) - Comprehensive SSH guide
+- [Arch Wiki: SSH Keys](https://wiki.archlinux.org/title/SSH_keys) - Detailed SSH key management
+- [Arch Wiki: SSH/Config](https://wiki.archlinux.org/title/SSH/Config) - SSH client configuration
+- [Arch Wiki: X11 Forwarding](https://wiki.archlinux.org/title/X11_forwarding) - X11 forwarding guide
+
 ## 1. Understanding SSH Passphrases
 
 Connecting to remote servers via SSH often involves using SSH keys. If your private SSH key is encrypted with a passphrase, you'll need to enter it for authentication. This is a crucial security measure to protect your private key.

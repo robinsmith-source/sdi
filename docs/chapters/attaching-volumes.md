@@ -14,6 +14,17 @@ Before you begin, ensure you have:
     - macOS and Linux: Built-in OpenSSH client
     - Windows: Windows Terminal with OpenSSH or PuTTY
 
+## External Resources
+
+For in-depth technical information about filesystems and volume management:
+
+- [Arch Wiki: Filesystems](https://wiki.archlinux.org/title/File_systems) - Comprehensive guide to Linux filesystems
+- [Arch Wiki: Fstab](https://wiki.archlinux.org/title/Fstab) - Detailed explanation of fstab configuration
+- [Arch Wiki: XFS](https://wiki.archlinux.org/title/XFS) - XFS filesystem documentation
+- [Arch Wiki: Persistent Block Device Naming](https://wiki.archlinux.org/title/Persistent_block_device_naming) - Understanding device naming and identification
+
+These guides provide additional context and complementary information for managing your infrastructure.
+
 ## 1. Create a Volume
 
 Volumes provide persistent block storage that can be attached to your servers. Here's how to create one:

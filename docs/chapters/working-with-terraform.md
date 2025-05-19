@@ -11,6 +11,15 @@ Before you begin, ensure you have:
 - Terraform installed on your local machine
 - A Hetzner Cloud API Token
 
+## External Resources
+
+For more in-depth information about Terraform and infrastructure as code:
+
+- [Terraform Documentation](https://developer.hashicorp.com/terraform/docs) - Official Terraform documentation
+- [Arch Wiki: Terraform](https://wiki.archlinux.org/title/Terraform) - Terraform installation and usage
+- [Hetzner Cloud Provider Documentation](https://registry.terraform.io/providers/hetznercloud/hcloud/latest/docs) - Hetzner Cloud provider details
+- [Terraform Best Practices](https://developer.hashicorp.com/terraform/language/modules/develop/best-practices) - Terraform module development best practices
+
 ## 1. Install Terraform
 
 Before you begin, you need to install Terraform. Follow the official installation guide for your operating system on the [Terraform website](https://developer.hashicorp.com/terraform/downloads).

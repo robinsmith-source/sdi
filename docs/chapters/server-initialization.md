@@ -12,6 +12,16 @@ Before you begin, ensure you have:
 - A Hetzner Cloud API Token
 - Terraform installed on your local machine
 
+## External Resources
+
+For more in-depth information about server initialization and cloud computing:
+
+- [Cloud-Init Documentation](https://cloudinit.readthedocs.io/) - Official Cloud-Init documentation
+- [Arch Wiki: Cloud-Init](https://wiki.archlinux.org/title/Cloud-init) - Cloud-Init setup and configuration
+- [Arch Wiki: Systemd](https://wiki.archlinux.org/title/Systemd) - Systemd service management
+- [Arch Wiki: Fail2ban](https://wiki.archlinux.org/title/Fail2ban) - Fail2ban security setup
+- [Arch Wiki: Nginx](https://wiki.archlinux.org/title/Nginx) - Nginx web server configuration
+
 ## 1. Using Bash Init Scripts for Server Initialization
 
 A straightforward approach to server initialization involves providing a `Bash` script that executes during the server's first boot.
