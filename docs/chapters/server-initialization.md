@@ -1,6 +1,6 @@
 # Server Initialization Guide
 
-> Efficiently initialize your servers with Terraform by running setup commands, installing packages, or configuring users upon creation.
+> This guide provides an overview of server initialization methods using Terraform on Hetzner Cloud. It covers both basic `Bash` scripts and the more advanced Cloud-Init with Cloud-Config.
 
 This guide explores two primary methods for server initialization: basic `Bash` scripts and the more robust Cloud-Init with Cloud-Config.
 
@@ -147,15 +147,14 @@ users:
     shell: /bin/bash # Set default shell
     sudo: ALL=(ALL) NOPASSWD:ALL # Grant sudo privileges without password prompt
     ssh_authorized_keys: # List of authorized public SSH keys
-        - ${public_key_one} # First public key, injected from Terraform
-        - ${public_key_two} # Second public key, injected from Terraform
-        # Add more public keys as needed
+      - ${public_key_one} # First public key, injected from Terraform
+      - ${public_key_two} # Second public key, injected from Terraform
+      # Add more public keys as needed
 
 ssh_keys:
   ed25519_private: |
     ${tls_private_key}
 ssh_pwauth: false
-
 package_update: true
 package_upgrade: true
 package_reboot_if_required: true
@@ -189,13 +188,12 @@ runcmd:
   - >
     echo "I'm Nginx @ $(dig -4 TXT +short o-o.myaddr.l.google.com @ns1.google.com)
     created $(date -u)" >> /var/www/html/index.html
-    
+
   # Restart SSH service to apply new access configurations
   - systemctl enable fail2ban
   - systemctl start fail2ban
   - updatedb
   - systemctl restart fail2ban
-
 ```
 
 :::
@@ -222,7 +220,7 @@ resource "hcloud_ssh_key" "userKeyTwo" {
 }
 
 # Render the cloud-init template with variables  // [!code ++:10]
-resource "local_file" "user_data_rendered" { 
+resource "local_file" "user_data_rendered" {
   content = templatefile("tpl/userData.yml", {
     loginUser      = "devops"                             // Define the username to create
     public_key_one = hcloud_ssh_key.userKeyOne.public_key // Pass the first public key
@@ -290,7 +288,7 @@ resource "tls_private_key" "host_key" {
 resource "local_file" "known_hosts_entry" {
   content  = "${hcloud_server.cloudInitServer.ipv4_address} ${tls_private_key.host_key.public_key_openssh}"
   filename = "gen/known_hosts_for_server" // Descriptive filename in the 'gen' directory
-  file_permission = "644" // Set read-write permissions 
+  file_permission = "644" // Set read-write permissions
 }
 ```
 
