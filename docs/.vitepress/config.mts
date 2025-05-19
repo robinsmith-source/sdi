@@ -31,6 +31,10 @@ export default defineConfig({
             text: "Server Initialization",
             link: "/chapters/server-initialization",
           },
+          {
+            text: "Attaching Volumes",
+            link: "/chapters/attaching-volumes",
+          },
         ],
       },
       {
