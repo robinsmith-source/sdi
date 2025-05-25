@@ -166,23 +166,6 @@ package_reboot_if_required: true
 # Install necessary packages (can be combined with other directives)
 packages:
   - nginx
-  - fail2ban
-  - plocate
-  - python3-systemd # Add python3-systemd for fail2ban backend
-
-write_files:
-  path: /etc/fail2ban/jail.local
-  content: |
-    [DEFAULT]
-    # Ban hosts for 1 hour:
-    bantime = 1h
-
-    # Override /etc/fail2ban/jail.d/defaults-debian.conf:
-    backend = systemd
-
-    [sshd]
-    enabled = true
-    # To use internal sshd filter variants
 
 # Execute commands after users and files are set up
 runcmd:
@@ -192,12 +175,6 @@ runcmd:
   - >
     echo "I'm Nginx @ $(dig -4 TXT +short o-o.myaddr.l.google.com @ns1.google.com)
     created $(date -u)" >> /var/www/html/index.html
-
-  # Restart SSH service to apply new access configurations
-  - systemctl enable fail2ban
-  - systemctl start fail2ban
-  - updatedb
-  - systemctl restart fail2ban
 ```
 
 :::
@@ -228,8 +205,8 @@ resource "hcloud_ssh_key" "userKeyTwo" {
 resource "local_file" "user_data_rendered" {
   content = templatefile("tpl/userData.yml", {
     loginUser      = "devops"                             // Define the username to create
-    public_key_one = hcloud_ssh_key.userKeyOne.public_key // Pass the first public key
-    public_key_two = hcloud_ssh_key.userKeyTwo.public_key // Pass the second public key
+    public_key_one = indent(4, hcloud_ssh_key.userKeyOne.public_key) // Pass the first public key
+    public_key_two = indent(4, hcloud_ssh_key.userKeyTwo.public_key) // Pass the second public key
     # Add other variables as needed for your template
   })
   filename = "gen/userData.rendered.yml" // Output path for the processed template
@@ -264,7 +241,62 @@ Running `terraform apply` will now:
 1.  Generate the `gen/userData.rendered.yml` file with your specified values substituted for the variables.
 2.  Pass this rendered YAML content to the Hetzner Cloud server during its creation.
 
-## 4. Handling SSH Host Key Mismatches
+## 4. Exercise: Securing Your Server with fail2ban
+
+Fail2ban is a powerful tool that helps protect your server from brute-force attacks by monitoring log files and banning IPs that show malicious signs.
+
+1. Installing fail2ban with Cloud-Init
+
+Add the following to your `tpl/userData.yml` cloud-config file:
+
+```yml
+#cloud-config
+packages:
+  - fail2ban
+  - plocate
+  - python3-systemd # Add python3-systemd for fail2ban backend
+
+write_files:
+  - path: /etc/fail2ban/jail.local
+    content: |
+      [DEFAULT]
+      # Ban hosts for 1 hour:
+      bantime = 1h
+
+      # Override /etc/fail2ban/jail.d/defaults-debian.conf:
+      backend = systemd
+
+      [sshd]
+      enabled = true
+      # To use internal sshd filter variants
+
+runcmd:
+  - systemctl enable fail2ban
+  - systemctl start fail2ban
+  - updatedb
+  - systemctl restart fail2ban
+```
+
+Reference this file in your Terraform configuration as shown in previous sections.
+
+2. Verifying fail2ban
+
+After your server is initialized, verify fail2ban is running:
+
+```sh
+sudo systemctl status fail2ban
+sudo fail2ban-client status
+sudo fail2ban-client status sshd
+```
+
+You should see that the `sshd` jail is enabled and monitoring for failed login attempts.
+
+3. Customizing fail2ban
+
+- You can adjust the `bantime`, add more jails, or tweak filters in `/etc/fail2ban/jail.local`.
+- For more information, see the [Arch Wiki: Fail2ban](https://wiki.archlinux.org/title/Fail2ban).
+
+## 5. Handling SSH Host Key Mismatches
 
 When a server is destroyed and recreated (even with the same IP address), it typically generates a new unique SSH host key. Your SSH client, upon attempting to connect, will detect this change and issue a warning about a potential "man-in-the-middle" (MITM) attack. This is because the new server's host key no longer matches the one stored in your local `~/.ssh/known_hosts` file for that IP address.
 
