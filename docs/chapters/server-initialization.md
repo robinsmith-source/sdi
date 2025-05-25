@@ -31,11 +31,11 @@ This example demonstrates passing a `Bash` script via Terraform to update the se
 ::: code-group
 
 ```hcl [main.tf]
-resource "hcloud_server" "basicServer" {
+resource "hcloud_server" "basicServer" { 
   name        = "basic-server"
   image       = "debian-12"
   server_type = "cx22"
-  user_data   = file("init.sh") // Specifies the path to the initialization script
+  user_data   = file("init.sh") // Specifies the path to the initialization script // [!code ++]
 }
 ```
 
@@ -65,15 +65,11 @@ systemctl start nginx # [!code ++]
 systemctl enable nginx  # [!code ++]
 ```
 
-This script performs package updates, installs Nginx, starts the Nginx service, enables it for auto-start on boot, and creates a basic `index.html`.
+This script performs package updates, installs Nginx, starts the Nginx service, enables it for auto-start on boot, and creates a basic `index.html`, which is served on port 80 by default.
 
 While Bash scripts are effective for simple initializations, managing intricate configurations, user setups, or extensive file manipulations can become complex. For these scenarios, Cloud-Init offers a more structured and powerful solution.
 
-## 2. Introduction to Cloud-Init for Server Initialization
-
-Cloud-Init is the industry standard for cross-platform cloud instance initialization. It leverages configuration files, commonly written in YAML format using the `#cloud-config` directive, to define tasks such as package installation, user creation, file writing, and command execution. For further information take a look at [this](../utils/cloud-init.md).
-
-## 3. Cloud-Init: Installing Packages
+## 2. Cloud-Init: Installing Packages
 
 To use Cloud-Init, create a cloud-config `YAML` file (e.g., `userData.yml`) and reference it in your Terraform configuration. The following example installs Nginx and generates a dynamic index page:
 
@@ -82,12 +78,11 @@ To use Cloud-Init, create a cloud-config `YAML` file (e.g., `userData.yml`) and 
 ```hcl [main.tf]
 # ... (ensure other necessary configurations like provider setup are present) ...
 
-resource "hcloud_server" "cloudInitServer" {
+resource "hcloud_server" "cloudInitServer" { // [!code focus:6]
   name        = "cloud-init-server"
   image       = "debian-12"
   server_type = "cx22"
-  // ... (other server arguments as needed) ...
-  user_data = file("tpl/userData.yml") // Reference the cloud-config YAML file
+  user_data = file("tpl/userData.yml") // Reference the cloud-config YAML file // [!code ++]
 }
 
 # ... (rest of your Terraform configuration) ...
@@ -138,10 +133,10 @@ resource "hcloud_firewall" "webAccessFw" { // Renamed for clarity
 }
 ```
 
-Ensure your server is associated with this firewall. Otherwise you can also use ssh port forwarding like described [here](./using-ssh.md#4-ssh-port-forwarding).
+Ensure your server is associated with this firewall. Otherwise you can also use ssh port forwarding like described [here](./using-ssh.md#_4-ssh-port-forwarding).
 :::
 
-## 4. Cloud-Init: User Management and Templating
+## 3. Cloud-Init: User Management and Templating
 
 Cloud-Init excels at tasks like managing user accounts and SSH access. Furthermore, Terraform's templating capabilities allow you to dynamically inject variables (such as SSH public keys) into your cloud-config files.
 
@@ -150,9 +145,8 @@ Update your cloud-config template (`tpl/userData.yml`) to include user creation,
 :::code-group
 
 ```yml [tpl/userData.yml]
-#cloud-config
-users:
-  - name: ${loginUser} # Username (e.g., "devops"), injected from Terraform
+users: // [!code ++:17]
+  - name: ${loginUser} # Username (e.g., "devops"), injected from Terraform 
     groups: sudo # Add user to the sudo group
     shell: /bin/bash # Set default shell
     sudo: ALL=(ALL) NOPASSWD:ALL # Grant sudo privileges without password prompt
@@ -210,7 +204,7 @@ runcmd:
 
 To process this template and inject the defined variables:
 
-1.  Ensure your `userData.yml` template is located in a `tpl` directory (e.g., `project_root/tpl/userData.yml`).
+1.  Ensure your `userData.yml` template is located in a `tpl` (template) directory (e.g., `./tpl/userData.yml`).
 2.  Define `hcloud_ssh_key` resources for your public keys in `main.tf`.
 3.  Use a `local_file` data source in `main.tf` to render the template with variables:
 
@@ -219,11 +213,12 @@ To process this template and inject the defined variables:
 ```hcl [main.tf]
 # ... (provider configuration and other resources) ...
 
-# Example SSH key resources (replace with your actual key management)
+# Example SSH key resources (replace with your actual key management) // [!code focus:21]
 resource "hcloud_ssh_key" "userKeyOne" {
   name       = "user-key-one"
   public_key = file("~/.ssh/id_ed25519.pub") // Path to your first public key
 }
+
 resource "hcloud_ssh_key" "userKeyTwo" {
   name       = "user-key-two"
   public_key = file("~/.ssh/another_key.pub") // Path to your second public key
@@ -252,9 +247,11 @@ resource "local_file" "user_data_rendered" {
 ```hcl [main.tf]
 # ... (existing configuration) ...
 
-resource "hcloud_server" "cloudInitServer" { // [!code focus:4]
-  // ... (other server arguments: name, image, server_type, etc.)
-  user_data = local_file.user_data_rendered.content // Use the rendered template content
+resource "hcloud_server" "cloudInitServer" { // [!code focus:7]
+  name        = "cloud-init-server"
+  image       = "debian-12"
+  server_type = "cx22"
+  user_data = local_file.user_data_rendered.content // Use the rendered template content // [!code ++]
 }
 
 # ... (rest of your Terraform configuration) ...
@@ -267,7 +264,7 @@ Running `terraform apply` will now:
 1.  Generate the `gen/userData.rendered.yml` file with your specified values substituted for the variables.
 2.  Pass this rendered YAML content to the Hetzner Cloud server during its creation.
 
-## 5. Handling SSH Host Key Mismatches
+## 4. Handling SSH Host Key Mismatches
 
 When a server is destroyed and recreated (even with the same IP address), it typically generates a new unique SSH host key. Your SSH client, upon attempting to connect, will detect this change and issue a warning about a potential "man-in-the-middle" (MITM) attack. This is because the new server's host key no longer matches the one stored in your local `~/.ssh/known_hosts` file for that IP address.
 
