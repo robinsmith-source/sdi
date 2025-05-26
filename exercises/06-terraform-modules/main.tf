@@ -29,8 +29,8 @@ resource "hcloud_firewall" "firewall-ssh" {
 resource "hcloud_server" "server" {
   location     = "hel1"
   name         = "my-server"
-  image        = "ubuntu-24.04"
-  server_type  = "cpx11"
+  image        = "debian-12"
+  server_type  = "cx22"
   firewall_ids = [hcloud_firewall.firewall-ssh.id]
   ssh_keys     = [hcloud_ssh_key.login-user.id]
 }
