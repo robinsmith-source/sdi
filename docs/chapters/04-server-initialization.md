@@ -322,7 +322,7 @@ resource "tls_private_key" "host_key" {
 }
 
 # Generate a known_hosts file entry for the server
-resource "local_file" "known_hosts_entry" {
+resource "local_file" "yknown_hosts" {
   content  = "${hcloud_server.cloudInitServer.ipv4_address} ${tls_private_key.host_key.public_key_openssh}"
   filename = "gen/known_hosts_for_server" // Descriptive filename in the 'gen' directory
   file_permission = "644" // Set read-write permissions
@@ -362,7 +362,7 @@ resource "local_file" "ssh_script" {
   file_permission = "700"                   // Set executable permissions
 
   # Ensure the known_hosts file is generated before this script
-  depends_on = [local_file.known_hosts_entry]
+  depends_on = [local_file.known_hosts]
 }
 ```
 

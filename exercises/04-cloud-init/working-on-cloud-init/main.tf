@@ -37,7 +37,7 @@ resource "hcloud_server" "basicServer" {
   user_data    = local_file.user_data.content
 }
 
-resource "local_file" "known_hosts_entry" {
+resource "local_file" "known_hosts" {
   content         = "${hcloud_server.basicServer.ipv4_address} ${tls_private_key.host.public_key_fingerprint_sha256}"
   filename        = "gen/known_hosts_for_server"
   file_permission = "644"
@@ -50,7 +50,7 @@ resource "local_file" "ssh_script" {
   })
   filename        = "bin/ssh"
   file_permission = "700"
-  depends_on      = [local_file.known_hosts_entry]
+  depends_on      = [local_file.known_hosts]
 }
 
 resource "local_file" "user_data" {

@@ -16,7 +16,7 @@ Before you begin, ensure you have:
 
 ## External Resources
 
-For in-depth technical information about filesystems and volume management:
+For more in-depth technical information about filesystems and volume management:
 
 - [Arch Wiki: Filesystems](https://wiki.archlinux.org/title/File_systems) - Comprehensive guide to Linux filesystems
 - [Arch Wiki: Fstab](https://wiki.archlinux.org/title/Fstab) - Detailed explanation of fstab configuration
