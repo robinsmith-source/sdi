@@ -21,29 +21,33 @@ export default defineConfig({
       {
         text: "Chapters",
         items: [
-          { text: "Hetzner Cloud", link: "/chapters/hetzner-cloud" },
-          { text: "Using SSH", link: "/chapters/using-ssh" },
+          { text: "Hetzner Cloud", link: "/chapters/01-hetzner-cloud" },
+          { text: "Using SSH", link: "/chapters/02-using-ssh" },
           {
             text: "Working with Terraform",
-            link: "/chapters/working-with-terraform",
+            link: "/chapters/03-working-with-terraform",
           },
           {
             text: "Server Initialization",
-            link: "/chapters/server-initialization",
+            link: "/chapters/04-server-initialization",
           },
           {
             text: "Attaching Volumes",
-            link: "/chapters/attaching-volumes",
+            link: "/chapters/05-attaching-volumes",
+          },   {
+            text: "Terraform Modules",
+            link: "/chapters/06-terraform-modules",
           },
         ],
       },
       {
-        text: "Utils",
+        text: "Knowledge",
         items: [
-          { text: "SSH", link: "/utils/ssh" },
-          { text: "Terraform", link: "/utils/terraform" },
-          { text: "Cloud-Init", link: "/utils/cloud-init" },
-          { text: "Volumes", link: "/utils/volumes" },
+          { text: "SSH", link: "/knowledge/ssh" },
+          { text: "Terraform", link: "/knowledge/terraform" },
+          { text: "Cloud-Init", link: "/knowledge/cloud-init" },
+          { text: "Volumes", link: "/knowledge/volumes" },
+          { text: "Modules", link: "/knowledge/modules" },
         ],
       },
     ],

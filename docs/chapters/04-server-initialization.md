@@ -2,8 +2,6 @@
 
 > This guide provides an overview of server initialization methods using Terraform on Hetzner Cloud. It covers both basic `Bash` scripts and the more advanced Cloud-Init with Cloud-Config.
 
-This guide explores two primary methods for server initialization: basic `Bash` scripts and the more robust Cloud-Init with Cloud-Config.
-
 ## Prerequisites
 
 Before you begin, ensure you have:
@@ -133,7 +131,7 @@ resource "hcloud_firewall" "webAccessFw" { // Renamed for clarity
 }
 ```
 
-Ensure your server is associated with this firewall. Otherwise you can also use ssh port forwarding like described [here](./using-ssh.md#_4-ssh-port-forwarding).
+Ensure your server is associated with this firewall. Otherwise you can also use ssh port forwarding like described [here](./02-using-ssh.md#_4-ssh-port-forwarding).
 :::
 
 ## 3. Cloud-Init: User Management and Templating

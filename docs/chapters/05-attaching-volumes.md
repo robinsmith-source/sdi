@@ -128,7 +128,7 @@ resource "hcloud_volume" "volume01" {
 
 2. Mount manually after attachment:
 
-```bash
+```sh
 sudo mkdir -p /mnt/volume01
 sudo mount /dev/disk/by-id/scsi-0HC_Volume_${VOLUME_ID} /mnt/volume01
 ```

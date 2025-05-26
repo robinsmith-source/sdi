@@ -9,20 +9,20 @@ hero:
   actions:
     - theme: brand
       text: View Chapters
-      link: /chapters/hetzner-cloud
+      link: /chapters/01-hetzner-cloud
     - theme: alt
-      text: Explore Utils
-      link: /utils/ssh
+      text: Explore Knowledge
+      link: /knowledge/ssh
 
 features:
   - icon: 🛠️
     title: Hands-On Exercises
     details: Step-by-step guides for practical infrastructure setup using tools like Terraform and Ansible.
-    link: /chapters/hetzner-cloud
+    link: /chapters/01-hetzner-cloud
   - icon: ⚙️
-    title: Essential Utilities
+    title: Essential Knowledge
     details: Documentation for crucial tools and techniques like SSH, Git, and command-line basics.
-    link: /utils/ssh
+    link: /knowledge/ssh
 ---
 
 <script setup>
