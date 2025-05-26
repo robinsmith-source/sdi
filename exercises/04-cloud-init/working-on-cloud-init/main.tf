@@ -55,6 +55,7 @@ resource "local_file" "ssh_script" {
 
 resource "local_file" "user_data" {
   content = templatefile("tpl/userData.yml", {
+    loginUser         = "devops"
     public_key_robin = hcloud_ssh_key.loginRobin.public_key
     tls_private_key     = indent(4, tls_private_key.host.private_key_openssh)
     tls_public_key      = tls_private_key.host.public_key_openssh
