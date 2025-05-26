@@ -145,7 +145,7 @@ root@klausur:~#
 
 The connection from `learn` to `klausur` should succeed without a passphrase prompt if the key for `klausur` is in your local `ssh-agent`.
 
-### Exercise 3: SSH Host Hopping
+### 3: SSH Host Hopping
 
 In this exercise, simulate a scenario where Host B is only accessible from Host A.
 
@@ -199,7 +199,7 @@ Escape character is '^]'.
 
 In this example, connections made to `localhost:2000` on your local machine are tunneled through the SSH connection to `HostB` and then directed to `localhost:3306` from `HostB`'s perspective (i.e., port 3306 on `HostB` itself).
 
-### Exercise 4: SSH Local Port Forwarding
+### 4: SSH Local Port Forwarding
 
 In this exercise, simulate accessing a web server that is firewalled off from direct internet access but reachable via an SSH-accessible host.
 
@@ -227,7 +227,7 @@ SSH can forward X11 (X Window System) connections. This allows you to run graphi
 
 This concept shows running a graphical application like the Firefox browser on the remote server, with its GUI appearing and interacting on your local desktop.
 
-### Exercise 5: SSH X11 Forwarding
+### 5: SSH X11 Forwarding
 
 In this exercise, you'll run a graphical web browser on a remote server and display its GUI locally, potentially bypassing network restrictions that would prevent direct web access from your local machine to a site accessible from the server.
 

@@ -241,7 +241,7 @@ Running `terraform apply` will now:
 1.  Generate the `gen/userData.rendered.yml` file with your specified values substituted for the variables.
 2.  Pass this rendered YAML content to the Hetzner Cloud server during its creation.
 
-## 4. Exercise: Securing Your Server with fail2ban
+## 4. Securing Your Server with fail2ban
 
 Fail2ban is a powerful tool that helps protect your server from brute-force attacks by monitoring log files and banning IPs that show malicious signs.
 
