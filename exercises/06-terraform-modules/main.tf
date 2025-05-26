@@ -36,14 +36,14 @@ resource "hcloud_server" "server" {
 }
 
 
-module "createSshWrappers" {
+module "createSshWrapper" {
   source      = "../modules/ssh-wrapper"
   loginUser   = "root"
   ipv4Address = hcloud_server.server.ipv4_address
   public_key = file("~/.ssh/id_ed25519.pub")
 }
 
-module "createSshWrappers" {
+module "createHostMetaData" {
   source      = "../modules/host-metadata"
   name        = hcloud_server.server.name
   location    = hcloud_server.server.location
