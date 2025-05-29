@@ -193,7 +193,7 @@ fi
 :::
 
 The template variables `${user}` and `${ip}` will be replaced with actual values when Terraform processes the templates.
-[variables.tf](../../exercises/modules/host-metadata/variables.tf)
+
 ### Module Implementation
 
 Define the module's variables, resources, and outputs:

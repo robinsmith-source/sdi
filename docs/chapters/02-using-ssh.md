@@ -145,7 +145,7 @@ root@klausur:~#
 
 The connection from `learn` to `klausur` should succeed without a passphrase prompt if the key for `klausur` is in your local `ssh-agent`.
 
-### 3: SSH Host Hopping
+### Host Hopping
 
 In this exercise, simulate a scenario where Host B is only accessible from Host A.
 
@@ -170,36 +170,6 @@ In this exercise, simulate a scenario where Host B is only accessible from Host 
 
 SSH port forwarding (also known as SSH tunneling) creates a secure connection that forwards traffic from a port on one machine to a port on another machine, through the SSH connection.
 
-### 4.1. Local Port Forwarding
-
-Local port forwarding (`ssh -L`) makes a port on your local machine forward to a port on a remote machine (or a machine reachable from that remote machine).
-
-This illustrates forwarding a remote web server's port (e.g., port 80 on `remote-server`) to a port on your local machine (e.g., port 2000). Accessing `localhost:2000` in your local browser would then connect to `remote-server:80`.
-
-A common use case is connecting to a database server (e.g., MySQL on port 3306) that is not directly exposed to the internet but is accessible from a server (`HostB`) you can SSH into.
-
-```sh
-# Command executed on your local machine:
-# Forward local port 2000 to port 3306 on 'localhost' *relative to HostB*.
-# 'localhost' here means HostB itself.
-ssh -L 2000:localhost:3306 user@HostB
-# Replace user@HostB with your actual credentials for the DB's host machine.
-
-# Now, on your local machine, tools can connect to localhost:2000
-# and that traffic will be securely forwarded to HostB:3306.
-# Example: trying to connect with telnet (output may vary)
-$ telnet localhost 2000
-Trying ::1...
-Connected to localhost.
-Escape character is '^]'.
-# If HostB's MariaDB server restricts access from 127.0.0.1 (as seen by MariaDB),
-# you might see an error like:
-# DHost '127.0.0.1' is not allowed to connect to this MariaDB server
-```
-
-In this example, connections made to `localhost:2000` on your local machine are tunneled through the SSH connection to `HostB` and then directed to `localhost:3306` from `HostB`'s perspective (i.e., port 3306 on `HostB` itself).
-
-### 4: SSH Local Port Forwarding
 
 In this exercise, simulate accessing a web server that is firewalled off from direct internet access but reachable via an SSH-accessible host.
 
@@ -221,13 +191,9 @@ In this exercise, simulate accessing a web server that is firewalled off from di
 6. **Test Forwarded Connection**:
    - Open your local web browser and navigate to `http://localhost:2000`. You should now see your Nginx server's default page, served from `WebServerHost` but accessed via your local port 2000.
 
-## 5. X11 Forwarding with SSH
+## 5. SSH X11 Forwarding
 
 SSH can forward X11 (X Window System) connections. This allows you to run graphical applications on a remote Linux/Unix server and have their graphical user interface (GUI) display on your local machine.
-
-This concept shows running a graphical application like the Firefox browser on the remote server, with its GUI appearing and interacting on your local desktop.
-
-### 5: SSH X11 Forwarding
 
 In this exercise, you'll run a graphical web browser on a remote server and display its GUI locally, potentially bypassing network restrictions that would prevent direct web access from your local machine to a site accessible from the server.
 
