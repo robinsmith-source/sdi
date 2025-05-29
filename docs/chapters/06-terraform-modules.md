@@ -118,21 +118,20 @@ variable "hcloud_token" {
 # ... (firewall configuration and other resources) ...
 
 # Create a Hetzner Cloud server // [!code focus:17]
-resource "hcloud_server" "server" {
+resource "hcloud_server" "debian_server" { 
   location    = "hel1"
-  name        = "my-server"
+  name        = "debian-server"
   image       = "debian-12"
   server_type = "cx22"
-  ssh_keys = [hcloud_ssh_key.loginUser.id]
+  ssh_keys    = [hcloud_ssh_key.user_ssh_key.id]
 }
 
-# Use the SSH Known Hosts module // [!code ++:8]
-module "createHostMetaData" {
-  source      = "../modules/host-metadata"
-  name        = hcloud_server.server.name
-  location    = hcloud_server.server.location
-  ipv4Address = hcloud_server.server.ipv4_address
-  ipv6Address = hcloud_server.server.ipv6_address
+# Use the SSH Known Hosts module
+module "ssh_wrapper" {
+  source      = "../modules/ssh-wrapper"
+  loginUser   = "root"
+  ipv4Address = hcloud_server.debian_server.ipv4_address
+  public_key  = file("~/.ssh/id_ed25519.pub")
 }
 ```
 
@@ -262,20 +261,20 @@ Implement the module in your main Terraform configuration:
 # ... (firewall configuration and other resources) ...
 
 # Create a Hetzner Cloud server // [!code focus:17]
-resource "hcloud_server" "server" { 
+resource "hcloud_server" "debian_server" { 
   location    = "hel1"
-  name        = "my-server"
+  name        = "debian-server"
   image       = "debian-12"
   server_type = "cx22"
-  ssh_keys = [hcloud_ssh_key.loginUser.id]
+  ssh_keys    = [hcloud_ssh_key.user_ssh_key.id]
 }
 
 # Use the SSH Known Hosts module // [!code ++:7]
-module "createSshWrapper" {
+module "ssh_wrapper" {
   source      = "../modules/ssh-wrapper"
   loginUser   = "root"
-  ipv4Address = hcloud_server.server.ipv4_address
-  public_key = file("~/.ssh/id_ed25519.pub")
+  ipv4Address = hcloud_server.debian_server.ipv4_address
+  public_key  = file("~/.ssh/id_ed25519.pub")
 }
 ```
 

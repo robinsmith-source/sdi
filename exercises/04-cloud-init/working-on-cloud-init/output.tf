@@ -1,9 +1,9 @@
-output "hello_ip_addr" {
-  value       = hcloud_server.basicServer.ipv4_address
+output "server_ip_addr" {
+  value       = hcloud_server.debian_server.ipv4_address
   description = "The server's IPv4 address"
 }
 
-output "hello_datacenter" {
-  value       = hcloud_server.basicServer.datacenter
+output "server_datacenter" {
+  value       = hcloud_server.debian_server.datacenter
   description = "The server's datacenter"
 }

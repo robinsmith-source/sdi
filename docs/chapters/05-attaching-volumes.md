@@ -30,18 +30,18 @@ These guides provide additional context and complementary information for managi
 Volumes provide persistent block storage that can be attached to your servers. Here's how to create one:
 
 ```hcl
-resource "hcloud_server" "basicServer" {
-  name         = "basicServer"
+resource "hcloud_server" "debian_server" {
+  name         = "debian-server"
   image        = "debian-12"
   server_type  = "cx22"
-  firewall_ids = [hcloud_firewall.sshFw.id]
-  ssh_keys     = [hcloud_ssh_key.loginRobin.id]
+  firewall_ids = [hcloud_firewall.ssh_firewall.id]
+  ssh_keys     = [hcloud_ssh_key.user_ssh_key.id]
 }
 
-resource "hcloud_volume" "volume01" {
-  name      = "volume01"
+resource "hcloud_volume" "data_volume" {
+  name      = "data-volume"
   size      = 10
-  server_id = hcloud_server.basicServer.id
+  server_id = hcloud_server.debian_server.id
   automount = true
   format    = "xfs"
 }
@@ -68,8 +68,18 @@ Let's break down the volume configuration:
 To verify your volume creation and get its details:
 
 ```hcl
-output "volume_id" {
-  value       = hcloud_volume.volume01.id
+output "server_ip_addr" {
+  value       = hcloud_server.debian_server.ipv4_address
+  description = "The server's IPv4 address"
+}
+
+output "server_datacenter" {
+  value       = hcloud_server.debian_server.datacenter
+  description = "The server's datacenter"
+}
+
+output "volume_id" { // [!code ++:4]
+  value       = hcloud_volume.data_volume.id
   description = "The volume's id"
 }
 ```
@@ -79,7 +89,8 @@ After applying, you'll see output like:
 ```sh
 terraform apply
 ...
-hello_ip_addr="37.27.22.189"
+server_ip_addr="37.27.22.189"
+server_datacenter="nbg1-dc3"
 volume_id="100723816"
 volume_size=10
 volume_status="available"
@@ -92,22 +103,22 @@ There are two approaches to mounting volumes:
 ### A. Direct Attachment (Recommended)
 
 ```hcl
-resource "hcloud_volume" "volume01" {
-  name      = "volume01"
+resource "hcloud_volume" "data_volume" {
+  name      = "data-volume"
   size      = 10
   automount = true
   format    = "xfs"
 }
 
-resource "hcloud_server" "server01" {
-  name         = "server01"
+resource "hcloud_server" "debian_server" {
+  name         = "debian-server"
   image        = "debian-12"
   server_type  = "cx22"
 }
 
 resource "hcloud_volume_attachment" "main" {
-  volume_id = hcloud_volume.volume01.id
-  server_id = hcloud_server.server01.id
+  volume_id = hcloud_volume.data_volume.id
+  server_id = hcloud_server.debian_server.id
 }
 ```
 
@@ -118,8 +129,8 @@ If you need more control over the mounting process:
 1. Create the volume without automount:
 
 ```hcl
-resource "hcloud_volume" "volume01" {
-  name      = "volume1"
+resource "hcloud_volume" "data_volume" {
+  name      = "data-volume"
   size      = 10
   automount = false
   format    = "xfs"
@@ -129,8 +140,8 @@ resource "hcloud_volume" "volume01" {
 2. Mount manually after attachment:
 
 ```sh
-sudo mkdir -p /mnt/volume01
-sudo mount /dev/disk/by-id/scsi-0HC_Volume_${VOLUME_ID} /mnt/volume01
+sudo mkdir -p /mnt/data-volume
+sudo mount /dev/disk/by-id/scsi-0HC_Volume_${VOLUME_ID} /mnt/data-volume
 ```
 
 ## 4. Managing Mount Points
@@ -150,28 +161,28 @@ Filesystem     1K-blocks    Used Available Use% Mounted on
 udev             1933340       0   1933340   0% /dev
 tmpfs             391088     652    390436   1% /run
 /dev/sda1       39052844 2157152  35259124   6% /
-/dev/sdb        10475520  106088  10369432   2% /volume01
+/dev/sdb        10475520  106088  10369432   2% /data-volume
 ```
 
 ### Setting a Specific Mount Point
 
-To explicitly set the mount point to `/volume01` and avoid dependency cycles:
+To explicitly set the mount point to `/data-volume` and avoid dependency cycles:
 
 1. Create volume and server independently with matching locations:
 
 ```hcl
-resource "hcloud_server" "basicServer" {
-  name         = "basicServer"
+resource "hcloud_server" "debian_server" {
+  name         = "debian-server"
   image        = "debian-12"
   server_type  = "cx22"
   location     = "nbg1"
-  firewall_ids = [hcloud_firewall.sshFw.id]
-  ssh_keys     = [hcloud_ssh_key.loginRobin.id]
+  firewall_ids = [hcloud_firewall.ssh_firewall.id]
+  ssh_keys     = [hcloud_ssh_key.user_ssh_key.id]
   user_data    = local_file.user_data.content
 }
 
-resource "hcloud_volume" "volume01" {
-  name      = "volume01"
+resource "hcloud_volume" "data_volume" {
+  name      = "data-volume"
   size      = 10
   location  = "nbg1"
   automount = false
@@ -183,8 +194,8 @@ resource "hcloud_volume" "volume01" {
 
 ```hcl
 resource "hcloud_volume_attachment" "main" {
-  volume_id = hcloud_volume.volume01.id
-  server_id = hcloud_server.basicServer.id
+  volume_id = hcloud_volume.data_volume.id
+  server_id = hcloud_server.debian_server.id
 }
 ```
 
@@ -193,10 +204,10 @@ resource "hcloud_volume_attachment" "main" {
 ```hcl
 resource "local_file" "user_data" {
   content = templatefile("tpl/userData.yml", {
-    public_key_robin = hcloud_ssh_key.loginRobin.public_key
+    public_key = hcloud_ssh_key.user_ssh_key.public_key
     tls_private_key  = indent(4, tls_private_key.host.private_key_openssh)
     loginUser        = "devops"
-    volId = hcloud_volume.volume01.id
+    volId = hcloud_volume.data_volume.id
   })
   filename = "gen/userData.yml"
 }
@@ -204,8 +215,8 @@ resource "local_file" "user_data" {
 
 ```yml
 runcmd:
-  - sudo mkdir -p /volume01
-  - echo "`/bin/ls /dev/disk/by-id/*${volId}` /volume01 xfs discard,nofail,defaults 0 0" | sudo tee -a /etc/fstab
+  - sudo mkdir -p /data-volume
+  - echo "`/bin/ls /dev/disk/by-id/*${volId}` /data-volume xfs discard,nofail,defaults 0 0" | sudo tee -a /etc/fstab
   - sudo systemctl daemon-reload
   - sudo mount -a
 ```
@@ -218,13 +229,13 @@ cat /etc/fstab
 
 You should see an entry like:
 ```sh
-/dev/disk/by-id/scsi-0HC_Volume_102593604 /volume01 xfs defaults 0 0
+/dev/disk/by-id/scsi-0HC_Volume_102593604 /data-volume xfs defaults 0 0
 ```
 
 The `/etc/fstab` file controls automatic mounting. Here's a typical entry:
 
 ```sh
-/dev/disk/by-id/scsi-0HC_Volume_102593604 /volume01 xfs discard,nofail,defaults 0 0
+/dev/disk/by-id/scsi-0HC_Volume_102593604 /data-volume xfs discard,nofail,defaults 0 0
 ```
 
 Options explained:

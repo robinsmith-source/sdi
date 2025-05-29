@@ -29,8 +29,8 @@ This example demonstrates passing a `Bash` script via Terraform to update the se
 ::: code-group
 
 ```hcl [main.tf]
-resource "hcloud_server" "basicServer" { 
-  name        = "basic-server"
+resource "hcloud_server" "debian_server" { 
+  name        = "debian-server"
   image       = "debian-12"
   server_type = "cx22"
   user_data   = file("init.sh") // Specifies the path to the initialization script // [!code ++]
@@ -76,8 +76,8 @@ To use Cloud-Init, create a cloud-config `YAML` file (e.g., `userData.yml`) and 
 ```hcl [main.tf]
 # ... (ensure other necessary configurations like provider setup are present) ...
 
-resource "hcloud_server" "cloudInitServer" { // [!code focus:6]
-  name        = "cloud-init-server"
+resource "hcloud_server" "debian_server" { // [!code focus:6]
+  name        = "debian-server"
   image       = "debian-12"
   server_type = "cx22"
   user_data = file("tpl/userData.yml") // Reference the cloud-config YAML file // [!code ++]
@@ -114,7 +114,7 @@ Upon server creation, Cloud-Init will execute the tasks defined in `tpl/userData
 Note that accessing the web server on port 80 requires a firewall rule. Here's how to configure it in Terraform:
 
 ```hcl {9-14}
-resource "hcloud_firewall" "webAccessFw" { // Renamed for clarity
+resource "hcloud_firewall" "web_access_firewall" {
   name = "web-access-firewall"
   rule {
     direction  = "in"
@@ -189,12 +189,12 @@ To process this template and inject the defined variables:
 # ... (provider configuration and other resources) ...
 
 # Example SSH key resources (replace with your actual key management) // [!code focus:21]
-resource "hcloud_ssh_key" "userKeyOne" {
+resource "hcloud_ssh_key" "user_ssh_key_one" {
   name       = "user-key-one"
   public_key = file("~/.ssh/id_ed25519.pub") // Path to your first public key
 }
 
-resource "hcloud_ssh_key" "userKeyTwo" {
+resource "hcloud_ssh_key" "user_ssh_key_two" {
   name       = "user-key-two"
   public_key = file("~/.ssh/another_key.pub") // Path to your second public key
 }
@@ -203,8 +203,8 @@ resource "hcloud_ssh_key" "userKeyTwo" {
 resource "local_file" "user_data_rendered" {
   content = templatefile("tpl/userData.yml", {
     loginUser      = "devops"                             // Define the username to create
-    public_key_one = indent(4, hcloud_ssh_key.userKeyOne.public_key) // Pass the first public key
-    public_key_two = indent(4, hcloud_ssh_key.userKeyTwo.public_key) // Pass the second public key
+    public_key_one = indent(4, hcloud_ssh_key.user_ssh_key_one.public_key) // Pass the first public key
+    public_key_two = indent(4, hcloud_ssh_key.user_ssh_key_two.public_key) // Pass the second public key
     # Add other variables as needed for your template
   })
   filename = "gen/userData.rendered.yml" // Output path for the processed template
@@ -222,11 +222,11 @@ resource "local_file" "user_data_rendered" {
 ```hcl [main.tf]
 # ... (existing configuration) ...
 
-resource "hcloud_server" "cloudInitServer" { // [!code focus:7]
-  name        = "cloud-init-server"
+resource "hcloud_server" "debian_server" { // [!code focus:7]
+  name        = "debian-server"
   image       = "debian-12"
   server_type = "cx22"
-  user_data = local_file.user_data_rendered.content // Use the rendered template content // [!code ++]
+  user_data   = local_file.user_data_rendered.content // Use the rendered template content // [!code ++]
 }
 
 # ... (rest of your Terraform configuration) ...
@@ -322,8 +322,8 @@ resource "tls_private_key" "host_key" {
 }
 
 # Generate a known_hosts file entry for the server
-resource "local_file" "yknown_hosts" {
-  content  = "${hcloud_server.cloudInitServer.ipv4_address} ${tls_private_key.host_key.public_key_openssh}"
+resource "local_file" "known_hosts" {
+  content  = "${hcloud_server.debian_server.ipv4_address} ${tls_private_key.host_key.public_key_openssh}"
   filename = "gen/known_hosts_for_server" // Descriptive filename in the 'gen' directory
   file_permission = "644" // Set read-write permissions
 }
@@ -355,10 +355,10 @@ ssh -o UserKnownHostsFile="$GEN_DIR/known_hosts" devops@${ip} "$@"
 # Generate the executable SSH helper script
 resource "local_file" "ssh_script" {
   content = templatefile("tpl/ssh_helper.sh", {
-    ip   = hcloud_server.cloudInitServer.ipv4_address // Inject server IP address
-    user = "devops"                                   // Inject the login username
+    ip   = hcloud_server.debian_server.ipv4_address // Inject server IP address
+    user = "devops"                                 // Inject the login username
   })
-  filename        = "bin/ssh-to-server"      // Output script path (e.g., project_root/bin/ssh-to-server)
+  filename        = "bin/ssh-to-server"      // Output script path
   file_permission = "700"                   // Set executable permissions
 
   # Ensure the known_hosts file is generated before this script

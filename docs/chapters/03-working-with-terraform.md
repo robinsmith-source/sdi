@@ -66,8 +66,8 @@ Configuration Language (`HCL`).
    }
 
    # Create a server
-   resource "hcloud_server" "helloServer" {
-     name         = "hello"
+   resource "hcloud_server" "debian_server" {
+     name         = "debian-server"
      image        = "debian-12"
      server_type  = "cx22"
    }
@@ -138,7 +138,7 @@ Firewalls are essential for securing your server by controlling incoming and out
    anywhere:
 
    ```hcl
-   resource "hcloud_firewall" "sshFw" {
+   resource "hcloud_firewall" "ssh_firewall" {
      name = "ssh-firewall"
      rule {
        direction  = "in"
@@ -153,11 +153,11 @@ Firewalls are essential for securing your server by controlling incoming and out
    resource block in `main.tf`:
 
    ```hcl
-   resource "hcloud_server" "helloServer" {
-     name         = "hello"
+   resource "hcloud_server" "debian_server" {
+     name         = "debian-server"
      image        = "debian-12"
      server_type  = "cx22"
-     firewall_ids = [hcloud_firewall.sshFw.id]
+     firewall_ids = [hcloud_firewall.ssh_firewall.id]
    }
    ```
 
@@ -169,7 +169,7 @@ Adding SSH keys allows you to securely log in to your server without using passw
    values accordingly:
 
    ```hcl
-   resource "hcloud_ssh_key" "loginUser" {
+   resource "hcloud_ssh_key" "user_ssh_key" {
      name       = "name@device"
      public_key = file("~/.ssh/id_ed25519.pub")
    }
@@ -179,12 +179,12 @@ Adding SSH keys allows you to securely log in to your server without using passw
    resource block in `main.tf`. If you have multiple keys, separate their IDs with commas.
 
    ```hcl
-   resource "hcloud_server" "helloServer" {
-     name         = "hello"
+   resource "hcloud_server" "debian_server" {
+     name         = "debian-server"
      image        = "debian-12"
      server_type  = "cx22"
-     firewall_ids = [hcloud_firewall.sshFw.id]
-     ssh_keys     = [hcloud_ssh_key.loginUser.id]
+     firewall_ids = [hcloud_firewall.ssh_firewall.id]
+     ssh_keys     = [hcloud_ssh_key.user_ssh_key.id]
    }
    ```
 
@@ -196,15 +196,24 @@ configuration.
 1. Create a new file named `outputs.tf` in the same directory:
 
 ```hcl
-output "hello_ip_addr" {
-  value       = hcloud_server.helloServer.ipv4_address
+output "server_ip_addr" {
+  value       = hcloud_server.debian_server.ipv4_address
   description = "The server's IPv4 address"
 }
 
-output "hello_datacenter" {
-  value       = hcloud_server.helloServer.datacenter
+output "server_datacenter" {
+  value       = hcloud_server.debian_server.datacenter
   description = "The server's datacenter"
 }
 ```
 
 Now, after running `terraform apply`, Terraform will display the values of these outputs in your terminal.
+
+After applying, you'll see output like:
+
+```sh
+terraform apply
+...
+server_ip_addr="37.27.22.189"
+server_datacenter="nbg1-dc3"
+```
