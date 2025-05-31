@@ -46,7 +46,7 @@ resource "hcloud_volume" "data_volume" {
   format    = "xfs"
 }
 
-resource "hcloud_volume_attachment" "main" {
+resource "hcloud_volume_attachment" "volume_attachment" {
   volume_id = hcloud_volume.data_volume.id
   server_id = hcloud_server.debian_server.id
 }

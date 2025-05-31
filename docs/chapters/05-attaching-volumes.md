@@ -116,7 +116,7 @@ resource "hcloud_server" "debian_server" {
   server_type  = "cx22"
 }
 
-resource "hcloud_volume_attachment" "main" {
+resource "hcloud_volume_attachment" "volume_attachment" {
   volume_id = hcloud_volume.data_volume.id
   server_id = hcloud_server.debian_server.id
 }
@@ -193,7 +193,7 @@ resource "hcloud_volume" "data_volume" {
 2. Attach volume to server:
 
 ```hcl
-resource "hcloud_volume_attachment" "main" {
+resource "hcloud_volume_attachment" "volume_attachment" {
   volume_id = hcloud_volume.data_volume.id
   server_id = hcloud_server.debian_server.id
 }
