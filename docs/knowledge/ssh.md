@@ -1,32 +1,28 @@
 # SSH <Badge type="info" text="Security" />
 
-Secure Shell (SSH) provides encrypted connections to remote systems, allowing secure file transfers and remote command execution. It's widely used for server management, especially in cloud environments.
+> Secure Shell (SSH) provides encrypted connections to remote systems, allowing secure file transfers and remote command execution. It's widely used for server management, especially in cloud environments.
 
-## Core Concepts
+::: info Purpose
+SSH enables:
+- Secure remote access to servers and devices
+- Encrypted file transfers and tunneling
+- Automated and interactive management of infrastructure
+:::
+
+## Core Concepts {#core-concepts}
 
 SSH uses public-key cryptography to authenticate and encrypt connections:
-
 - **Key pairs** consist of a public key (shared) and a private key (kept secret)
 - **SSH agent** manages your keys and passphrases
 - **SSH config** simplifies connection management
 
-## Key Generation <Badge type="tip" text="Essential" />
+## Essential Commands <Badge type="tip" text="Core CLI" />
 
-SSH keys are more secure than passwords for authentication.
-
-::: info Recommended Algorithm
-Use **Ed25519** for modern security and performance.
-:::
-
-### Creating Your Keys
+### Key Generation
 
 ```sh
 # Generate a new Ed25519 key
 ssh-keygen -t ed25519 -C "your_email@example.com"
-
-# Follow prompts:
-# 1. File location (default: ~/.ssh/id_ed25519) - Press Enter
-# 2. Passphrase (recommended!) - Enter a strong passphrase
 ```
 
 ### Verifying Your Keys
@@ -34,194 +30,81 @@ ssh-keygen -t ed25519 -C "your_email@example.com"
 ```sh
 # List your keys
 ls ~/.ssh/id_ed25519*
-
-# Output:
-# id_ed25519      (Private Key - KEEP SECRET!)
-# id_ed25519.pub  (Public Key - Share this one)
 ```
 
-::: warning Protect Your Private Key
-
-- **Never share the private key file** (the one without `.pub`).
-- Use a strong passphrase.
-- Set proper permissions: `chmod 600 ~/.ssh/id_ed25519` (private key) and `chmod 644 ~/.ssh/id_ed25519.pub` (public key).
-  :::
-
-## Using SSH Keys
-
-### With GitHub <Badge type="info" text="Common" />
-
-1.  **Copy your public key:**
-
-    ::: code-group
-
-    ```sh [macOS]
-    cat ~/.ssh/id_ed25519.pub | pbcopy
-    ```
-
-    ```powershell [Windows (Git Bash/WSL)]
-    cat ~/.ssh/id_ed25519.pub | clip
-    ```
-
-    ```sh Linux
-    cat ~/.ssh/id_ed25519.pub | xclip -selection clipboard
-    ```
-
-    :::
-    _Or open `~/.ssh/id_ed25519.pub` and copy its content_
-
-2.  **Add to GitHub:**
-
-    - Go to GitHub → Settings → SSH and GPG keys → New SSH key
-    - Paste the copied public key
-    - Give it a title (e.g., "Work Laptop")
-    - Click "Add SSH key"
-
-3.  **Verify connection:**
-
-    ```sh
-    ssh -T git@github.com
-    # Expect: "Hi username! You've successfully authenticated..."
-    ```
-
-_(Similar steps apply for GitLab and other Git hosting services)_
-
-### With SSH Agent <Badge type="tip" text="Convenience" />
-
-The SSH agent stores your key's passphrase in memory, so you don't need to re-enter it.
-
-::: code-group
-
-```sh [Linux/macOS Setup]
-# Start agent
-eval "$(ssh-agent -s)"
-
-# Add your key (you'll be prompted for passphrase)
-ssh-add ~/.ssh/id_ed25519
-```
-
-```powershell [Windows Setup]
-# Enable and start the service (run as Admin if needed)
-Get-Service ssh-agent | Set-Service -StartupType Automatic
-Start-Service ssh-agent
-
-# Add your key
-ssh-add ~/.ssh/id_ed25519
-```
-
-:::
-
-#### Verify Loaded Keys
+### Using SSH Keys
 
 ```sh
-# List keys in the agent
-ssh-add -l
+# Add your key to the agent
+ssh-add ~/.ssh/id_ed25519
 ```
 
-::: details Agent Forwarding
-Use `ssh -A user@host` to use your local keys on the remote server.
-
-This is useful for accessing other servers from the remote host without copying keys.
-:::
-
-## Configuration
-
-### SSH Config File <Badge type="tip" text="Efficiency" />
-
-Create `~/.ssh/config` to simplify connections:
+### SSH Config File
 
 ```sh
 # Example ~/.ssh/config
-
-# Server with custom port
 Host myserver
   HostName 192.168.1.100
   User myuser
   Port 2222
   IdentityFile ~/.ssh/server_key
 
-# GitHub settings
 Host github.com
   User git
   IdentityFile ~/.ssh/github_key
   IdentitiesOnly yes
 
-# Jump host example
 Host internal-db
   HostName 10.0.5.10
   ProxyJump myserver
 ```
 
-Connect with simple commands:
+### File Transfer
 
 ```sh
-ssh myserver
-ssh github.com
-ssh internal-db
-```
-
-### Common Config Options
-
-| Option         | Purpose                |
-| -------------- | ---------------------- |
-| `Host`         | Connection alias       |
-| `HostName`     | Real IP/domain         |
-| `User`         | Remote username        |
-| `Port`         | SSH port (default: 22) |
-| `IdentityFile` | Path to private key    |
-| `ProxyJump`    | Jump/bastion host      |
-
-## File Transfer
-
-SSH enables secure file transfers through SCP and SFTP:
-
-### SCP (Secure Copy)
-
-::: code-group
-
-```sh [Copy local file TO remote]
+# Copy local file TO remote
 scp local_file.txt user@remotehost:/remote/path/
-```
-
-```sh [Copy remote file TO local]
+# Copy remote file TO local
 scp user@remotehost:/remote/path/file.txt ./local/path/
-```
-
-```sh [Copy directory recursively]
+# Copy directory recursively
 scp -r local_directory user@remotehost:/remote/path/
-```
-
-:::
-
-### SFTP (Interactive File Transfer)
-
-```sh
 # Start an SFTP session
 sftp user@remotehost
-
-# Common SFTP commands:
-# ls, cd, pwd      - Remote filesystem navigation
-# lls, lcd, lpwd   - Local filesystem navigation
-# get remote_file  - Download a file
-# put local_file   - Upload a file
-# help             - Show all commands
-# exit             - Close the session
 ```
+
+## Best Practices
+
+- Use Ed25519 keys for modern security
+- Protect your private key with a strong passphrase
+- Set correct permissions on key files (`chmod 600` for private, `644` for public)
+- Use SSH agent for convenience and security
+- Use SSH config to simplify connections
+- Never share your private key
+
+## Common Use Cases
+
+- **Remote server management** (login, command execution)
+- **Git operations** (GitHub, GitLab, etc.)
+- **Automated deployments** (CI/CD, Ansible, etc.)
+- **Secure file transfers** (SCP, SFTP)
+- **Tunneling and port forwarding**
 
 ## Troubleshooting <Badge type="warning" text="Common Issues" />
 
 ::: details Permission denied (publickey)
-
 - Check if your public key is added to remote's `~/.ssh/authorized_keys`
 - Verify permissions: `~/.ssh` (700), `authorized_keys` (600), private key (600)
 - Ensure SSH agent has your key loaded: `ssh-add -l`
 - Try connecting with verbose output: `ssh -vv user@host`
-  :::
+:::
 
 ::: details Connection timed out / refused
-
 - Is the server running and reachable?
 - Check firewalls and security groups
 - Verify the SSH port is correct and open
 - Test basic connectivity: `ping hostname`
-  :::
+:::
+
+---
+
+SSH is a foundational tool for secure infrastructure management. For more, see the [OpenSSH Documentation](https://www.openssh.com/manual.html).
