@@ -1,6 +1,6 @@
 resource "local_file" "known_hosts" {
   content         = "${var.ipv4Address} = ${var.public_key}"
-  filename        = "gen/known_hosts"
+  filename        = "gen/known_hosts_for_server"
   file_permission = "644"
 }
 
