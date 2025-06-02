@@ -34,9 +34,14 @@ export default defineConfig({
           {
             text: "Attaching Volumes",
             link: "/chapters/05-attaching-volumes",
-          },   {
+          },   
+          {
             text: "Terraform Modules",
             link: "/chapters/06-terraform-modules",
+          },
+          {
+            text: "Setting up DNS",
+            link: "/chapters/07-setting-up-dns",
           },
         ],
       },
@@ -48,6 +53,7 @@ export default defineConfig({
           { text: "Cloud-Init", link: "/knowledge/cloud-init" },
           { text: "Volumes", link: "/knowledge/volumes" },
           { text: "Modules", link: "/knowledge/modules" },
+          { text: "DNS", link: "/knowledge/dns" },
         ],
       },
     ],
