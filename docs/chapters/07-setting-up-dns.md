@@ -34,7 +34,7 @@ To view your current DNS records, you can perform a zone transfer using the `dig
 export HMAC=hmac-sha512:g3.key:I5sDDS3L1BU...
 
 # Perform zone transfer
-dig @ns1.hdm-stuttgart.cloud -y $HMAC -t AXFR g3.sdi.hdm-stuttgart.cloud
+dig @ns1.hdm-stuttgart.cloud -y $HMAC -t AXFR g10.sdi.hdm-stuttgart.cloud
 ```
 
 This will show all records in your zone, including:
@@ -56,7 +56,7 @@ nsupdate -y $HMAC
 server ns1.hdm-stuttgart.cloud
 
 # Add an A record
-update add www.g3.sdi.hdm-stuttgart.cloud 10 A 141.62.75.114
+update add www.g10.sdi.hdm-stuttgart.cloud 10 A 141.62.75.114
 
 # Send the update and quit
 send
@@ -65,7 +65,7 @@ quit
 
 Verify the record was added:
 ```bash
-dig +noall +answer @ns1.hdm-stuttgart.cloud www.g3.sdi.hdm-stuttgart.cloud
+dig +noall +answer @ns1.hdm-stuttgart.cloud www.g10.sdi.hdm-stuttgart.cloud
 ```
 
 ### Modifying Records
@@ -75,7 +75,7 @@ To modify a record, you must first delete it and then create the new version:
 ```bash
 nsupdate -y $HMAC
 server ns1.hdm-stuttgart.cloud
-update delete www.g3.sdi.hdm-stuttgart.cloud. 10 IN A 141.62.75.114
+update delete www.g10.sdi.hdm-stuttgart.cloud. 10 IN A 141.62.75.114
 send
 quit
 ```
@@ -101,86 +101,72 @@ Enhance your web server by:
    # Add A record for your web server
    nsupdate -y $HMAC
    server ns1.hdm-stuttgart.cloud
-   update add www.g3.sdi.hdm-stuttgart.cloud 10 A YOUR_SERVER_IP
+   update add www.g10.sdi.hdm-stuttgart.cloud 10 A <YOUR_SERVER_IP>
    send
    quit
    ```
 
 2. **Web Server Setup**
 
-   You can choose between Nginx or Caddy as your web server. Both are excellent choices, with Caddy offering automatic HTTPS by default.
+Take the cloud-init configuration file from [Server Initialization](04-server-initialization) and modify it to include the following:
+```yaml
+#cloud-config
+users:
+  - name: ${loginUser}
+    groups: [sudo]
+    shell: /bin/bash
+    sudo: ["ALL=(ALL) NOPASSWD:ALL"]
+    ssh_authorized_keys:
+      - ${public_key_robin}
+      
+ssh_keys:
+  ed25519_private: |
+    ${tls_private_key}
+ssh_pwauth: false
 
-   #### Option A: Using Nginx
+package_update: true
+package_upgrade: true
+package_reboot_if_required: true
 
-   ```bash
-   # Install Nginx
-   apt update
-   apt install nginx
+packages:
+  - caddy # [!code ++]
+  - fail2ban
+  - plocate
+  - python3-systemd # Add python3-systemd for fail2ban backend
 
-   # Create a basic site configuration
-   cat > /etc/nginx/sites-available/g3.sdi.hdm-stuttgart.cloud << 'EOF'
-   server {
-       listen 80;
-       server_name www.g3.sdi.hdm-stuttgart.cloud;
-       root /var/www/html;
-       index index.html;
+write_files:
+  - path: /etc/fail2ban/jail.local # [!code ++:18]
+    content: |
+      [DEFAULT]
+      # Ban hosts for 1 hour:
+      bantime = 1h
 
-       location / {
-           try_files $uri $uri/ =404;
-       }
-   }
-   EOF
+      # Override /etc/fail2ban/jail.d/defaults-debian.conf:
+      backend = systemd
 
-   # Enable the site
-   ln -s /etc/nginx/sites-available/g3.sdi.hdm-stuttgart.cloud /etc/nginx/sites-enabled/
-   nginx -t
-   systemctl restart nginx
-   ```
+      [sshd]
+      enabled = true
+      # To use internal sshd filter variants
+  - path: /etc/caddy/Caddyfile
+    content: |
+      www.g10.sdi.hdm-stuttgart.cloud {
+        root * /var/www/html
+        file_server
+      }
 
-   **TLS Setup with Nginx:**
-   ```bash
-   # Install Certbot
-   apt install certbot python3-certbot-nginx
-
-   # Test certificate generation using staging
-   certbot --staging -d www.g3.sdi.hdm-stuttgart.cloud --nginx
-
-   # Generate production certificate
-   certbot -d www.g3.sdi.hdm-stuttgart.cloud --nginx
-   ```
-
-   The Certbot will automatically modify your Nginx configuration to include HTTPS settings.
-
-   #### Option B: Using Caddy
-
-   Caddy is a modern web server with automatic HTTPS support built-in.
-
-   ```bash
-   # Install Caddy
-   apt install -y debian-keyring debian-archive-keyring apt-transport-https
-   curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
-   curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | tee /etc/apt/sources.list.d/caddy-stable.list
-   apt update
-   apt install caddy
-
-   # Create Caddyfile
-   cat > /etc/caddy/Caddyfile << 'EOF'
-   www.g3.sdi.hdm-stuttgart.cloud {
-       root * /var/www/html
-       file_server
-       encode gzip
-   }
-   EOF
-
-   # Start Caddy
-   systemctl restart caddy
-   ```
-
-   Caddy will automatically:
-   - Obtain SSL certificates from Let's Encrypt
-   - Configure HTTPS
-   - Handle certificate renewals
-   - Redirect HTTP to HTTPS
+runcmd:
+  # Caddy setup [!code ++:5]
+  - systemctl enable caddy
+  - mkdir -p /var/www/html
+  - >
+    echo "I'm Caddy @ $(dig -4 TXT +short o-o.myaddr.l.google.com @ns1.google.com)
+    created $(date -u)" >> /var/www/html/index.html
+  - systemctl enable fail2ban
+  - systemctl start fail2ban
+  - updatedb
+  - systemctl restart fail2ban
+  - systemctl start caddy # [!code ++]
+```
 
 ### Verification
 

@@ -3,3 +3,9 @@ variable "hcloud_token" {
   nullable    = false
   sensitive   = true
 }
+
+variable "login_user" {
+  description = "Login user for the server"
+  nullable    = false
+  default     = "devops"
+}

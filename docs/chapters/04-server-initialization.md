@@ -131,7 +131,7 @@ resource "hcloud_firewall" "web_access_firewall" {
 }
 ```
 
-Ensure your server is associated with this firewall. Otherwise you can also use ssh port forwarding like described [here](./02-using-ssh.md#_4-ssh-port-forwarding).
+Ensure your server is associated with this firewall. Otherwise you can also use ssh port forwarding like described [here](02-using-ssh.md#_4-ssh-port-forwarding).
 :::
 
 ## 3. Cloud-Init: User Management and Templating

@@ -8,11 +8,6 @@ terraform {
   required_version = ">= 0.13"
 }
 
-# Configure Hetzner Cloud provider with API token
-provider "hcloud" {
-  token = var.hcloud_token
-}
-
 # Add SSH public key for server authentication
 resource "hcloud_ssh_key" "user_ssh_key" {
   name       = "robin@Robin-Laptop"
@@ -43,9 +38,9 @@ resource "hcloud_server" "debian_server" {
 # Create SSH wrapper for easier server access
 module "ssh_wrapper" {
   source      = "../modules/ssh-wrapper"
-  loginUser   = "root"
+  loginUser   = var.login_user
   ipv4Address = hcloud_server.debian_server.ipv4_address
-  public_key = file("~/.ssh/id_ed25519.pub")
+  public_key  = file("~/.ssh/id_ed25519.pub")
 }
 
 # Generate host metadata for the server

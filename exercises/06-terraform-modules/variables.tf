@@ -1,4 +1,11 @@
 variable "hcloud_token" {
-  nullable  = false
-  sensitive = true
+  description = "Hetzner Cloud API token"
+  nullable    = false
+  sensitive   = true
+}
+
+variable "login_user" {
+  description = "Login user for the server"
+  nullable    = false
+  default     = "devops"
 }
