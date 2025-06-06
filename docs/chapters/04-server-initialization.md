@@ -53,14 +53,14 @@ You can extend this script for more complex tasks, such as software installation
 apt update && apt upgrade -y
 
 # Install Nginx web server
-apt install -y nginx # [!code ++]
+apt install -y nginx # [!code ++:6]
 
 # Create a simple default HTML page
-echo "Hello from my Terraform server!" > /var/www/html/index.html # [!code ++]
+echo "Hello from my Terraform server!" > /var/www/html/index.html
 
 # Start Nginx and enable it to start on boot
-systemctl start nginx # [!code ++]
-systemctl enable nginx  # [!code ++]
+systemctl start nginx
+systemctl enable nginx
 ```
 
 This script performs package updates, installs Nginx, starts the Nginx service, enables it for auto-start on boot, and creates a basic `index.html`, which is served on port 80 by default.

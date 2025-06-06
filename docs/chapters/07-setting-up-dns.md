@@ -159,7 +159,7 @@ write_files:
       }
 
 runcmd:
-  # Caddy setup [!code ++:5]
+  # Caddy setup [!code ++:6]
   - systemctl enable caddy
   - mkdir -p /var/www/html
   - >
@@ -169,7 +169,7 @@ runcmd:
   - systemctl start fail2ban
   - updatedb
   - systemctl restart fail2ban
-  - systemctl start caddy # [!code ++]
+  - systemctl start caddy
 ```
 
 ### Verification
