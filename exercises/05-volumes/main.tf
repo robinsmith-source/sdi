@@ -60,7 +60,7 @@ resource "local_file" "known_hosts" {
 resource "local_file" "ssh_script" {
   content = templatefile("tpl/ssh_helper.sh", {
     ip   = hcloud_server.debian_server.ipv4_address
-    user = "devops"
+    user = var.login_user
   })
   filename        = "bin/ssh"
   file_permission = "700"
@@ -69,11 +69,11 @@ resource "local_file" "ssh_script" {
 
 resource "local_file" "user_data" {
   content = templatefile("tpl/userData.yml", {
-    public_key = hcloud_ssh_key.user_ssh_key.public_key
-    tls_private_key  = indent(4, tls_private_key.host.private_key_openssh)
-    tls_public_key   = tls_private_key.host.public_key_openssh
-    loginUser        = "devops"
-    volId = hcloud_volume.data_volume.id
+    public_key      = hcloud_ssh_key.user_ssh_key.public_key
+    tls_private_key = indent(4, tls_private_key.host.private_key_openssh)
+    tls_public_key  = tls_private_key.host.public_key_openssh
+    loginUser       = var.login_user
+    volId           = hcloud_volume.data_volume.id
   })
   filename = "gen/userData.yml"
 }

@@ -7,7 +7,7 @@
 Before you begin, ensure you have:
 
 - A Hetzner Cloud account (if you don't have one, follow our guide
-  on [Creating a Hetzner Account](../chapters/01-hetzner-cloud.md#_1-creating-a-hetzner-account))
+  on [Creating a Hetzner Account](01-hetzner-cloud.md#_1-creating-a-hetzner-account))
 - Familiarity with command-line interfaces
 - Terraform installed on your local machine
 - A Hetzner Cloud API Token
@@ -20,8 +20,6 @@ For more in-depth information about Terraform and infrastructure as code:
 - [Arch Wiki: Terraform](https://wiki.archlinux.org/title/Terraform) - Terraform installation and usage
 - [Hetzner Cloud Provider Documentation](https://registry.terraform.io/providers/hetznercloud/hcloud/latest/docs) -
   Hetzner Cloud provider details
-- [Terraform Best Practices](https://developer.hashicorp.com/terraform/language/modules/develop/best-practices) -
-  Terraform module development best practices
 
 ## 1. Install Terraform
 
@@ -79,7 +77,7 @@ Configuration Language (`HCL`).
 ## 4. Creating and Managing the Server
 
 For a list of essential Terraform commands and their explanations, refer to
-our [Terraform Commands Knowledge Page](../knowledge/terraform.md).
+our [Terraform Commands Knowledge Page](/knowledge/terraform).
 
 ## 5. Improving the Server Configuration
 

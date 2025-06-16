@@ -6,9 +6,10 @@
 
 Before you begin, ensure you have:
 
-- Access to your group's DNS zone (e.g., g3.sdi.hdm-stuttgart.cloud)
-- Your group's HMAC secret key (dnsupdate.sec file)
+- Access to your group's DNS zone (e.g., g10.sdi.hdm-stuttgart.cloud)
+- Your group's HMAC secret key (provided in your dnsupdate.sec file)
 - Basic understanding of DNS concepts and tools (dig, nsupdate)
+- A web server set up (e.g., Nginx like in [Server Initialization](04-server-initialization) or just simply use Caddy)
 
 ## External Resources
 
@@ -16,25 +17,24 @@ For more in-depth information about DNS management:
 
 - [BIND9 Documentation](https://bind9.readthedocs.io/) - Official BIND9 documentation
 - [DNS Update Protocol](https://datatracker.ietf.org/doc/html/rfc2136) - RFC 2136
-- [TSIG Documentation](https://bind9.readthedocs.io/en/latest/reference.html#tsig) - TSIG key management
 - [Let's Encrypt Documentation](https://letsencrypt.org/docs/) - SSL/TLS certificate management
 - [Nginx Documentation](https://nginx.org/en/docs/) - Nginx web server configuration
 - [Caddy Documentation](https://caddyserver.com/docs/) - Caddy web server configuration
 
 ## 1. Understanding Your DNS Zone
 
-Each group is assigned a dedicated subdomain on the ns1.hdm-stuttgart.cloud nameserver. For example, Group 3's zone would be `g3.sdi.hdm-stuttgart.cloud`.
+Each group is assigned a dedicated subdomain on the ns1.hdm-stuttgart.cloud nameserver. For example, Group 3's zone would be `g10.sdi.hdm-stuttgart.cloud`.
 
 ### Zone Transfer
 
 To view your current DNS records, you can perform a zone transfer using the `dig` command with your HMAC key:
 
 ```bash
-# Set your HMAC key as an environment variable
-export HMAC=hmac-sha512:g3.key:I5sDDS3L1BU...
+# Export your HMAC key as an environment variable
+export HMAC=hmac-sha512:g10.key:gEVK/4vI9OK...
 
-# Perform zone transfer
-dig @ns1.hdm-stuttgart.cloud -y $HMAC -t AXFR g3.sdi.hdm-stuttgart.cloud
+# Perform a full zone transfer to list all records in your DNS zone
+dig @ns1.hdm-stuttgart.cloud -y $HMAC -t AXFR g10.sdi.hdm-stuttgart.cloud
 ```
 
 This will show all records in your zone, including:
@@ -49,23 +49,23 @@ This will show all records in your zone, including:
 To add a new A record (e.g., for a web server), use the `nsupdate` command:
 
 ```bash
-# Start nsupdate session
+# Start an nsupdate session with your HMAC key
 nsupdate -y $HMAC
 
-# Connect to the nameserver
+# Specify the DNS server to connect to
 server ns1.hdm-stuttgart.cloud
 
-# Add an A record
-update add www.g3.sdi.hdm-stuttgart.cloud 10 A 141.62.75.114
+# Add an A record for your web server (replace with your actual IP)
+update add www.g10.sdi.hdm-stuttgart.cloud 10 A 141.62.75.114
 
-# Send the update and quit
+# Send the update and exit the session
 send
 quit
 ```
 
-Verify the record was added:
+# Check if the record was added successfully
 ```bash
-dig +noall +answer @ns1.hdm-stuttgart.cloud www.g3.sdi.hdm-stuttgart.cloud
+dig +noall +answer @ns1.hdm-stuttgart.cloud www.g10.sdi.hdm-stuttgart.cloud
 ```
 
 ### Modifying Records
@@ -73,123 +73,117 @@ dig +noall +answer @ns1.hdm-stuttgart.cloud www.g3.sdi.hdm-stuttgart.cloud
 To modify a record, you must first delete it and then create the new version:
 
 ```bash
+# Start an nsupdate session
 nsupdate -y $HMAC
+# Connect to the DNS server
 server ns1.hdm-stuttgart.cloud
-update delete www.g3.sdi.hdm-stuttgart.cloud. 10 IN A 141.62.75.114
+# Delete the old A record (replace with the correct IP if needed)
+update delete www.g10.sdi.hdm-stuttgart.cloud. 10 IN A 141.62.75.114
 send
 quit
 ```
 
 ::: warning **TTL Considerations**
-- Records have a Time To Live (TTL) value that determines how long they can be cached
-- Higher TTL values mean longer wait times for updates to propagate globally
-- Consider using lower TTL values during development and higher values in production
+- Records have a Time To Live (TTL) value that determines how long they can be cached.
+- Higher TTL values mean longer wait times for updates to propagate globally.
+- Consider using lower TTL values during development and higher values in production.
 :::
 
 ## 3. Exercise: Enhancing Your Web Server
 
 ### Task Description
 
-Enhance your web server by:
-1. Setting up a proper DNS name (e.g., http://www.gXY.sdi.hdm-stuttgart.cloud)
-2. Configuring TLS for HTTPS support
+In this exercise, you will:
+1. Assign a DNS name to your web server (e.g., http://www.gXY.sdi.hdm-stuttgart.cloud)
+2. Enable HTTPS by configuring TLS on your web server
 
 ### Step-by-Step Guide
 
 1. **DNS Configuration**
+   Add an A record for your web server using `nsupdate`. Replace `<YOUR_SERVER_IP>` with your actual server IP address:
    ```bash
-   # Add A record for your web server
+   # Add an A record for your web server (replace <YOUR_SERVER_IP> with your actual server IP)
    nsupdate -y $HMAC
    server ns1.hdm-stuttgart.cloud
-   update add www.g3.sdi.hdm-stuttgart.cloud 10 A YOUR_SERVER_IP
+   update add www.g10.sdi.hdm-stuttgart.cloud 10 A <YOUR_SERVER_IP>
    send
    quit
    ```
 
 2. **Web Server Setup**
 
-   You can choose between Nginx or Caddy as your web server. Both are excellent choices, with Caddy offering automatic HTTPS by default.
+Take the cloud-init configuration file from [Server Initialization](04-server-initialization) and modify it to include the following:
+```yaml
+#cloud-config
+users:
+  - name: ${loginUser}
+    groups: [sudo]
+    shell: /bin/bash
+    sudo: ["ALL=(ALL) NOPASSWD:ALL"]
+    ssh_authorized_keys:
+      - ${public_key_robin}
+      
+ssh_keys:
+  ed25519_private: |
+    ${tls_private_key}
+ssh_pwauth: false
 
-   #### Option A: Using Nginx
+package_update: true
+package_upgrade: true
+package_reboot_if_required: true
 
-   ```bash
-   # Install Nginx
-   apt update
-   apt install nginx
+packages:
+  - caddy # [!code ++]
+  - fail2ban
+  - plocate
+  - python3-systemd # Add python3-systemd for fail2ban backend
 
-   # Create a basic site configuration
-   cat > /etc/nginx/sites-available/g3.sdi.hdm-stuttgart.cloud << 'EOF'
-   server {
-       listen 80;
-       server_name www.g3.sdi.hdm-stuttgart.cloud;
-       root /var/www/html;
-       index index.html;
+write_files:
+  - path: /etc/fail2ban/jail.local # [!code ++:18]
+    content: |
+      [DEFAULT]
+      # Ban hosts for 1 hour:
+      bantime = 1h
 
-       location / {
-           try_files $uri $uri/ =404;
-       }
-   }
-   EOF
+      # Override /etc/fail2ban/jail.d/defaults-debian.conf:
+      backend = systemd
 
-   # Enable the site
-   ln -s /etc/nginx/sites-available/g3.sdi.hdm-stuttgart.cloud /etc/nginx/sites-enabled/
-   nginx -t
-   systemctl restart nginx
-   ```
+      [sshd]
+      enabled = true
+      # To use internal sshd filter variants
+  - path: /etc/caddy/Caddyfile
+    content: |
+      www.g10.sdi.hdm-stuttgart.cloud {
+        root * /var/www/html
+        file_server
+      }
 
-   **TLS Setup with Nginx:**
-   ```bash
-   # Install Certbot
-   apt install certbot python3-certbot-nginx
-
-   # Test certificate generation using staging
-   certbot --staging -d www.g3.sdi.hdm-stuttgart.cloud --nginx
-
-   # Generate production certificate
-   certbot -d www.g3.sdi.hdm-stuttgart.cloud --nginx
-   ```
-
-   The Certbot will automatically modify your Nginx configuration to include HTTPS settings.
-
-   #### Option B: Using Caddy
-
-   Caddy is a modern web server with automatic HTTPS support built-in.
-
-   ```bash
-   # Install Caddy
-   apt install -y debian-keyring debian-archive-keyring apt-transport-https
-   curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
-   curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | tee /etc/apt/sources.list.d/caddy-stable.list
-   apt update
-   apt install caddy
-
-   # Create Caddyfile
-   cat > /etc/caddy/Caddyfile << 'EOF'
-   www.g3.sdi.hdm-stuttgart.cloud {
-       root * /var/www/html
-       file_server
-       encode gzip
-   }
-   EOF
-
-   # Start Caddy
-   systemctl restart caddy
-   ```
-
-   Caddy will automatically:
-   - Obtain SSL certificates from Let's Encrypt
-   - Configure HTTPS
-   - Handle certificate renewals
-   - Redirect HTTP to HTTPS
+runcmd:
+  # Caddy setup [!code ++:6]
+  - systemctl enable caddy
+  - mkdir -p /var/www/html
+  - >
+    echo "I'm Caddy @ $(dig -4 TXT +short o-o.myaddr.l.google.com @ns1.google.com)
+    created $(date -u)" >> /var/www/html/index.html
+  - systemctl enable fail2ban
+  - systemctl start fail2ban
+  - updatedb
+  - systemctl restart fail2ban
+  - systemctl start caddy
+```
 
 ### Verification
 
-1. Check DNS resolution:
+After completing the steps above, verify your setup:
+
+1. **Check DNS resolution:**
+   Use a public DNS resolver to confirm your A record is active:
    ```bash
-   dig +noall +answer @8.8.8.8 www.g3.sdi.hdm-stuttgart.cloud
+   dig +noall +answer @8.8.8.8 www.g10.sdi.hdm-stuttgart.cloud
    ```
 
-2. Verify HTTPS:
+2. **Verify HTTPS:**
+   Ensure your web server is accessible via HTTPS:
    ```bash
-   curl -I https://www.g3.sdi.hdm-stuttgart.cloud
+   curl -I https://www.g10.sdi.hdm-stuttgart.cloud
    ```

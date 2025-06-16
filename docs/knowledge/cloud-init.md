@@ -1,12 +1,12 @@
-# Cloud-init <Badge text="Instance Initialization" />
+# Cloud-init <Badge type="info" text="Instance Initialization" />
 
-Cloud-init is the industry standard multi-distribution method for cross-platform cloud instance initialization. It allows you to define configurations and run scripts on a cloud server during its very first boot, automating the initial setup process.
+> Cloud-init is the industry standard multi-distribution method for cross-platform cloud instance initialization. It allows you to define configurations and run scripts on a cloud server during its very first boot, automating the initial setup process.
 
 ::: info Purpose
 Cloud-init bridges the gap between provisioning a base OS image and having a fully configured, ready-to-use server instance. It handles tasks that need to run _inside_ the instance after it boots for the first time.
 :::
 
-## Core Workflow & Concepts {#core-workflow}
+## Core Concepts {#core-concepts}
 
 Cloud-init operates by reading configuration data (often called "user data") provided by the cloud platform during instance creation.
 
@@ -35,7 +35,7 @@ Cloud-init operates through modules, each responsible for a specific configurati
 - `ssh`: Configure SSH server options.
 - `apt`/`yum`: Configure package manager sources.
 - `mounts`: Define filesystem mounts.
-  :::
+:::
 
 ::: details Execution Stages
 Cloud-init runs tasks in specific stages during the boot process (network, config, final). Understanding the order can be important for dependencies (e.g., ensuring network is up before downloading a file). See the official Cloud-init documentation for stage details.
@@ -45,25 +45,9 @@ Cloud-init runs tasks in specific stages during the boot process (network, confi
 Some cloud providers might supply additional "vendor data" alongside user data, often used for platform-specific configurations.
 :::
 
-## Common Features & Use Cases
+## Essential Commands <Badge type="tip" text="Core CLI" />
 
-Cloud-init can automate a wide range of initial setup tasks:
-
-- **Package Management:** Installing essential tools (`git`, `vim`, `docker`), web servers (`nginx`, `apache`), or application dependencies.
-- **User & Group Management:** Creating service accounts or administrative users, setting up sudo privileges, and distributing SSH public keys for access.
-- **Running Commands:** Executing setup scripts, configuring services, cloning repositories, or performing initial data seeding.
-- **Writing Files:** Creating configuration files (e.g., `/etc/nginx/sites-available/default`), setting environment variables, or writing application settings.
-- **SSH Configuration:** Hardening SSH daemon settings (disabling password auth, changing port), managing host keys.
-- **Network Configuration:** Setting static IPs or configuring network interfaces (though often handled by the cloud platform).
-- **Storage Setup:** Formatting and mounting additional volumes.
-
-## Examples
-
-Here are some practical examples using the `#cloud-config` format:
-
-**1. Update Packages and Install Nginx:**
-
-This example updates all packages and installs the `nginx` web server.
+### Example Cloud-init Configurations
 
 ```yaml
 #cloud-config
@@ -76,10 +60,6 @@ runcmd:
   - systemctl start nginx
 ```
 
-**2. Create a User and Add SSH Key:**
-
-This creates a user named `devops`, adds them to the `sudo` group, grants passwordless sudo, and authorizes an SSH public key for login.
-
 ```yaml
 #cloud-config
 users:
@@ -91,10 +71,6 @@ users:
       - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGEXAMPLEKEY... user@example.com
 ```
 
-**3. Write a Configuration File:**
-
-This example writes a simple text file to `/etc/motd` (Message of the Day).
-
 ```yaml
 #cloud-config
 write_files:
@@ -104,10 +80,6 @@ write_files:
       Welcome to this Cloud-init configured server!
       Managed by DevOps Team.
 ```
-
-**4. Combining Multiple Modules:**
-
-This example combines package installation, file writing, and command execution.
 
 ```yaml
 #cloud-config
@@ -128,14 +100,40 @@ runcmd:
 
 ## Best Practices
 
-- **Start Simple:** Begin with basic configurations and add complexity gradually.
-- **Idempotency:** Design `runcmd` scripts to be safe to run multiple times if possible, although Cloud-init aims to run only once.
-- **Modularity:** Use YAML anchors or includes (if supported by your templating method) to keep configurations organized.
-- **Version Control:** Store your Cloud-init configurations (`#cloud-config` files or templates) in Git alongside your infrastructure code.
-- **Testing:** Test configurations thoroughly, ideally on ephemeral instances. Cloud-init logs (`/var/log/cloud-init.log` and `/var/log/cloud-init-output.log`) are crucial for debugging.
-- **Security:** Be cautious with `runcmd`. Avoid embedding sensitive data directly; use secure methods provided by the cloud platform or tools like HashiCorp Vault if necessary. Ensure correct file permissions when using `write_files`.
-- **Understand Execution Order:** Be aware of Cloud-init stages if your commands have dependencies (e.g., needing packages installed before running a command that uses them).
-- **Use Official Modules:** Prefer using built-in modules (`users`, `packages`, `write_files`) over complex `runcmd` scripts where possible, as modules are often more robust and platform-aware.
+- Use simple, modular configurations and add complexity gradually
+- Design `runcmd` scripts to be idempotent if possible
+- Store your Cloud-init configs in version control
+- Test configurations on ephemeral instances and check logs (`/var/log/cloud-init.log`)
+- Avoid embedding sensitive data directly; use secure methods
+- Prefer built-in modules over complex shell scripts
+
+## Common Use Cases
+
+- **Package Management:** Install essential tools and dependencies
+- **User & Group Management:** Create users, set up SSH keys
+- **Running Commands:** Execute setup scripts, configure services
+- **Writing Files:** Create config files, set environment variables
+- **SSH Configuration:** Harden SSH settings
+- **Network Configuration:** Set static IPs or configure interfaces
+- **Storage Setup:** Format and mount additional volumes
+
+## Troubleshooting <Badge type="warning" text="Common Issues" />
+
+::: details Cloud-init Not Running as Expected
+- Check for syntax errors in your user data
+- Review logs: `/var/log/cloud-init.log` and `/var/log/cloud-init-output.log`
+- Ensure the cloud platform is passing user data correctly
+:::
+
+::: details Package Installation Fails
+- Confirm package names are correct for the OS
+- Check network connectivity from the instance
+:::
+
+::: details User/SSH Key Issues
+- Ensure SSH keys are in the correct format
+- Check file permissions on `/home/username/.ssh/authorized_keys`
+:::
 
 ---
 

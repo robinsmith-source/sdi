@@ -1,14 +1,14 @@
 variable "loginUser" {
-  type = string
+  type    = string
   default = "root"
 }
 
 variable "public_key" {
-  type = string
+  type     = string
   nullable = false
 }
 
 variable "ipv4Address" {
-  type = string
+  type     = string
   nullable = false
 }

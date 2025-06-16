@@ -1,17 +1,16 @@
 # Terraform <Badge type="info" text="IaC" />
 
-Terraform is a powerful **Infrastructure as Code (IaC)** tool by HashiCorp. It allows you to define, provision, and manage cloud and on-prem infrastructure using a declarative configuration language called **HCL (HashiCorp Configuration Language)**.
+> Terraform is a powerful Infrastructure as Code (IaC) tool by HashiCorp. It allows you to define, provision, and manage cloud and on-prem infrastructure using a declarative configuration language called HCL (HashiCorp Configuration Language).
 
-::: info Why Use Terraform?
+::: info Purpose
+Terraform enables:
+- Declarative, version-controlled infrastructure
+- Automation and repeatability
+- Multi-cloud and hybrid-cloud management
+- Collaboration and reusability via modules
+:::
 
-- **Declarative Approach:** Define the desired _end state_ of your infrastructure, and Terraform figures out how to achieve it.
-- **Automation:** Reduces manual effort and errors in provisioning and management.
-- **Version Control:** Treat your infrastructure like code – track changes, review, and collaborate using Git.
-- **Reusability:** Use modules to create reusable infrastructure components.
-- **Multi-Cloud:** Manage resources across various cloud providers (AWS, Azure, GCP, Hetzner Cloud, etc.) and other services with a single workflow.
-  :::
-
-## Core Workflow & Concepts {#core-workflow}
+## Core Concepts {#core-concepts}
 
 Terraform follows a simple yet powerful workflow: **Write -> Plan -> Apply**.
 
@@ -39,175 +38,63 @@ Apply complex infrastructure changes reliably and predictably, minimizing human 
 
 ## Essential Commands <Badge type="tip" text="Core CLI" />
 
-Mastering these commands is key to using Terraform effectively.
-
-::: code-group
-
-```sh [1. Initialize]
+```sh
+# Initialize a Terraform project
 terraform init
 
-# Downloads provider plugins and modules
-# Run once per project, or after adding new providers/modules
-```
-
-```sh [2. Format & Validate]
+# Format and validate configuration
 terraform fmt
-
-# Automatically formats your .tf files for consistency
-
 terraform validate
 
-# Checks syntax and basic configuration errors locally
-```
-
-```sh [3. Plan]
+# Preview changes
 terraform plan
-
-# Shows what changes Terraform will make
-# (+) create, (-) destroy, (~) update in-place
-
 terraform plan -out=tfplan
 
-# Save the plan to a file for later application
-```
-
-```sh [4. Apply]
+# Apply changes
 terraform apply
-
-# Executes the changes outlined in the plan
-# Prompts for confirmation unless -auto-approve is used
-
 terraform apply tfplan
-
-# Apply a previously saved plan file
-
 terraform apply -auto-approve
 
-# Auto-approve (Use with caution, e.g., in CI/CD)
-```
-
-```sh [5. Destroy]
+# Destroy resources
 terraform destroy
-
-# Removes all resources managed by this configuration
-# Shows a plan first, prompts for confirmation
-
 terraform destroy -auto-approve
-
-# Auto-approve destruction (Use with extreme caution!)
 ```
 
+## Best Practices
+
+- Always review `terraform plan` output before applying
+- Use remote backends for state storage in teams
+- Never commit state files to version control
+- Use modules for reusability and organization
+- Parameterize with variables and outputs
+- Use version constraints for providers and modules
+
+## Common Use Cases
+
+- Provisioning cloud infrastructure (VMs, networks, databases)
+- Managing DNS, storage, and SaaS resources
+- Automating multi-cloud and hybrid-cloud deployments
+- Creating reusable infrastructure modules
+
+## Troubleshooting <Badge type="warning" text="Common Issues" />
+
+::: details State File Issues
+- Never commit `terraform.tfstate` to Git
+- Use remote backends for collaboration
+- If state is lost, resources may be orphaned or recreated
 :::
 
-::: warning Plan Review is Crucial!
-Always meticulously review the output of `terraform plan` before applying. Understand exactly what resources will be created, modified, or destroyed to prevent accidental data loss or unwanted changes.
+::: details Provider Authentication Errors
+- Ensure credentials are set (env vars, config files, etc.)
+- Check provider documentation for required setup
 :::
 
-## Terraform State <Badge type="danger" text="Important!" />
-
-Terraform records the infrastructure it manages in a **state file** (usually `terraform.tfstate`).
-
-- **Mapping:** Connects your configuration resources to real-world objects.
-- **Metadata:** Stores resource dependencies and attributes.
-- **Performance:** Improves planning for large infrastructures.
-
-::: danger State File Sensitivity
-The state file can contain sensitive information. **Do not commit `terraform.tfstate` directly to Git** or share it publicly. Use `.gitignore` to exclude it!
+::: details Plan/Apply Fails
+- Validate configuration syntax
+- Check for resource naming conflicts
+- Review error messages for hints
 :::
-
-::: tip Remote Backends
-For team collaboration and better security/reliability, use **remote backends** (like AWS S3, Azure Blob Storage, Google Cloud Storage, HashiCorp Cloud, or GitLab Managed Terraform State) to store the state file remotely, manage locking, and prevent conflicts.
-
-```hcl
-# Example backend configuration (main.tf or backend.tf)
-terraform {
-  backend "s3" {
-    bucket         = "my-terraform-state-bucket-name"
-    key            = "path/to/my/project/terraform.tfstate"
-    region         = "eu-central-1"
-    encrypt        = true
-    dynamodb_table = "my-terraform-lock-table" # For state locking
-  }
-}
-```
-
-:::
-
-## Providers, Resources, Variables & Modules
-
-### Providers <Badge type="info" text="Plugins" />
-
-Providers are plugins that enable Terraform to interact with specific APIs (cloud providers, SaaS services, etc.). You declare required providers in your configuration.
-
-```hcl
-# Example: Requiring the Hetzner Cloud provider (versions.tf)
-terraform {
-  required_providers {
-    hcloud = {
-      source  = "hetznercloud/hcloud"
-      version = "~> 1.4" # Specify version constraint
-    }
-  }
-}
-
-# Configure the provider (e.g., main.tf or provider.tf)
-provider "hcloud" {
-  # Token can be set via environment variable HCLOUD_TOKEN
-  # token = var.hcloud_token
-}
-```
-
-### Resources <Badge type="tip" text="Building Blocks" />
-
-Resources are the fundamental elements of your infrastructure (e.g., a virtual machine, a DNS record, a database).
-
-```hcl
-# Example: Define an Hetzner Cloud server (main.tf)
-resource "hcloud_server" "web_server" {
-  name        = "my-web-server"
-  server_type = "cx11" # Smallest server type
-  image       = "ubuntu-22.04"
-  location    = "fsn1" # Falkenstein location
-  # ... other configurations like ssh_keys, network, etc.
-}
-```
-
-### Variables <Badge type="tip" text="Inputs" />
-
-Variables allow you to parameterize your configurations, making them more flexible and reusable.
-
-```hcl
-# Define a variable (variables.tf)
-variable "server_type" {
-  description = "The type of server to provision"
-  type        = string
-  default     = "cx11"
-}
-
-# Use the variable in a resource (main.tf)
-resource "hcloud_server" "web_server" {
-  # ...
-  server_type = var.server_type # Reference the variable
-  # ...
-}
-```
-
-### Modules <Badge type="tip" text="Reusability" />
-
-Modules are containers for multiple resources that are used together. They help organize configurations and promote reuse.
-
-```hcl
-# Using a module (main.tf)
-module "vpc" {
-  source = "terraform-aws-modules/vpc/aws" # Source from Terraform Registry
-  version = "5.1.1"
-
-  name = "my-vpc"
-  cidr = "10.0.0.0/16"
-  # ... other module inputs
-}
-```
 
 ---
 
-This overview covers the essentials of Terraform. For deeper dives, consult the official [HashiCorp Terraform Documentation](https://developer.hashicorp.com/terraform/docs).
+For deeper dives, consult the official [HashiCorp Terraform Documentation](https://developer.hashicorp.com/terraform/docs).

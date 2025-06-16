@@ -10,9 +10,9 @@ Volumes and mounts enable:
 - Backup and recovery capabilities
 :::
 
-## Core Concepts {#core-workflow}
+## Core Concepts {#core-concepts}
 
-### Volumes
+### What is a Volume?
 A volume is a storage unit that can be:
 - A physical disk partition
 - A logical volume (LVM)
@@ -33,200 +33,68 @@ A mount point is a directory where a filesystem is attached. Common mount points
 
 ## Essential Commands <Badge type="tip" text="Core CLI" />
 
-### Listing and Information
-
 ```sh
 # List all block devices and their mount points
 lsblk
-
 # Show all currently mounted filesystems
 mount
-
 # Alternative way to view mounts
 cat /proc/mounts
-
 # Show disk space usage
 df -h
-```
-
-### Mounting and Unmounting
-
-```sh
 # Mount a filesystem
 mount /dev/sdb1 /mnt/data
-
 # Mount with specific options
 mount -o ro,noexec /dev/sdb1 /mnt/data
-
 # Unmount a filesystem
 umount /mnt/data
-
 # Force unmount if busy
 umount -f /mnt/data
-```
-
-### Filesystem Operations
-
-```sh
 # Create a new filesystem
 mkfs.ext4 /dev/sdb1
-
 # Check filesystem for errors
 fsck /dev/sdb1
-
 # Resize an ext4 filesystem
 resize2fs /dev/sdb1
 ```
 
-## LVM (Logical Volume Management) <Badge type="info" text="Advanced" />
-
-LVM provides a more flexible way to manage storage by abstracting physical storage into logical volumes.
-
-### Basic LVM Concepts
-
-::: details Physical Volume (PV)
-A physical storage device (disk or partition) that has been initialized for use with LVM.
-:::
-
-::: details Volume Group (VG)
-A collection of physical volumes that are combined into a single storage unit.
-:::
-
-::: details Logical Volume (LV)
-A virtual partition created from a volume group. Can be resized dynamically.
-:::
-
-### LVM Operations
-
-```sh
-# Initialize a disk for LVM
-pvcreate /dev/sdb
-
-# Create a volume group
-vgcreate myvg /dev/sdb
-
-# Create a logical volume
-lvcreate -L 10G -n mylv myvg
-
-# Extend a logical volume
-lvextend -L +5G /dev/myvg/mylv
-```
-
-### LVM Information
-
-```sh
-# List physical volumes
-pvdisplay
-
-# List volume groups
-vgdisplay
-
-# List logical volumes
-lvdisplay
-
-# Scan for LVM components
-pvscan
-vgscan
-lvscan
-```
-
 ## Best Practices
 
-### Mount Options
 - Use appropriate mount options for your use case
-- Consider `noexec`, `nosuid` for security
-- Use `defaults` for standard mounting
-
-### Filesystem Choice
-- `ext4`: General purpose, well-tested
-- `XFS`: High performance, good for large files
-- `Btrfs`: Advanced features, snapshots
-- `ZFS`: Enterprise-grade, advanced features
-
-### LVM Usage
+- Choose the right filesystem for your needs (`ext4`, `XFS`, `Btrfs`, `ZFS`)
 - Use LVM for flexible storage management
-- Create separate volume groups for different purposes
-- Leave space for future expansion
-
-### Security
 - Set proper permissions on mount points
-- Use mount options to restrict access
+- Monitor disk usage and set up alerts
 - Consider encryption for sensitive data
-
-### Monitoring
-- Monitor disk usage with `df` and `du`
-- Set up alerts for low disk space
-- Regularly check filesystem health
 
 ## Common Use Cases
 
-### Container Volumes
-```sh
-# Docker volume creation
-docker volume create mydata
-
-# Mount volume to container
-docker run -v mydata:/data myapp
-```
-
-### Backup Storage
-```sh
-# Mount backup drive
-mount /dev/sdb1 /mnt/backup
-
-# Set up automatic mounting
-echo "/dev/sdb1 /mnt/backup ext4 defaults 0 2" >> /etc/fstab
-```
-
-### Shared Storage
-```sh
-# NFS mount
-mount -t nfs server:/share /mnt/share
-
-# CIFS/SMB mount
-mount -t cifs //server/share /mnt/share -o username=user
-```
+- **Container Volumes:**
+  - `docker volume create mydata`
+  - `docker run -v mydata:/data myapp`
+- **Backup Storage:**
+  - Mount backup drives and set up `/etc/fstab`
+- **Shared Storage:**
+  - NFS: `mount -t nfs server:/share /mnt/share`
+  - CIFS/SMB: `mount -t cifs //server/share /mnt/share -o username=user`
 
 ## Troubleshooting <Badge type="warning" text="Common Issues" />
 
-### Mount Point Busy
-If a mount point is busy when trying to unmount:
-```sh
-# Find processes using the mount point
-lsof /mnt/data
+::: details Mount Point Busy
+- Find processes using the mount point: `lsof /mnt/data`
+- Force unmount if necessary: `umount -f /mnt/data`
+:::
 
-# Force unmount (use with caution)
-umount -f /mnt/data
-```
+::: details Filesystem Errors
+- Unmount the filesystem: `umount /dev/sdb1`
+- Check and repair: `fsck /dev/sdb1`
+- Remount: `mount /dev/sdb1 /mnt/data`
+:::
 
-### Filesystem Errors
-If filesystem errors are detected:
-```sh
-# Unmount the filesystem
-umount /dev/sdb1
-
-# Check and repair
-fsck /dev/sdb1
-
-# Remount
-mount /dev/sdb1 /mnt/data
-```
-
-### LVM Issues
-Common LVM problems and solutions:
-```sh
-# Check physical volumes
-pvscan
-
-# Check volume groups
-vgscan
-
-# Check logical volumes
-lvscan
-
-# Repair volume group
-vgck myvg
-```
+::: details LVM Issues
+- Scan for LVM components: `pvscan`, `vgscan`, `lvscan`
+- Repair volume group: `vgck myvg`
+:::
 
 ---
 
