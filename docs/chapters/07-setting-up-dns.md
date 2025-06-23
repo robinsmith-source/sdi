@@ -187,3 +187,13 @@ After completing the steps above, verify your setup:
    ```bash
    curl -I https://www.g10.sdi.hdm-stuttgart.cloud
    ```
+//TODO: rewrite and add 19-21 here
+λ ~/code/sdi/exercises/07-dns/creating-dns-records/ main* dig +noall +answer @ns1.sdi.hdm-stuttgart.cloud -y "hmac-sha512:g10.key:..." -t AXFR g10.sdi.hdm-stuttgart.cloud
+g10.sdi.hdm-stuttgart.cloud. 600 IN     SOA     ns1.hdm-stuttgart.cloud. goik\@hdm-stuttgart.de. 55 604800 86400 2419200 604800
+g10.sdi.hdm-stuttgart.cloud. 600 IN     NS      ns1.hdm-stuttgart.cloud.
+mail.g10.sdi.hdm-stuttgart.cloud. 300 IN CNAME  workhorse.g10.sdi.hdm-stuttgart.cloud.
+workhorse.g10.sdi.hdm-stuttgart.cloud. 300 IN A 1.2.3.4
+ww.g10.sdi.hdm-stuttgart.cloud. 10 IN   A       135.181.86.182
+ww.g10.sdi.hdm-stuttgart.cloud. 10 IN   A       141.62.75.114
+www.g10.sdi.hdm-stuttgart.cloud. 10 IN  A       95.216.136.56
+g10.sdi.hdm-stuttgart.cloud. 600 IN     SOA     ns1.hdm-stuttgart.cloud. goik\@hdm-stuttgart.de. 55 604800 86400 2419200 604800

@@ -42,6 +42,15 @@ resource "hcloud_ssh_key" "user_ssh_key" {
   public_key = file("~/.ssh/id_ed25519.pub")
 }
 
+resource "local_file" "user_data" {
+  content = templatefile("tpl/userData.yml", {
+    loginUser        = "devops"
+    public_key_robin = hcloud_ssh_key.user_ssh_key.public_key
+    tls_private_key  = indent(4, tls_private_key.host.private_key_openssh)
+  })
+  filename = "gen/userData.yml"
+}
+
 # Create a server
 resource "hcloud_server" "debian_server" {
   name         = "debian-server"
@@ -52,29 +61,11 @@ resource "hcloud_server" "debian_server" {
   user_data    = local_file.user_data.content
 }
 
-resource "local_file" "known_hosts" {
-  content         = "${hcloud_server.debian_server.ipv4_address} ${tls_private_key.host.public_key_fingerprint_sha256}"
-  filename        = "gen/known_hosts_for_server"
-  file_permission = "644"
-}
-
-resource "local_file" "ssh_script" {
-  content = templatefile("tpl/ssh_helper.sh", {
-    ip = hcloud_server.debian_server.ipv4_address
-    user = "devops"
-  })
-  filename        = "bin/ssh"
-  file_permission = "700"
-  depends_on      = [local_file.known_hosts]
-}
-
-resource "local_file" "user_data" {
-  content = templatefile("tpl/userData.yml", {
-    loginUser     = "devops"
-    public_key_robin    = hcloud_ssh_key.user_ssh_key.public_key
-    tls_private_key = indent(4, tls_private_key.host.private_key_openssh)
-  })
-  filename = "gen/userData.yml"
+module "ssh_wrapper" {
+  source      = "../../modules/ssh-wrapper"
+  loginUser   = "devops"
+  ipv4Address = hcloud_server.debian_server.ipv4_address
+  public_key  = file("~/.ssh/id_ed25519.pub")
 }
 
 provider "dns" {
@@ -90,14 +81,6 @@ provider "dns" {
 resource "dns_a_record_set" "server_a" {
   zone      = "${var.dns_zone}."
   name      = var.server_name
-  addresses = [var.server_ip]
-  ttl       = 300
-}
-
-# A record for the root domain (e.g., g10.sdi.hdm-stuttgart.cloud)
-resource "dns_a_record_set" "root_a" {
-  zone      = "${var.dns_zone}."
-  name      = "@"
   addresses = [var.server_ip]
   ttl       = 300
 }

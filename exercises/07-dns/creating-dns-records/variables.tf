@@ -30,17 +30,10 @@ variable "server_ip" {
 }
 
 variable "server_aliases" {
-  description = "List of server alias names"
-  type        = list(string)
-  nullable    = false
-
+  type = list(string)
+  default = []
   validation {
-    condition     = length(distinct(var.server_aliases)) == length(var.server_aliases)
-    error_message = "Duplicate server alias names are not allowed."
-  }
-
-  validation {
-    condition     = !contains(var.server_aliases, var.server_name)
-    error_message = "Server alias names cannot match the server's canonical name."
+    condition     = length(distinct(var.server_aliases)) == length(var.server_aliases) && !contains(var.server_aliases, var.server_name)
+    error_message = "Aliases must be unique and must not match the server_name."
   }
 }
