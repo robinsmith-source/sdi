@@ -61,13 +61,6 @@ resource "hcloud_server" "debian_server" {
   user_data    = local_file.user_data.content
 }
 
-module "ssh_wrapper" {
-  source      = "../../modules/ssh-wrapper"
-  loginUser   = "devops"
-  ipv4Address = hcloud_server.debian_server.ipv4_address
-  public_key  = file("~/.ssh/id_ed25519.pub")
-}
-
 provider "dns" {
   update {
     server        = "ns1.sdi.hdm-stuttgart.cloud"
@@ -93,4 +86,12 @@ resource "dns_cname_record" "server_aliases" {
   cname      = "${var.server_name}.${var.dns_zone}."
   ttl        = 300
   depends_on = [dns_a_record_set.server_a]
+}
+
+module "ssh_wrapper" {
+  source      = "../../modules/ssh-wrapper"
+  loginUser   = "devops"
+  hostname    = "${var.server_name}.${var.dns_zone}"
+  public_key  = tls_private_key.host.public_key_openssh
+  depends_on  = [dns_a_record_set.server_a]
 }

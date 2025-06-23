@@ -1,13 +1,17 @@
+locals {
+  target_host = var.hostname != null ? var.hostname : var.ipv4Address
+}
+
 resource "local_file" "known_hosts" {
-  content         = "${var.ipv4Address} = ${var.public_key}"
-  filename        = "gen/known_hosts_for_server"
+  content         = "${local.target_host} ${var.public_key}"
+  filename        = "gen/known_hosts"
   file_permission = "644"
 }
 
 # Generate SSH wrapper script from template
 resource "local_file" "ssh_script" {
   content = templatefile("${path.module}/tpl/ssh.sh", {
-    ip   = var.ipv4Address
+    host = local.target_host
     user = var.loginUser
   })
   filename        = "bin/ssh"
@@ -19,7 +23,7 @@ resource "local_file" "ssh_script" {
 # Generate SCP wrapper script from template
 resource "local_file" "scp_script" {
   content = templatefile("${path.module}/tpl/scp.sh", {
-    ip   = var.ipv4Address,
+    host = local.target_host,
     user = var.loginUser
   })
   filename        = "bin/scp"

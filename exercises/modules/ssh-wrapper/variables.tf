@@ -10,5 +10,13 @@ variable "public_key" {
 
 variable "ipv4Address" {
   type     = string
-  nullable = false
+  nullable = true
+  default  = null
+}
+
+variable "hostname" {
+  description = "The hostname to connect to (alternative to ipv4Address)"
+  type        = string
+  nullable    = true
+  default     = null
 }
