@@ -29,7 +29,7 @@ This example demonstrates passing a `Bash` script via Terraform to update the se
 ::: code-group
 
 ```hcl [main.tf]
-resource "hcloud_server" "debian_server" { 
+resource "hcloud_server" "debian_server" {
   name        = "debian-server"
   image       = "debian-12"
   server_type = "cx22"
@@ -144,7 +144,7 @@ Update your cloud-config template (`tpl/userData.yml`) to include user creation,
 
 ```yml [tpl/userData.yml]
 users: // [!code ++:17]
-  - name: ${loginUser} # Username (e.g., "devops"), injected from Terraform 
+  - name: ${loginUser} # Username (e.g., "devops"), injected from Terraform
     groups: sudo # Add user to the sudo group
     shell: /bin/bash # Set default shell
     sudo: ALL=(ALL) NOPASSWD:ALL # Grant sudo privileges without password prompt

@@ -4,17 +4,20 @@
 
 ::: info Purpose
 DNS enables:
+
 - Easy-to-remember names for internet resources
 - Decoupling of service names from physical infrastructure
 - Load balancing, redundancy, and service discovery
-:::
+  :::
 
 ## Core Concepts {#core-concepts}
 
 ### What is DNS?
+
 DNS is a distributed, hierarchical system that maps domain names (like `example.com`) to IP addresses. It acts as the internet's phonebook, allowing users to access websites and services using names instead of numbers.
 
 ### How DNS Works
+
 1. **User Request:** You enter a domain name in your browser.
 2. **Recursive Resolver:** Your device queries a DNS resolver (often provided by your ISP).
 3. **Root Servers:** If the resolver doesn't know the answer, it asks a root DNS server for the TLD (e.g., `.com`).
@@ -23,6 +26,7 @@ DNS is a distributed, hierarchical system that maps domain names (like `example.
 6. **Response:** The resolver sends the IP address back to your device, which connects to the website.
 
 ### Record Types
+
 - **A:** Maps a domain to an IPv4 address
 - **AAAA:** Maps a domain to an IPv6 address
 - **CNAME:** Points one domain to another domain (alias)
@@ -34,9 +38,10 @@ DNS is a distributed, hierarchical system that maps domain names (like `example.
 - **SRV:** Specifies services available in the domain
 
 ::: tip TTL & Propagation
+
 - **TTL (Time To Live):** How long a DNS record is cached by resolvers and clients
 - **Propagation:** DNS changes may take time to spread due to caching
-:::
+  :::
 
 ## Essential Commands <Badge type="tip" text="Core CLI" />
 
@@ -85,22 +90,25 @@ dscacheutil -flushcache; sudo killall -HUP mDNSResponder
 ## Troubleshooting <Badge type="warning" text="Common Issues" />
 
 ::: details DNS Not Resolving
+
 - Check for typos in domain names and record values
 - Ensure authoritative nameservers are set correctly
 - Use `dig` or `nslookup` to query different DNS servers
 - Check DNS propagation status with online tools (e.g., whatsmydns.net)
-:::
+  :::
 
 ::: details Email Delivery Issues
+
 - Verify MX, SPF, DKIM, and DMARC records
 - Use online tools to test email configuration (e.g., MXToolbox)
-:::
+  :::
 
 ::: details Stale Records / Propagation Delays
+
 - Lower TTL before making changes if possible
 - Flush local and resolver caches
 - Be patient; global propagation can take up to 48 hours
-:::
+  :::
 
 ---
 

@@ -35,7 +35,7 @@ Cloud-init operates through modules, each responsible for a specific configurati
 - `ssh`: Configure SSH server options.
 - `apt`/`yum`: Configure package manager sources.
 - `mounts`: Define filesystem mounts.
-:::
+  :::
 
 ::: details Execution Stages
 Cloud-init runs tasks in specific stages during the boot process (network, config, final). Understanding the order can be important for dependencies (e.g., ensuring network is up before downloading a file). See the official Cloud-init documentation for stage details.
@@ -120,20 +120,23 @@ runcmd:
 ## Troubleshooting <Badge type="warning" text="Common Issues" />
 
 ::: details Cloud-init Not Running as Expected
+
 - Check for syntax errors in your user data
 - Review logs: `/var/log/cloud-init.log` and `/var/log/cloud-init-output.log`
 - Ensure the cloud platform is passing user data correctly
-:::
+  :::
 
 ::: details Package Installation Fails
+
 - Confirm package names are correct for the OS
 - Check network connectivity from the instance
-:::
+  :::
 
 ::: details User/SSH Key Issues
+
 - Ensure SSH keys are in the correct format
 - Check file permissions on `/home/username/.ssh/authorized_keys`
-:::
+  :::
 
 ---
 

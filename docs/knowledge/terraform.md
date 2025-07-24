@@ -4,11 +4,12 @@
 
 ::: info Purpose
 Terraform enables:
+
 - Declarative, version-controlled infrastructure
 - Automation and repeatability
 - Multi-cloud and hybrid-cloud management
 - Collaboration and reusability via modules
-:::
+  :::
 
 ## Core Concepts {#core-concepts}
 
@@ -79,21 +80,24 @@ terraform destroy -auto-approve
 ## Troubleshooting <Badge type="warning" text="Common Issues" />
 
 ::: details State File Issues
+
 - Never commit `terraform.tfstate` to Git
 - Use remote backends for collaboration
 - If state is lost, resources may be orphaned or recreated
-:::
+  :::
 
 ::: details Provider Authentication Errors
+
 - Ensure credentials are set (env vars, config files, etc.)
 - Check provider documentation for required setup
-:::
+  :::
 
 ::: details Plan/Apply Fails
+
 - Validate configuration syntax
 - Check for resource naming conflicts
 - Review error messages for hints
-:::
+  :::
 
 ---
 

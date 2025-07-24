@@ -170,7 +170,6 @@ In this exercise, simulate a scenario where Host B is only accessible from Host 
 
 SSH port forwarding (also known as SSH tunneling) creates a secure connection that forwards traffic from a port on one machine to a port on another machine, through the SSH connection.
 
-
 In this exercise, simulate accessing a web server that is firewalled off from direct internet access but reachable via an SSH-accessible host.
 
 1. **Server Setup**:

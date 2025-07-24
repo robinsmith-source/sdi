@@ -4,36 +4,41 @@
 
 ::: info Purpose
 Terraform modules enable:
+
 - Reusability and sharing of infrastructure code
 - Organization and abstraction of complex setups
 - Standardization and collaboration across teams
-:::
+  :::
 
 ## Core Concepts {#core-concepts}
 
 ### What is a Module?
+
 A Terraform module is a directory containing `.tf` files. Every Terraform configuration is technically a module (the "root module").
 
 ### Module Types
+
 - **Root Module:** The main working directory where you run Terraform commands
 - **Child Modules:** Modules called by other modules
 - **Published Modules:** Modules shared via the Terraform Registry or other repositories
 
 ::: details Module Components
+
 - **Input Variables:** Parameters that customize module behavior
 - **Output Values:** Return values that other modules can use
 - **Resources:** The infrastructure components the module manages
 - **Data Sources:** Information fetched from existing infrastructure
-:::
+  :::
 
 ::: details Module Sources
 Modules can be sourced from:
+
 - Local paths (relative or absolute)
 - Terraform Registry (public or private)
 - Git repositories (GitHub, GitLab, etc.)
 - HTTP URLs
 - S3 buckets
-:::
+  :::
 
 ## Essential Commands <Badge type="tip" text="Core CLI" />
 
@@ -96,19 +101,22 @@ terraform validate
 ## Troubleshooting <Badge type="warning" text="Common Issues" />
 
 ::: details Module Not Found
+
 - Check the `source` path or URL
 - Ensure the module is downloaded with `terraform init`
-:::
+  :::
 
 ::: details Input Variable Errors
+
 - Ensure all required variables are set
 - Check variable types and defaults
-:::
+  :::
 
 ::: details Output/Dependency Issues
+
 - Reference outputs correctly (e.g., `module.name.output`)
 - Check for circular dependencies
-:::
+  :::
 
 ---
 

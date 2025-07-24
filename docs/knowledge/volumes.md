@@ -4,32 +4,37 @@
 
 ::: info Purpose
 Volumes and mounts enable:
+
 - Persistent storage beyond container/VM lifecycle
 - Data sharing between containers and hosts
 - Storage management and organization
 - Backup and recovery capabilities
-:::
+  :::
 
 ## Core Concepts {#core-concepts}
 
 ### What is a Volume?
+
 A volume is a storage unit that can be:
+
 - A physical disk partition
 - A logical volume (LVM)
 - A virtual disk
 - A container volume
 
 ### Mounts
+
 Mounting is the process of making a filesystem accessible at a specific point in the directory tree.
 
 ::: details Mount Points
 A mount point is a directory where a filesystem is attached. Common mount points include:
+
 - `/` (root filesystem)
 - `/home` (user home directories)
 - `/var` (variable data)
 - `/mnt` (temporary mount points)
 - `/media` (removable media)
-:::
+  :::
 
 ## Essential Commands <Badge type="tip" text="Core CLI" />
 
@@ -81,20 +86,23 @@ resize2fs /dev/sdb1
 ## Troubleshooting <Badge type="warning" text="Common Issues" />
 
 ::: details Mount Point Busy
+
 - Find processes using the mount point: `lsof /mnt/data`
 - Force unmount if necessary: `umount -f /mnt/data`
-:::
+  :::
 
 ::: details Filesystem Errors
+
 - Unmount the filesystem: `umount /dev/sdb1`
 - Check and repair: `fsck /dev/sdb1`
 - Remount: `mount /dev/sdb1 /mnt/data`
-:::
+  :::
 
 ::: details LVM Issues
+
 - Scan for LVM components: `pvscan`, `vgscan`, `lvscan`
 - Repair volume group: `vgck myvg`
-:::
+  :::
 
 ---
 

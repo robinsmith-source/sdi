@@ -22,7 +22,6 @@ For more in-depth information about Hetzner Cloud and server security:
 - [Arch Wiki: SSH Keys](https://wiki.archlinux.org/title/SSH_keys) - SSH key management
 - [Arch Wiki: Systemd](https://wiki.archlinux.org/title/Systemd) - Systemd service management
 
-
 ## 1. Creating a Hetzner Account
 
 1. Register at https://accounts.hetzner.com/signUp.

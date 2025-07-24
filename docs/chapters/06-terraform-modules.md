@@ -12,8 +12,8 @@ Before you begin, ensure you have:
 - Terraform installed on your local machine
 - Basic understanding of Terraform resources and variables
 - An SSH client:
-    - macOS and Linux: Built-in OpenSSH client
-    - Windows: Windows Terminal with OpenSSH or PuTTY
+  - macOS and Linux: Built-in OpenSSH client
+  - Windows: Windows Terminal with OpenSSH or PuTTY
 
 ## External Resources
 
@@ -100,7 +100,6 @@ resource "local_file" "host_data" {
 
 This module will create a JSON file with the server's metadata and place it in the `gen` directory of the parent module.
 
-
 ### Parent Module Implementation
 
 Create the parent module that calls the child module:
@@ -118,7 +117,7 @@ variable "hcloud_token" {
 # ... (firewall configuration and other resources) ...
 
 # Create a Hetzner Cloud server // [!code focus:17]
-resource "hcloud_server" "debian_server" { 
+resource "hcloud_server" "debian_server" {
   location    = "hel1"
   name        = "debian-server"
   image       = "debian-12"
@@ -156,12 +155,12 @@ Create the following directory structure for your SSH known hosts module:
 │   └── ...
 └── modules/
     └── ssh-wrapper/  # [!code ++:7]
-        ├── main.tf             
-        ├── variables.tf        
-        ├── outputs.tf           
-        └── tpl/                 
-            ├── ssh.sh           
-            └── scp.sh           
+        ├── main.tf
+        ├── variables.tf
+        ├── outputs.tf
+        └── tpl/
+            ├── ssh.sh
+            └── scp.sh
 ```
 
 ### Creating the Module Templates
@@ -261,7 +260,7 @@ Implement the module in your main Terraform configuration:
 # ... (firewall configuration and other resources) ...
 
 # Create a Hetzner Cloud server // [!code focus:17]
-resource "hcloud_server" "debian_server" { 
+resource "hcloud_server" "debian_server" {
   location    = "hel1"
   name        = "debian-server"
   image       = "debian-12"
@@ -351,7 +350,3 @@ echo "Hello from local machine" > test.txt
 ```
 
 The scripts should work without prompting for host key verification, providing seamless access to your infrastructure.
-
-
-
-

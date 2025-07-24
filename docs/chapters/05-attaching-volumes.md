@@ -11,8 +11,8 @@ Before you begin, ensure you have:
 - Terraform installed and configured
 - Access to your cloud provider's credentials
 - An SSH client:
-    - macOS and Linux: Built-in OpenSSH client
-    - Windows: Windows Terminal with OpenSSH or PuTTY
+  - macOS and Linux: Built-in OpenSSH client
+  - Windows: Windows Terminal with OpenSSH or PuTTY
 
 ## External Resources
 
@@ -228,6 +228,7 @@ cat /etc/fstab
 ```
 
 You should see an entry like:
+
 ```sh
 /dev/disk/by-id/scsi-0HC_Volume_102593604 /data-volume xfs defaults 0 0
 ```

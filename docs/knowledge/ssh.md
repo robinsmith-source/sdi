@@ -4,14 +4,16 @@
 
 ::: info Purpose
 SSH enables:
+
 - Secure remote access to servers and devices
 - Encrypted file transfers and tunneling
 - Automated and interactive management of infrastructure
-:::
+  :::
 
 ## Core Concepts {#core-concepts}
 
 SSH uses public-key cryptography to authenticate and encrypt connections:
+
 - **Key pairs** consist of a public key (shared) and a private key (kept secret)
 - **SSH agent** manages your keys and passphrases
 - **SSH config** simplifies connection management
@@ -92,18 +94,20 @@ sftp user@remotehost
 ## Troubleshooting <Badge type="warning" text="Common Issues" />
 
 ::: details Permission denied (publickey)
+
 - Check if your public key is added to remote's `~/.ssh/authorized_keys`
 - Verify permissions: `~/.ssh` (700), `authorized_keys` (600), private key (600)
 - Ensure SSH agent has your key loaded: `ssh-add -l`
 - Try connecting with verbose output: `ssh -vv user@host`
-:::
+  :::
 
 ::: details Connection timed out / refused
+
 - Is the server running and reachable?
 - Check firewalls and security groups
 - Verify the SSH port is correct and open
 - Test basic connectivity: `ping hostname`
-:::
+  :::
 
 ---
 

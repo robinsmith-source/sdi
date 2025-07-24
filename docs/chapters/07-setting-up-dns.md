@@ -38,6 +38,7 @@ dig @ns1.hdm-stuttgart.cloud -y $HMAC -t AXFR g10.sdi.hdm-stuttgart.cloud
 ```
 
 This will show all records in your zone, including:
+
 - SOA (Start of Authority) record
 - NS (Nameserver) record
 - Any existing A, CNAME, or other records
@@ -64,6 +65,7 @@ quit
 ```
 
 # Check if the record was added successfully
+
 ```bash
 dig +noall +answer @ns1.hdm-stuttgart.cloud www.g10.sdi.hdm-stuttgart.cloud
 ```
@@ -84,16 +86,18 @@ quit
 ```
 
 ::: warning **TTL Considerations**
+
 - Records have a Time To Live (TTL) value that determines how long they can be cached.
 - Higher TTL values mean longer wait times for updates to propagate globally.
 - Consider using lower TTL values during development and higher values in production.
-:::
+  :::
 
 ## 3. Exercise: Enhancing Your Web Server
 
 ### Task Description
 
 In this exercise, you will:
+
 1. Assign a DNS name to your web server (e.g., http://www.gXY.sdi.hdm-stuttgart.cloud)
 2. Enable HTTPS by configuring TLS on your web server
 
@@ -101,6 +105,7 @@ In this exercise, you will:
 
 1. **DNS Configuration**
    Add an A record for your web server using `nsupdate`. Replace `<YOUR_SERVER_IP>` with your actual server IP address:
+
    ```bash
    # Add an A record for your web server (replace <YOUR_SERVER_IP> with your actual server IP)
    nsupdate -y $HMAC
@@ -113,6 +118,7 @@ In this exercise, you will:
 2. **Web Server Setup**
 
 Take the cloud-init configuration file from [Server Initialization](04-server-initialization) and modify it to include the following:
+
 ```yaml
 #cloud-config
 users:
@@ -122,12 +128,11 @@ users:
     sudo: ["ALL=(ALL) NOPASSWD:ALL"]
     ssh_authorized_keys:
       - ${public_key_robin}
-      
+
 ssh_keys:
   ed25519_private: |
     ${tls_private_key}
 ssh_pwauth: false
-
 package_update: true
 package_upgrade: true
 package_reboot_if_required: true
@@ -178,6 +183,7 @@ After completing the steps above, verify your setup:
 
 1. **Check DNS resolution:**
    Use a public DNS resolver to confirm your A record is active:
+
    ```bash
    dig +noall +answer @8.8.8.8 www.g10.sdi.hdm-stuttgart.cloud
    ```
@@ -187,13 +193,13 @@ After completing the steps above, verify your setup:
    ```bash
    curl -I https://www.g10.sdi.hdm-stuttgart.cloud
    ```
-//TODO: rewrite and add 19-21 here
-λ ~/code/sdi/exercises/07-dns/creating-dns-records/ main* dig +noall +answer @ns1.sdi.hdm-stuttgart.cloud -y "hmac-sha512:g10.key:..." -t AXFR g10.sdi.hdm-stuttgart.cloud
-g10.sdi.hdm-stuttgart.cloud. 600 IN     SOA     ns1.hdm-stuttgart.cloud. goik\@hdm-stuttgart.de. 55 604800 86400 2419200 604800
-g10.sdi.hdm-stuttgart.cloud. 600 IN     NS      ns1.hdm-stuttgart.cloud.
-mail.g10.sdi.hdm-stuttgart.cloud. 300 IN CNAME  workhorse.g10.sdi.hdm-stuttgart.cloud.
-workhorse.g10.sdi.hdm-stuttgart.cloud. 300 IN A 1.2.3.4
-ww.g10.sdi.hdm-stuttgart.cloud. 10 IN   A       135.181.86.182
-ww.g10.sdi.hdm-stuttgart.cloud. 10 IN   A       141.62.75.114
-www.g10.sdi.hdm-stuttgart.cloud. 10 IN  A       95.216.136.56
-g10.sdi.hdm-stuttgart.cloud. 600 IN     SOA     ns1.hdm-stuttgart.cloud. goik\@hdm-stuttgart.de. 55 604800 86400 2419200 604800
+   //TODO: rewrite and add 19-21 here
+   λ ~/code/sdi/exercises/07-dns/creating-dns-records/ main\* dig +noall +answer @ns1.sdi.hdm-stuttgart.cloud -y "hmac-sha512:g10.key:..." -t AXFR g10.sdi.hdm-stuttgart.cloud
+   g10.sdi.hdm-stuttgart.cloud. 600 IN SOA ns1.hdm-stuttgart.cloud. goik\@hdm-stuttgart.de. 55 604800 86400 2419200 604800
+   g10.sdi.hdm-stuttgart.cloud. 600 IN NS ns1.hdm-stuttgart.cloud.
+   mail.g10.sdi.hdm-stuttgart.cloud. 300 IN CNAME workhorse.g10.sdi.hdm-stuttgart.cloud.
+   workhorse.g10.sdi.hdm-stuttgart.cloud. 300 IN A 1.2.3.4
+   ww.g10.sdi.hdm-stuttgart.cloud. 10 IN A 135.181.86.182
+   ww.g10.sdi.hdm-stuttgart.cloud. 10 IN A 141.62.75.114
+   www.g10.sdi.hdm-stuttgart.cloud. 10 IN A 95.216.136.56
+   g10.sdi.hdm-stuttgart.cloud. 600 IN SOA ns1.hdm-stuttgart.cloud. goik\@hdm-stuttgart.de. 55 604800 86400 2419200 604800
