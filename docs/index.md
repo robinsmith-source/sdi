@@ -6,12 +6,12 @@ hero:
   text: "Software-Defined Infrastructure"
   tagline: "Practical exercises for cloud infrastructure setup"
   actions:
-  - theme: brand
-    text: Get Started
-    link: /chapters/01-hetzner-cloud
-  - theme: alt
-    text: View Repository
-    link: "https://github.com/robinsmith-source/sdi"
+    - theme: brand
+      text: Get Started
+      link: /chapters/01-hetzner-cloud
+    - theme: alt
+      text: View Repository
+      link: "https://github.com/robinsmith-source/sdi"
 
 features:
   - icon: 🚀
