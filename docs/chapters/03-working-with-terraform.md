@@ -104,6 +104,7 @@ Terraform variables provide a secure way to handle sensitive data.
 ```hcl
 variable "hcloud_token" {
   description = "Hetzner Cloud API token"
+  type = string
   nullable    = false
   sensitive   = true
 }

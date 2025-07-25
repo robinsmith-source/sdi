@@ -112,7 +112,9 @@ Create the parent module that calls the child module:
 
 ```hcl [variables.tf]
 variable "hcloud_token" {
-  type        = string
+  description = "Hetzner Cloud API token"
+  type = string
+  nullable    = false
   sensitive   = true
 }
 ```
@@ -283,7 +285,9 @@ module "ssh_wrapper" {
 
 ```hcl [variables.tf]
 variable "hcloud_token" {
-  type        = string
+  description = "Hetzner Cloud API token"
+  type = string
+  nullable    = false
   sensitive   = true
 }
 ```
