@@ -9,7 +9,7 @@ Before you begin, ensure you have:
 - Access to your group's DNS zone (e.g., g10.sdi.hdm-stuttgart.cloud)
 - Your group's HMAC secret key (provided in your dnsupdate.sec file)
 - Basic understanding of DNS concepts and tools (dig, nsupdate)
-- A web server set up (e.g., Nginx like in [Server Initialization](04-server-initialization) or just simply use Caddy)
+- A web server set up (e.g., Nginx like in [Server Initialization](04-server-initialization#_1-using-bash-init-scripts-for-server-initialization-exercise-11) or just simply use Caddy)
 
 ## External Resources
 
@@ -92,7 +92,7 @@ quit
 - Consider using lower TTL values during development and higher values in production.
   :::
 
-## 3. Exercise: Enhancing Your Web Server
+## 3. Enhancing Your Web Server [Exercise 18]
 
 ### Task Description
 
@@ -117,7 +117,7 @@ In this exercise, you will:
 
 2. **Web Server Setup**
 
-Take the cloud-init configuration file from [Server Initialization](04-server-initialization) and modify it to include the following:
+Take the cloud-init configuration file from [Server Initialization](04-server-initialization#_1-using-bash-init-scripts-for-server-initialization-exercise-11) and modify it to include the following:
 
 ```yaml
 #cloud-config
@@ -138,7 +138,7 @@ package_upgrade: true
 package_reboot_if_required: true
 
 packages:
-  - caddy # [!code ++]
+  - caddy #[!code ++]
   - fail2ban
   - plocate
   - python3-systemd # Add python3-systemd for fail2ban backend
@@ -177,8 +177,6 @@ runcmd:
   - systemctl start caddy
 ```
 
-[//]: # '"TODO: rewrite and add 19-21 here"'
-
 ### Verification
 
 After completing the steps above, verify your setup:
@@ -195,12 +193,85 @@ After completing the steps above, verify your setup:
    ```bash
    curl -I https://www.g10.sdi.hdm-stuttgart.cloud
    ```
-   λ ~/code/sdi/exercises/07-dns/creating-dns-records/ main\* dig +noall +answer @ns1.sdi.hdm-stuttgart.cloud -y "hmac-sha512:g10.key:..." -t AXFR g10.sdi.hdm-stuttgart.cloud
-   g10.sdi.hdm-stuttgart.cloud. 600 IN SOA ns1.hdm-stuttgart.cloud. goik\@hdm-stuttgart.de. 55 604800 86400 2419200 604800
-   g10.sdi.hdm-stuttgart.cloud. 600 IN NS ns1.hdm-stuttgart.cloud.
-   mail.g10.sdi.hdm-stuttgart.cloud. 300 IN CNAME workhorse.g10.sdi.hdm-stuttgart.cloud.
-   workhorse.g10.sdi.hdm-stuttgart.cloud. 300 IN A 1.2.3.4
-   ww.g10.sdi.hdm-stuttgart.cloud. 10 IN A 135.181.86.182
-   ww.g10.sdi.hdm-stuttgart.cloud. 10 IN A 141.62.75.114
-   www.g10.sdi.hdm-stuttgart.cloud. 10 IN A 95.216.136.56
-   g10.sdi.hdm-stuttgart.cloud. 600 IN SOA ns1.hdm-stuttgart.cloud. goik\@hdm-stuttgart.de. 55 604800 86400 2419200 604800
+
+## 4. Creating DNS Records with Terraform [Exercise 19]
+
+Terraform can be used to manage DNS records in a declarative way. This allows you to define your DNS records in code and apply them automatically.
+
+### Terraform Configuration
+
+The following Terraform configuration creates an A record and a CNAME record:
+
+```hcl
+# A record for the server's canonical name (e.g., workhorse.g10.sdi.hdm-stuttgart.cloud)
+resource "dns_a_record_set" "server_a" {
+  zone      = "${var.dns_zone}."
+  name      = var.server_name
+  addresses = [var.server_ip]
+  ttl       = 300
+}
+
+# CNAME records for server aliases using count meta-argument
+resource "dns_cname_record" "server_aliases" {
+  count      = length(.server_aliases)
+  zone       = "${var.dns_zone}."
+  name       = var.server_aliases[count.index]
+  cname      = "${var.server_name}.${var.dns_zone}."
+  ttl        = 300
+  depends_on = [dns_a_record_set.server_a]
+}
+```
+
+## 5. Creating a Host with Corresponding DNS Entries [Exercise 20]
+
+This exercise combines server creation and DNS record management into a single Terraform configuration.
+
+### Terraform Configuration
+
+The following configuration creates a server and its corresponding DNS records:
+
+```hcl
+resource "hcloud_server" "debian_server" {
+  name         = "debian-server"
+  image        = "debian-12"
+  server_type  = "cx22"
+  firewall_ids = [hcloud_firewall.web_access_firewall.id]
+  ssh_keys     = [hcloud_ssh_key.user_ssh_key.id]
+  user_data    = local_file.user_data.content
+}
+
+resource "dns_a_record_set" "server_a" {
+  zone      = "${var.dns_zone}."
+  name      = var.server_name
+  addresses = [hcloud_server.debian_server.ipv4_address]
+  ttl       = 300
+}
+```
+
+## 6. Creating a Fixed Number of Servers [Exercise 21]
+
+Terraform's `count` meta-argument can be used to create a fixed number of resources. This is useful for creating multiple servers with similar configurations.
+
+### Terraform Configuration
+
+The following configuration creates two servers and their corresponding DNS records:
+
+```hcl
+resource "hcloud_server" "debian_server" {
+  count        = 2
+  name         = "debian-server-${count.index}"
+  image        = "debian-12"
+  server_type  = "cx22"
+  firewall_ids = [hcloud_firewall.web_access_firewall.id]
+  ssh_keys     = [hcloud_ssh_key.user_ssh_key.id]
+  user_data    = local_file.user_data.content
+}
+
+resource "dns_a_record_set" "server_a" {
+  count     = 2
+  zone      = "${var.dns_zone}."
+  name      = "server-${count.index}"
+  addresses = [hcloud_server.debian_server[count.index].ipv4_address]
+  ttl       = 300
+}
+```

@@ -20,7 +20,11 @@ For more in-depth information about server initialization and cloud computing:
 - [Arch Wiki: Fail2ban](https://wiki.archlinux.org/title/Fail2ban) - Fail2ban security setup
 - [Arch Wiki: Nginx](https://wiki.archlinux.org/title/Nginx) - Nginx web server configuration
 
-## 1. Using Bash Init Scripts for Server Initialization
+::: info
+For comprehensive information about Cloud-Init concepts, see [Cloud-Init](/knowledge/cloud-init).
+:::
+
+## 1. Using Bash Init Scripts for Server Initialization [Exercise 11]
 
 A straightforward approach to server initialization involves providing a `Bash` script that executes during the server's first boot.
 
@@ -33,7 +37,7 @@ resource "hcloud_server" "debian_server" {
   name        = "debian-server"
   image       = "debian-12"
   server_type = "cx22"
-  user_data   = file("init.sh") // Specifies the path to the initialization script // [!code ++]
+  user_data   = file("init.sh") // Specifies the path to the initialization script [!code ++]
 }
 ```
 
@@ -53,7 +57,7 @@ You can extend this script for more complex tasks, such as software installation
 apt update && apt upgrade -y
 
 # Install Nginx web server
-apt install -y nginx # [!code ++:6]
+apt install -y nginx [!code ++:6]
 
 # Create a simple default HTML page
 echo "Hello from my Terraform server!" > /var/www/html/index.html
@@ -67,7 +71,7 @@ This script performs package updates, installs Nginx, starts the Nginx service, 
 
 While Bash scripts are effective for simple initializations, managing intricate configurations, user setups, or extensive file manipulations can become complex. For these scenarios, Cloud-Init offers a more structured and powerful solution.
 
-## 2. Cloud-Init: Installing Packages
+## 2. Cloud-Init: Installing Packages [Exercise 12]
 
 To use Cloud-Init, create a cloud-config `YAML` file (e.g., `userData.yml`) and reference it in your Terraform configuration. The following example installs Nginx and generates a dynamic index page:
 
@@ -76,11 +80,11 @@ To use Cloud-Init, create a cloud-config `YAML` file (e.g., `userData.yml`) and 
 ```hcl [main.tf]
 # ... (ensure other necessary configurations like provider setup are present) ...
 
-resource "hcloud_server" "debian_server" { // [!code focus:6]
+resource "hcloud_server" "debian_server" { //[!code focus:6]
   name        = "debian-server"
   image       = "debian-12"
   server_type = "cx22"
-  user_data = file("tpl/userData.yml") // Reference the cloud-config YAML file // [!code ++]
+  user_data = file("tpl/userData.yml") // Reference the cloud-config YAML file [!code ++]
 }
 
 # ... (rest of your Terraform configuration) ...
@@ -131,10 +135,10 @@ resource "hcloud_firewall" "web_access_firewall" {
 }
 ```
 
-Ensure your server is associated with this firewall. Otherwise you can also use ssh port forwarding like described [here](02-using-ssh.md#_4-ssh-port-forwarding).
+Ensure your server is associated with this firewall. Otherwise you can also use ssh port forwarding like described [here](02-using-ssh#_4-ssh-port-forwarding-exercise-7).
 :::
 
-## 3. Cloud-Init: User Management and Templating
+## 3. Cloud-Init: User Management and Templating [Exercise 13]
 
 Cloud-Init excels at tasks like managing user accounts and SSH access. Furthermore, Terraform's templating capabilities allow you to dynamically inject variables (such as SSH public keys) into your cloud-config files.
 
@@ -143,7 +147,7 @@ Update your cloud-config template (`tpl/userData.yml`) to include user creation,
 :::code-group
 
 ```yml [tpl/userData.yml]
-users: // [!code ++:17]
+users: #[!code ++:17]
   - name: ${loginUser} # Username (e.g., "devops"), injected from Terraform
     groups: sudo # Add user to the sudo group
     shell: /bin/bash # Set default shell
@@ -188,7 +192,7 @@ To process this template and inject the defined variables:
 ```hcl [main.tf]
 # ... (provider configuration and other resources) ...
 
-# Example SSH key resources (replace with your actual key management) // [!code focus:21]
+# Example SSH key resources (replace with your actual key management) [!code focus:21]
 resource "hcloud_ssh_key" "user_ssh_key_one" {
   name       = "user-key-one"
   public_key = file("~/.ssh/id_ed25519.pub") // Path to your first public key
@@ -199,7 +203,7 @@ resource "hcloud_ssh_key" "user_ssh_key_two" {
   public_key = file("~/.ssh/another_key.pub") // Path to your second public key
 }
 
-# Render the cloud-init template with variables  // [!code ++:10]
+# Render the cloud-init template with variables  [!code ++:10]
 resource "local_file" "user_data_rendered" {
   content = templatefile("tpl/userData.yml", {
     loginUser      = "devops"                             // Define the username to create
@@ -222,11 +226,11 @@ resource "local_file" "user_data_rendered" {
 ```hcl [main.tf]
 # ... (existing configuration) ...
 
-resource "hcloud_server" "debian_server" { // [!code focus:7]
+resource "hcloud_server" "debian_server" { [!code focus:7]
   name        = "debian-server"
   image       = "debian-12"
   server_type = "cx22"
-  user_data   = local_file.user_data_rendered.content // Use the rendered template content // [!code ++]
+  user_data   = local_file.user_data_rendered.content // Use the rendered template content [!code ++]
 }
 
 # ... (rest of your Terraform configuration) ...
@@ -294,7 +298,7 @@ You should see that the `sshd` jail is enabled and monitoring for failed login a
 - You can adjust the `bantime`, add more jails, or tweak filters in `/etc/fail2ban/jail.local`.
 - For more information, see the [Arch Wiki: Fail2ban](https://wiki.archlinux.org/title/Fail2ban).
 
-## 5. Handling SSH Host Key Mismatches
+## 5. Handling SSH Host Key Mismatches [Exercise 14]
 
 When a server is destroyed and recreated (even with the same IP address), it typically generates a new unique SSH host key. Your SSH client, upon attempting to connect, will detect this change and issue a warning about a potential "man-in-the-middle" (MITM) attack. This is because the new server's host key no longer matches the one stored in your local `~/.ssh/known_hosts` file for that IP address.
 
@@ -311,7 +315,9 @@ While a comprehensive solution involves managing persistent host keys (e.g., gen
 
 1.  **Generate a `known_hosts` Entry with Terraform:**
     Create a `local_file` resource that stores the server's IP address and its expected public host key.
-    _(Important Note: This approach is most effective if you manage the server's host key via Terraform, for example, using `tls_private_key`. If the server generates its own host key ephemerally on each boot, this method alone won't prevent the warning without a more advanced cloud-init setup to install the pre-generated key on the server.)_
+    :::info
+    This approach is most effective if you manage the server's host key via Terraform, for example, using `tls_private_key`. If the server generates its own host key ephemerally on each boot, this method alone won't prevent the warning without a more advanced cloud-init setup to install the pre-generated key on the server.
+    :::
 
 ::: code-group
 
@@ -359,7 +365,7 @@ resource "local_file" "ssh_script" {
     user = "devops"                                 // Inject the login username
   })
   filename        = "bin/ssh-to-server"      // Output script path
-  file_permission = "700"                   // Set executable permissions
+  file_permission = "700"                   // Set read-write permissions
 
   # Ensure the known_hosts file is generated before this script
   depends_on = [local_file.known_hosts]

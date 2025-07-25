@@ -26,6 +26,10 @@ For more in-depth information about SSH and related topics:
 - [Arch Wiki: SSH/Config](https://wiki.archlinux.org/title/SSH/Config) - SSH client configuration
 - [Arch Wiki: X11 Forwarding](https://wiki.archlinux.org/title/X11_forwarding) - X11 forwarding guide
 
+## Knowledge
+
+For comprehensive information about SSH concepts, see [SSH](/knowledge/ssh).
+
 ## 1. Understanding SSH Passphrases
 
 Connecting to remote servers via SSH often involves using SSH keys. If your private SSH key is encrypted with a passphrase, you'll need to enter it for authentication. This is a crucial security measure to protect your private key.
@@ -146,7 +150,7 @@ root@klausur:~#
 
 The connection from `learn` to `klausur` should succeed without a passphrase prompt if the key for `klausur` is in your local `ssh-agent`.
 
-## 4. SSH Port Forwarding
+## 4. SSH Port Forwarding [Exercise 7]
 
 SSH port forwarding (also known as SSH tunneling) creates a secure connection that forwards traffic from a port on one machine to a port on another machine, through the SSH connection.
 
@@ -203,4 +207,6 @@ In this exercise, you'll run a graphical web browser on a remote server and disp
 5. **Observe**:
    - The Firefox browser GUI should appear on your local desktop.
    - Within this remotely running Firefox, try accessing a website (e.g., `http://localhost` if Nginx is on `RemoteGUIServer`, or any internet site). The web traffic originates from `RemoteGUIServer`.
-   - _Note: Launching X11 applications can take some time. Performance depends on network latency and server load._
+   - ::: info
+     Launching X11 applications can take some time. Performance depends on network latency and server load.
+     :::

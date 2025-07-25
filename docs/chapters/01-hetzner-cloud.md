@@ -60,7 +60,7 @@ Be aware that the default server configuration has several security weaknesses:
 - **No firewall**: All server ports are potentially exposed to the internet.
 - **Unrestricted service access**: Services like databases may be accessible without limitation.
 
-## 5. Creating SSH Keys for Secure Authentication
+## 5. Creating SSH Keys for Secure Authentication [Exercise 2]
 
 1. Open a terminal window on your local computer.
 2. Generate a new SSH key pair:
@@ -76,8 +76,6 @@ Be aware that the default server configuration has several security weaknesses:
      ```sh
      touch ~/.ssh/known_hosts
      ```
-
-[//]: # "TODO: add exercise 2 here"
 
 ## 6. Improving Server Security [Exercise 3]
 

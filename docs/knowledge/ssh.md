@@ -1,15 +1,5 @@
 # SSH <Badge type="info" text="Security" />
 
-> Secure Shell (SSH) provides encrypted connections to remote systems, allowing secure file transfers and remote command execution. It's widely used for server management, especially in cloud environments.
-
-::: info Purpose
-SSH enables:
-
-- Secure remote access to servers and devices
-- Encrypted file transfers and tunneling
-- Automated and interactive management of infrastructure
-  :::
-
 ## Core Concepts {#core-concepts}
 
 SSH uses public-key cryptography to authenticate and encrypt connections:

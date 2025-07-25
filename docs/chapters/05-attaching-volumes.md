@@ -25,11 +25,17 @@ For more in-depth technical information about filesystems and volume management:
 
 These guides provide additional context and complementary information for managing your infrastructure.
 
-## 1. Create a Volume
+::: info
+For comprehensive information about volume concepts, see [Volumes](/knowledge/volumes).
+:::
+
+## 1. Create a Volume [Exercise 15]
 
 Volumes provide persistent block storage that can be attached to your servers. Here's how to create one:
 
-```hcl
+::: code-group
+
+```hcl [main.tf]
 resource "hcloud_server" "debian_server" {
   name         = "debian-server"
   image        = "debian-12"
@@ -38,7 +44,7 @@ resource "hcloud_server" "debian_server" {
   ssh_keys     = [hcloud_ssh_key.user_ssh_key.id]
 }
 
-resource "hcloud_volume" "data_volume" {
+resource "hcloud_volume" "data_volume" { //[!code ++:7]
   name      = "data-volume"
   size      = 10
   server_id = hcloud_server.debian_server.id
@@ -46,6 +52,8 @@ resource "hcloud_volume" "data_volume" {
   format    = "xfs"
 }
 ```
+
+:::
 
 Let's break down the volume configuration:
 
@@ -67,7 +75,9 @@ Let's break down the volume configuration:
 
 To verify your volume creation and get its details:
 
-```hcl
+::: code-group
+
+```hcl [outputs.tf]
 output "server_ip_addr" {
   value       = hcloud_server.debian_server.ipv4_address
   description = "The server's IPv4 address"
@@ -83,6 +93,8 @@ output "volume_id" { // [!code ++:4]
   description = "The volume's id"
 }
 ```
+
+:::
 
 After applying, you'll see output like:
 
@@ -102,8 +114,10 @@ There are two approaches to mounting volumes:
 
 ### A. Direct Attachment (Recommended)
 
-```hcl
-resource "hcloud_volume" "data_volume" {
+::: code-group
+
+```hcl [main.tf]
+resource "hcloud_volume" "data_volume" { //[!code ++:6]
   name      = "data-volume"
   size      = 10
   automount = true
@@ -116,11 +130,13 @@ resource "hcloud_server" "debian_server" {
   server_type  = "cx22"
 }
 
-resource "hcloud_volume_attachment" "volume_attachment" {
+resource "hcloud_volume_attachment" "volume_attachment" { //[!code ++:4]
   volume_id = hcloud_volume.data_volume.id
   server_id = hcloud_server.debian_server.id
 }
 ```
+
+:::
 
 ### B. Manual Mounting
 
@@ -128,14 +144,18 @@ If you need more control over the mounting process:
 
 1. Create the volume without automount:
 
-```hcl
+::: code-group
+
+```hcl [main.tf]
 resource "hcloud_volume" "data_volume" {
   name      = "data-volume"
   size      = 10
-  automount = false
+  automount = false //[!code ++]
   format    = "xfs"
 }
 ```
+
+:::
 
 2. Mount manually after attachment:
 
@@ -144,7 +164,7 @@ sudo mkdir -p /mnt/data-volume
 sudo mount /dev/disk/by-id/scsi-0HC_Volume_${VOLUME_ID} /mnt/data-volume
 ```
 
-## 4. Managing Mount Points
+## 4. Managing Mount Points [Exercise 16]
 
 ### Viewing Current Mounts
 
@@ -170,7 +190,9 @@ To explicitly set the mount point to `/data-volume` and avoid dependency cycles:
 
 1. Create volume and server independently with matching locations:
 
-```hcl
+::: code-group
+
+```hcl [main.tf]
 resource "hcloud_server" "debian_server" {
   name         = "debian-server"
   image        = "debian-12"
@@ -190,36 +212,46 @@ resource "hcloud_volume" "data_volume" {
 }
 ```
 
+:::
+
 2. Attach volume to server:
 
-```hcl
+::: code-group
+
+```hcl [main.tf]
 resource "hcloud_volume_attachment" "volume_attachment" {
   volume_id = hcloud_volume.data_volume.id
   server_id = hcloud_server.debian_server.id
 }
 ```
 
+:::
+
 3. Configure the mount point using cloud-init:
 
-```hcl
+::: code-group
+
+```hcl [main.tf]
 resource "local_file" "user_data" {
   content = templatefile("tpl/userData.yml", {
     public_key = hcloud_ssh_key.user_ssh_key.public_key
     tls_private_key  = indent(4, tls_private_key.host.private_key_openssh)
     loginUser        = "devops"
-    volId = hcloud_volume.data_volume.id
+    volId = hcloud_volume.data_volume.id //[!code ++]
   })
   filename = "gen/userData.yml"
 }
 ```
 
-```yml
+```yml [tpl/userData.yml]
 runcmd:
   - sudo mkdir -p /data-volume
-  - echo "`/bin/ls /dev/disk/by-id/*${volId}` /data-volume xfs discard,nofail,defaults 0 0" | sudo tee -a /etc/fstab
+  - echo "`/bin/ls /dev/disk/by-id/*${volId}` /data-volume xfs discard,nofail,defaults 0 0" | sudo tee -a /etc/fstab [!code focus]
   - sudo systemctl daemon-reload
   - sudo mount -a
 ```
+
+:::
 
 4. After applying, verify the mount:
 

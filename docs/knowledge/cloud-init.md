@@ -1,11 +1,5 @@
 # Cloud-init <Badge type="info" text="Instance Initialization" />
 
-> Cloud-init is the industry standard multi-distribution method for cross-platform cloud instance initialization. It allows you to define configurations and run scripts on a cloud server during its very first boot, automating the initial setup process.
-
-::: info Purpose
-Cloud-init bridges the gap between provisioning a base OS image and having a fully configured, ready-to-use server instance. It handles tasks that need to run _inside_ the instance after it boots for the first time.
-:::
-
 ## Core Concepts {#core-concepts}
 
 Cloud-init operates by reading configuration data (often called "user data") provided by the cloud platform during instance creation.
@@ -64,7 +58,7 @@ runcmd:
 #cloud-config
 users:
   - name: devops
-    groups: sudo
+    groups: [sudo]
     shell: /bin/bash
     sudo: ["ALL=(ALL) NOPASSWD:ALL"]
     ssh_authorized_keys:

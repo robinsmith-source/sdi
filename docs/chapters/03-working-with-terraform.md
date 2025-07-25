@@ -7,7 +7,7 @@
 Before you begin, ensure you have:
 
 - A Hetzner Cloud account (if you don't have one, follow our guide
-  on [Creating a Hetzner Account](01-hetzner-cloud.md#_1-creating-a-hetzner-account))
+  on [Creating a Hetzner Account](01-hetzner-cloud#_1-creating-a-hetzner-account))
 - Familiarity with command-line interfaces
 - Terraform installed on your local machine
 - A Hetzner Cloud API Token
@@ -20,6 +20,10 @@ For more in-depth information about Terraform and infrastructure as code:
 - [Arch Wiki: Terraform](https://wiki.archlinux.org/title/Terraform) - Terraform installation and usage
 - [Hetzner Cloud Provider Documentation](https://registry.terraform.io/providers/hetznercloud/hcloud/latest/docs) -
   Hetzner Cloud provider details
+
+## Knowledge
+
+For comprehensive information about Terraform concepts, see [Terraform](/knowledge/terraform).
 
 ## 1. Install Terraform
 
@@ -47,7 +51,9 @@ Configuration Language (`HCL`).
 2. Inside this directory, create a new file named `main.tf`.
 3. Open `main.tf` in your text editor or IDE and add the following basic configuration:
 
-   ```hcl
+::: code-group
+
+```hcl [main.tf]
    # Define Hetzner cloud provider
    terraform {
      required_providers {
@@ -69,10 +75,14 @@ Configuration Language (`HCL`).
      image        = "debian-12"
      server_type  = "cx22"
    }
-   ```
+```
 
-   **Note:** Hardcoding the API token directly in `main.tf` is not recommended for security reasons. We will address
-   this in a later step.
+:::
+
+::: warning
+Hardcoding the API token directly in `main.tf` is not recommended for security reasons. We will address
+this in a later step.
+:::
 
 ## 4. Creating and Managing the Server
 
@@ -92,7 +102,7 @@ Terraform variables provide a secure way to handle sensitive data.
 1. Create a new file named `variables.tf` in the same directory:
 
 ```hcl
-   variable "hcloud_token" {
+variable "hcloud_token" {
   description = "Hetzner Cloud API token"
   nullable    = false
   sensitive   = true
@@ -135,8 +145,10 @@ Firewalls are essential for securing your server by controlling incoming and out
 1. Add the following resource block to your `main.tf` to define a firewall that allows SSH access (port 22 TCP) from
    anywhere:
 
-   ```hcl
-   resource "hcloud_firewall" "ssh_firewall" {
+::: code-group
+
+```hcl [main.tf]
+   resource "hcloud_firewall" "ssh_firewall" {  //[!code ++:9]
      name = "ssh-firewall"
      rule {
        direction  = "in"
@@ -145,19 +157,25 @@ Firewalls are essential for securing your server by controlling incoming and out
        source_ips = ["0.0.0.0/0", "::/0"]
      }
    }
-   ```
+```
+
+:::
 
 2. Associate the firewall with your server resource by adding the `firewall_ids` argument within the `hcloud_server`
    resource block in `main.tf`:
 
-   ```hcl
+::: code-group
+
+```hcl [main.tf]
    resource "hcloud_server" "debian_server" {
      name         = "debian-server"
      image        = "debian-12"
      server_type  = "cx22"
-     firewall_ids = [hcloud_firewall.ssh_firewall.id]
+     firewall_ids = [hcloud_firewall.ssh_firewall.id] //[!code ++]
    }
-   ```
+```
+
+:::
 
 ### 5.3 Adding SSH Keys
 
@@ -166,17 +184,23 @@ Adding SSH keys allows you to securely log in to your server without using passw
 1. Add a resource block for each SSH key you want to add to `main.tf`. If needed adjust the `name` and `public_key`
    values accordingly:
 
-   ```hcl
+::: code-group
+
+```hcl [main.tf]
    resource "hcloud_ssh_key" "user_ssh_key" {
      name       = "name@device"
      public_key = file("~/.ssh/id_ed25519.pub")
    }
-   ```
+```
+
+:::
 
 2. Associate the SSH keys with your server resource by adding the `ssh_keys` argument within the `hcloud_server`
    resource block in `main.tf`. If you have multiple keys, separate their IDs with commas.
 
-   ```hcl
+::: code-group
+
+```hcl [main.tf]
    resource "hcloud_server" "debian_server" {
      name         = "debian-server"
      image        = "debian-12"
@@ -184,7 +208,9 @@ Adding SSH keys allows you to securely log in to your server without using passw
      firewall_ids = [hcloud_firewall.ssh_firewall.id]
      ssh_keys     = [hcloud_ssh_key.user_ssh_key.id]
    }
-   ```
+```
+
+:::
 
 ### 5.4 Terraform Output
 

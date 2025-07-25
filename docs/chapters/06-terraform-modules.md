@@ -24,6 +24,10 @@ For more in-depth technical information about modules in Terraform:
 - [Terraform Documentation: Module Sources](https://www.terraform.io/language/modules/sources) - Detailed guide on
   module sources
 
+::: info
+For comprehensive information about Terraform concepts, see [Terraform](/knowledge/terraform).
+:::
+
 ## 1. Creating a Host Metadata Module
 
 Terraform modules are reusable, self-contained packages of Terraform configurations that manage a collection of related
@@ -136,10 +140,10 @@ module "ssh_wrapper" {
 
 :::
 
-## 2. SSH Known Hosts Module
+## 2. SSH Known Hosts Module [Exercise 17]
 
 When connecting to newly created servers via SSH, you typically encounter host key verification warnings like already
-mentioned in [04-server-initialization.md](./04-server-initialization.md). So we will create a module that automatically
+mentioned in [Server Initialization](/chapters/04-server-initialization#_5-handling-ssh-host-key-mismatches-exercise-14). So we will create a module that automatically
 generates SSH configuration files to eliminate these warnings.
 
 ### Module Structure
