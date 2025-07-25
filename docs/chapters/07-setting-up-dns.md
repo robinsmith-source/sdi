@@ -208,12 +208,12 @@ resource "dns_a_record_set" "server_a" {
   zone      = "${var.dns_zone}."
   name      = var.server_name
   addresses = [var.server_ip]
-  ttl       = 300
+  ttl       = 10
 }
 
 # CNAME records for server aliases using count meta-argument
 resource "dns_cname_record" "server_aliases" {
-  count      = length(.server_aliases)
+  count      = length(var.server_aliases)
   zone       = "${var.dns_zone}."
   name       = var.server_aliases[count.index]
   cname      = "${var.server_name}.${var.dns_zone}."
@@ -244,7 +244,7 @@ resource "dns_a_record_set" "server_a" {
   zone      = "${var.dns_zone}."
   name      = var.server_name
   addresses = [hcloud_server.debian_server.ipv4_address]
-  ttl       = 300
+  ttl       = 10
 }
 ```
 
@@ -272,6 +272,6 @@ resource "dns_a_record_set" "server_a" {
   zone      = "${var.dns_zone}."
   name      = "server-${count.index}"
   addresses = [hcloud_server.debian_server[count.index].ipv4_address]
-  ttl       = 300
+  ttl       = 10
 }
 ```
