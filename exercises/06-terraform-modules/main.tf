@@ -1,13 +1,3 @@
-# Define Hetzner cloud provider and required version
-terraform {
-  required_providers {
-    hcloud = {
-      source = "hetznercloud/hcloud"
-    }
-  }
-  required_version = ">= 0.13"
-}
-
 # Add SSH public key for server authentication
 resource "hcloud_ssh_key" "user_ssh_key" {
   name       = "robin@Robin-Laptop"

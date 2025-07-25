@@ -1,13 +1,3 @@
-# Define Hetzner cloud provider
-terraform {
-  required_providers {
-    hcloud = {
-      source = "hetznercloud/hcloud"
-    }
-  }
-  required_version = ">= 0.13"
-}
-
 resource "hcloud_firewall" "web_access_firewall" {
   name = "web-access-firewall"
   rule {

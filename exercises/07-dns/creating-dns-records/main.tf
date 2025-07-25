@@ -1,16 +1,3 @@
-# Define Hetzner cloud provider
-terraform {
-  required_providers {
-    hcloud = {
-      source = "hetznercloud/hcloud"
-    }
-    dns = {
-      source = "hashicorp/dns"
-    }
-  }
-  required_version = ">= 0.13"
-}
-
 resource "tls_private_key" "host" {
   algorithm = "ED25519"
 }
@@ -61,21 +48,19 @@ resource "hcloud_server" "debian_server" {
   user_data    = local_file.user_data.content
 }
 
-provider "dns" {
-  update {
-    server        = "ns1.sdi.hdm-stuttgart.cloud"
-    key_name      = "g10.key."
-    key_algorithm = "hmac-sha512"
-    key_secret    = var.dns_secret
-  }
-}
-
 # A record for the server's canonical name (e.g., workhorse.g10.sdi.hdm-stuttgart.cloud)
 resource "dns_a_record_set" "server_a" {
   zone      = "${var.dns_zone}."
   name      = var.server_name
   addresses = [var.server_ip]
   ttl       = 300
+}
+
+# A record for the root domain (e.g., g10.sdi.hdm-stuttgart.cloud)
+resource "dns_a_record_set" "server_a_root" {
+  zone      = "${var.dns_zone}."
+  addresses = [var.server_ip]
+  ttl       = 10
 }
 
 # CNAME records for server aliases using count meta-argument
@@ -85,7 +70,7 @@ resource "dns_cname_record" "server_aliases" {
   name       = var.server_aliases[count.index]
   cname      = "${var.server_name}.${var.dns_zone}."
   ttl        = 300
-  depends_on = [dns_a_record_set.server_a]
+  depends_on = [dns_a_record_set.server_a, hcloud_server.debian_server]
 }
 
 module "ssh_wrapper" {

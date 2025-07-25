@@ -28,7 +28,7 @@ For more in-depth information about Hetzner Cloud and server security:
 2. Complete the account verification process (ID verification may be requested).
 3. For enhanced account security, enable two-factor authentication (2FA).
 
-## 2. Creating Your First Server
+## 2. Creating Your First Server [Exercise 1]
 
 1. Go to https://www.hetzner.com and click "Login" in the top-right corner.
 2. From the dropdown menu, select "Cloud".
@@ -77,7 +77,9 @@ Be aware that the default server configuration has several security weaknesses:
      touch ~/.ssh/known_hosts
      ```
 
-## 6. Improving Server Security
+[//]: # "TODO: add exercise 2 here"
+
+## 6. Improving Server Security [Exercise 3]
 
 1. In the Hetzner Cloud Console, navigate to `Firewalls`. Create a new firewall with these rules:
    - Rule 1: Allow TCP traffic on Port 22 (for SSH access).

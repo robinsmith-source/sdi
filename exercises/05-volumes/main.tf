@@ -1,13 +1,3 @@
-# Define Hetzner cloud provider
-terraform {
-  required_providers {
-    hcloud = {
-      source = "hetznercloud/hcloud"
-    }
-  }
-  required_version = ">= 0.13"
-}
-
 resource "tls_private_key" "host" {
   algorithm = "ED25519"
 }

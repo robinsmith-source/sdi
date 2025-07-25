@@ -1,13 +1,3 @@
-# Define Hetzner cloud provider and required version
-terraform {
-  required_providers {
-    hcloud = {
-      source = "hetznercloud/hcloud"
-    }
-  }
-  required_version = ">= 0.13"
-}
-
 resource "tls_private_key" "host" {
   algorithm = "ED25519"
 }
@@ -51,14 +41,6 @@ resource "hcloud_server" "debian_server" {
   user_data    = local_file.user_data.content
 }
 
-# Create SSH wrapper for easier server access
-module "ssh_wrapper" {
-  source      = "../modules/ssh-wrapper"
-  loginUser   = var.login_user
-  ipv4Address = hcloud_server.debian_server.ipv4_address
-  public_key  = file("~/.ssh/id_ed25519.pub")
-}
-
 resource "local_file" "user_data" {
   content = templatefile("tpl/userData.yml", {
     loginUser        = var.login_user
@@ -66,4 +48,12 @@ resource "local_file" "user_data" {
     tls_private_key  = indent(4, tls_private_key.host.private_key_openssh)
   })
   filename = "gen/userData.yml"
+}
+
+# Create SSH wrapper for easier server access
+module "ssh_wrapper" {
+  source      = "../../modules/ssh-wrapper"
+  loginUser   = var.login_user
+  ipv4Address = hcloud_server.debian_server.ipv4_address
+  public_key  = file("~/.ssh/id_ed25519.pub")
 }

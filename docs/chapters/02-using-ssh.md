@@ -67,9 +67,12 @@ robin        6671  ... /usr/bin/ssh-agent -D -a /run/user/21100/keyring/.ssh
 srwxr-xr-x. 1 robin robin 0 Apr 12 09:58 /run/user/21100/keyring/ssh
 ```
 
-_Note: The "s" in `srwxr-xr-x` indicates a domain socket._
+::: tip
+The `SSH_AUTH_SOCK` environment variable points to the socket used by `ssh-agent`.
+This socket is used by SSH clients to communicate with the agent. The `ls -al` command shows the socket file, which has permissions `srwxr-xr-x`. The `s` in `srwxr-xr-x` indicates a domain socket.
+:::
 
-### `ssh-agent` Installation and Use
+### `ssh-agent` Installation and Use [Exercise 4]
 
 1. Ensure `ssh-agent` is running on your system. On many systems, it starts automatically with your desktop session. You can check with `ps aux | grep ssh-agent`.
 2. If you haven't already, add your SSH key to the agent:
@@ -80,7 +83,7 @@ _Note: The "s" in `srwxr-xr-x` indicates a domain socket._
 3. You will be prompted for your passphrase.
 4. Try multiple SSH logins to different servers. You should find that entering your passphrase is now required only once (when adding the key to the agent) per login session.
 
-### MI Gitlab Access by SSH
+### MI Gitlab Access by SSH [Exercise 5]
 
 1. Familiarize yourself with GitLab's documentation on using SSH keys: "Use SSH keys to communicate with GitLab".
 2. Ensure your public SSH key (the one whose private counterpart is managed by `ssh-agent`) is added to your MI Gitlab profile.
@@ -90,7 +93,7 @@ _Note: The "s" in `srwxr-xr-x` indicates a domain socket._
    ```
 4. Attempt `git pull` and `git push` operations. These should now proceed without prompting for your SSH key passphrase, thanks to `ssh-agent`.
 
-## 3. Intermediate Host Hopping
+## 3. Intermediate Host Hopping [Exercise 6]
 
 Sometimes, you need to connect to a server (Host B) that is only accessible from another server (Host A), not directly from your local machine. This is known as intermediate host hopping or jump hosting.
 
@@ -109,9 +112,7 @@ To address this, you have a few options:
 - **Copy private key to intermediate host (Not Recommended):** You could copy your private key (e.g., `~/.ssh/id_ed25519`) to the intermediate host (Host A). You would then likely need to enter its passphrase again on Host A when connecting to Host B. This method is generally discouraged as it increases the exposure of your private key.
 - **Enable Agent Forwarding:** This allows the intermediate host (Host A) to use the `ssh-agent` running on your local machine for authentication to subsequent hosts (Host B).
 
-_Note: Agent forwarding relies on the agent authentication socket (`SSH_AUTH_SOCK`) being available and forwarded from your originating client host._
-
-### Enabling SSH Agent Forwarding
+### Enabling SSH Agent Forwarding [Exercise 7]
 
 Agent forwarding allows you to use your local SSH keys for authentication even when you are on a remote server, without copying your private keys to that server.
 
@@ -145,27 +146,6 @@ root@klausur:~#
 
 The connection from `learn` to `klausur` should succeed without a passphrase prompt if the key for `klausur` is in your local `ssh-agent`.
 
-### Host Hopping
-
-In this exercise, simulate a scenario where Host B is only accessible from Host A.
-
-1. **Setup**:
-   - You'll need two remote hosts: Host A (your jump host) and Host B (your target host).
-   - Ensure you can SSH into Host A from your local machine using key-based authentication (with your key in `ssh-agent`).
-   - Ensure Host B is configured to accept your SSH public key for authentication.
-   - For testing, Host B should ideally _not_ be directly accessible from your local machine, or its firewall should block direct SSH from you while allowing it from Host A.
-2. **Enable Agent Forwarding**:
-   - On your local workstation, edit your `~/.ssh/config` to enable agent forwarding for connections to Host A.
-3. **Test Forwarding**:
-   - Login to Host A by SSH from your local workstation.
-   - From the SSH session on Host A, attempt to SSH into Host B. This connection should now succeed without requiring a passphrase, using your forwarded agent.
-4. **Return and Test Direct Access (Control)**:
-   - Close both SSH connections, returning to your local workstation.
-   - Attempt to login directly to Host B from your local workstation. If it was configured to be inaccessible directly, this should fail, confirming the hop was necessary.
-5. **Observe**:
-   - Login to Host B (via Host A).
-   - While on Host B, try logging in to Host A. What do you observe? Why does this happen? (Hint: Agent forwarding is typically one-way from your client through the jump host.)
-
 ## 4. SSH Port Forwarding
 
 SSH port forwarding (also known as SSH tunneling) creates a secure connection that forwards traffic from a port on one machine to a port on another machine, through the SSH connection.
@@ -190,7 +170,7 @@ In this exercise, simulate accessing a web server that is firewalled off from di
 6. **Test Forwarded Connection**:
    - Open your local web browser and navigate to `http://localhost:2000`. You should now see your Nginx server's default page, served from `WebServerHost` but accessed via your local port 2000.
 
-## 5. SSH X11 Forwarding
+## 5. SSH X11 Forwarding [Exercise 8]
 
 SSH can forward X11 (X Window System) connections. This allows you to run graphical applications on a remote Linux/Unix server and have their graphical user interface (GUI) display on your local machine.
 

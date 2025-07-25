@@ -177,6 +177,8 @@ runcmd:
   - systemctl start caddy
 ```
 
+[//]: # '"TODO: rewrite and add 19-21 here"'
+
 ### Verification
 
 After completing the steps above, verify your setup:
@@ -193,7 +195,6 @@ After completing the steps above, verify your setup:
    ```bash
    curl -I https://www.g10.sdi.hdm-stuttgart.cloud
    ```
-   //TODO: rewrite and add 19-21 here
    λ ~/code/sdi/exercises/07-dns/creating-dns-records/ main\* dig +noall +answer @ns1.sdi.hdm-stuttgart.cloud -y "hmac-sha512:g10.key:..." -t AXFR g10.sdi.hdm-stuttgart.cloud
    g10.sdi.hdm-stuttgart.cloud. 600 IN SOA ns1.hdm-stuttgart.cloud. goik\@hdm-stuttgart.de. 55 604800 86400 2419200 604800
    g10.sdi.hdm-stuttgart.cloud. 600 IN NS ns1.hdm-stuttgart.cloud.

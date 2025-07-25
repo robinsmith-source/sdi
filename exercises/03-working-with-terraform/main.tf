@@ -1,13 +1,3 @@
-# Define Hetzner cloud provider
-terraform {
-  required_providers {
-    hcloud = {
-      source = "hetznercloud/hcloud"
-    }
-  }
-  required_version = ">= 0.13"
-}
-
 # Create a firewall rule to allow SSH access
 resource "hcloud_firewall" "ssh_firewall" {
   name = "ssh-firewall"
