@@ -49,20 +49,22 @@ Add your public key to Hetzner Cloud and your servers as described in the [SSH g
 The documentation is built with [VitePress](https://vitepress.dev/) and lives in the `docs/` directory.
 
 ### Install Documentation Dependencies
+This project uses [bun](https://bun.sh/) for package management. If you don't have bun installed, follow the [installation guide](https://bun.sh/docs/installation).
+
 ```sh
 cd docs
-pnpm install
+bun install
 ```
 
 ### Start the Dev Server
 ```sh
-pnpm docs:dev
+bun docs:dev
 ```
 Visit [http://localhost:5173](http://localhost:5173) to view the docs.
 
 ### Build for Production
 ```sh
-pnpm docs:build
+bun docs:build
 ```
 
 ## Working with the Exercises

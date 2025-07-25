@@ -1,0 +1,35 @@
+name: Lint and Validate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  terraform-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+      - name: Terraform Format Check
+        working-directory: exercises
+        run: terraform fmt -check -recursive -diff
+      - name: Terraform Validate (exercises)
+        working-directory: .
+        run: terraform validate
+
+  prettier-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+      - name: Install dependencies
+        working-directory: docs
+        run: bun install
+      - name: Prettier Format Check
+        working-directory: docs
+        run: bunx prettier --check . 

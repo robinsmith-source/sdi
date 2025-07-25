@@ -79,7 +79,7 @@ export default defineConfig({
         items: [
           {
             text: "📚 Certificate Concepts",
-            link: "/knowledge/settings-up-certificates",
+            link: "/knowledge/certificates",
           },
           {
             text: "🛠️ Setting up Certificates",
