@@ -30,7 +30,7 @@ variable "server_ip" {
 }
 
 variable "server_aliases" {
-  type = list(string)
+  type    = list(string)
   default = []
   validation {
     condition     = length(distinct(var.server_aliases)) == length(var.server_aliases) && !contains(var.server_aliases, var.server_name)

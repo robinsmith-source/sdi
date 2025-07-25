@@ -89,9 +89,9 @@ resource "dns_cname_record" "server_aliases" {
 }
 
 module "ssh_wrapper" {
-  source      = "../../modules/ssh-wrapper"
-  loginUser   = "devops"
-  hostname    = "${var.server_name}.${var.dns_zone}"
-  public_key  = tls_private_key.host.public_key_openssh
-  depends_on  = [dns_a_record_set.server_a]
+  source     = "../../modules/ssh-wrapper"
+  loginUser  = "devops"
+  hostname   = "${var.server_name}.${var.dns_zone}"
+  public_key = tls_private_key.host.public_key_openssh
+  depends_on = [dns_a_record_set.server_a]
 }
