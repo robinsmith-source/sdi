@@ -94,7 +94,7 @@ dns_challenge {
   config = {
     RFC2136_NAMESERVER     = "ns1.sdi.hdm-stuttgart.cloud"
     RFC2136_TSIG_ALGORITHM = "hmac-sha512"
-    RFC2136_TSIG_KEY       = "gxy.key."
+    RFC2136_TSIG_KEY       = "g10.key."
     RFC2136_TSIG_SECRET    = var.dns_secret # Relates to environment variable TF_VAR_dns_secret
   }
 }
