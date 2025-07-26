@@ -1,1 +1,1 @@
-dns_zone         = "g10.sdi.hdm-stuttgart.cloud"
+dns_zone = "g10.sdi.hdm-stuttgart.cloud"

@@ -5,7 +5,7 @@ terraform {
       version = "~> 1.0"
     }
     dns = {
-      source = "providers.tf-dns.com/com/dns"
+      source  = "providers.tf-dns.com/com/dns"
       version = "~> 3.0"
     }
     acme = {
