@@ -19,10 +19,10 @@ export default defineConfig({
     ],
     sidebar: [
       {
-        text: "🚀 Setup",
+        text: "🚀 Cloud Setup",
         collapsed: false,
         items: [
-          { text: "Hetzner Cloud Setup", link: "/chapters/01-hetzner-cloud" },
+          { text: "🛠️ Hetzner Cloud Setup", link: "/chapters/01-hetzner-cloud" },
         ],
       },
       {

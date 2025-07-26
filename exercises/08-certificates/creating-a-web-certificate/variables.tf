@@ -10,3 +10,14 @@ variable "dns_zone" {
   type        = string
   nullable    = false
 }
+
+variable "name_server" {
+  description = "The name server for DNS records"
+  type        = string
+  nullable    = false
+}
+
+variable "email_address" {
+  description = "Email address for Let's Encrypt registration"
+  type        = string
+}
