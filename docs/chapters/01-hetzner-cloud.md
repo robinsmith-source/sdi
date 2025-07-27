@@ -15,10 +15,9 @@ Before you begin, ensure you have:
 
 For more in-depth information about Hetzner Cloud, firewalls, and SSH connections:
 
-- [Hetzner Cloud: Create Server](https://docs.hetzner.com/cloud/servers/get-started/create-and-delete-server/) - Official guide for creating servers
-- [Hetzner Cloud: Firewalls](https://docs.hetzner.com/cloud/servers/security/firewalls/) - Configuring firewalls in Hetzner Cloud
-- [Hetzner Cloud: SSH Keys](https://docs.hetzner.com/cloud/servers/security/ssh-keys/) - Managing SSH keys in Hetzner Cloud
-- [OpenSSH Manual](https://www.openssh.com/manual.html) - Official OpenSSH documentation
+- [Hetzner Cloud: Creating a Server](https://docs.hetzner.com/cloud/servers/getting-started/creating-a-server)
+- [Hetzner Cloud: Connecting to your Server](https://docs.hetzner.com/cloud/servers/getting-started/connecting-to-the-server)
+- [Hetzner Cloud: Creating a Firewall](https://docs.hetzner.com/cloud/firewalls/getting-started/creating-a-firewall)
 
 ## 1. Creating a Hetzner Account
 
