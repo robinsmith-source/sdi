@@ -143,7 +143,7 @@ ignore all occurances of this file\*\*
 
 Firewalls are essential for securing your server by controlling incoming and outgoing traffic.
 
-1. Add the following resource block to your `main.tf` to define a firewall that allows SSH access (port 22 TCP) from
+1. Add the following resource block to your `main.tf` to define a firewall that allows SSH access (port `22` TCP) from
    anywhere:
 
 ::: code-group

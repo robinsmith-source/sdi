@@ -80,7 +80,7 @@ Be aware that the default server configuration has several security weaknesses:
 ## 6. Improving Server Security [Exercise 3]
 
 1. In the Hetzner Cloud Console, navigate to `Firewalls`. Create a new firewall with these rules:
-   - Rule 1: Allow TCP traffic on Port 22 (for SSH access).
+   - Rule 1: Allow TCP traffic on Port `22` (for SSH access).
    - Rule 2: Allow ICMP traffic (for ping functionality).
 2. Next, go to the `Security` tab in the Cloud Console to add your public SSH key:
    - Copy the entire contents of your public key file (`~/.ssh/id_ed25519.pub`).

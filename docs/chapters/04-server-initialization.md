@@ -56,8 +56,8 @@ You can extend this script for more complex tasks, such as software installation
 # Update system packages
 apt update && apt upgrade -y
 
-# Install Nginx web server
-apt install -y nginx [!code ++:6]
+# Install Nginx web server #[!code ++:8]
+apt install -y nginx
 
 # Create a simple default HTML page
 echo "Hello from my Terraform server!" > /var/www/html/index.html
@@ -67,7 +67,7 @@ systemctl start nginx
 systemctl enable nginx
 ```
 
-This script performs package updates, installs Nginx, starts the Nginx service, enables it for auto-start on boot, and creates a basic `index.html`, which is served on port 80 by default.
+This script performs package updates, installs Nginx, starts the Nginx service, enables it for auto-start on boot, and creates a basic `index.html`, which is served on port `80` by default.
 
 While Bash scripts are effective for simple initializations, managing intricate configurations, user setups, or extensive file manipulations can become complex. For these scenarios, Cloud-Init offers a more structured and powerful solution.
 
@@ -115,9 +115,9 @@ runcmd:
 Upon server creation, Cloud-Init will execute the tasks defined in `tpl/userData.yml`. You can verify the Nginx installation by connecting to the server via SSH and checking its status (e.g., `systemctl status nginx`).
 
 ::: details **Firewall Configuration for Web Access**
-Note that accessing the web server on port 80 requires a firewall rule. Here's how to configure it in Terraform:
+Note that accessing the web server on port `80` requires a firewall rule. Here's how to configure it in Terraform:
 
-```hcl {9-14}
+```hcl
 resource "hcloud_firewall" "web_access_firewall" {
   name = "web-access-firewall"
   rule {
@@ -126,7 +126,7 @@ resource "hcloud_firewall" "web_access_firewall" {
     port       = "22" // Keep SSH access
     source_ips = ["0.0.0.0/0", "::/0"]
   }
-  rule {
+  rule { //[!code ++:6]
     direction  = "in"
     protocol   = "tcp"
     port       = "80" // Allow HTTP traffic
@@ -226,7 +226,7 @@ resource "local_file" "user_data_rendered" {
 ```hcl [main.tf]
 # ... (existing configuration) ...
 
-resource "hcloud_server" "debian_server" { [!code focus:7]
+resource "hcloud_server" "debian_server" { //[!code focus:7]
   name        = "debian-server"
   image       = "debian-12"
   server_type = "cx22"

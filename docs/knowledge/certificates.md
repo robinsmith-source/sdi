@@ -104,7 +104,7 @@ The Automated Certificate Management Environment (ACME) protocol automates certi
 **HTTP-01 Challenge**
 
 - Places a file at a specific URL on your web server
-- Requires port 80 to be accessible
+- Requires port `80` to be accessible
 - Cannot be used for wildcard certificates
 
 **DNS-01 Challenge**
@@ -117,7 +117,7 @@ The Automated Certificate Management Environment (ACME) protocol automates certi
 **TLS-ALPN-01 Challenge**
 
 - Uses TLS extension for validation
-- Requires port 443 to be accessible
+- Requires port `443` to be accessible
 - Not commonly used
 
 ## Security Considerations

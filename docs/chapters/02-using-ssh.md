@@ -157,20 +157,20 @@ SSH port forwarding (also known as SSH tunneling) creates a secure connection th
 In this exercise, simulate accessing a web server that is firewalled off from direct internet access but reachable via an SSH-accessible host.
 
 1. **Server Setup**:
-   - You need a remote server (let's call it `WebServerHost`) running a web server (e.g., Nginx on port 80).
+   - You need a remote server (let's call it `WebServerHost`) running a web server (e.g., Nginx on port `80`).
    - Ensure you can SSH into `WebServerHost`.
 2. **Initial Check**:
    - Verify if Nginx is directly accessible by navigating to `WebServerHost`'s public IP in a web browser.
 3. **Firewall Configuration (Simulated)**:
-   - Ideally, configure `WebServerHost`'s firewall to block incoming connections on port 80 from the internet, but allow SSH (port 22). (If you can't modify the firewall, proceed with the understanding that port forwarding provides an alternative access path).
+   - Ideally, configure `WebServerHost`'s firewall to block incoming connections on port `80` from the internet, but allow SSH (port 22). (If you can't modify the firewall, proceed with the understanding that port forwarding provides an alternative access path).
 4. **Verify Firewall**:
    - If firewalled, Nginx should no longer be accessible directly via `WebServerHost`'s IP in your browser.
 5. **Port Forwarding Setup**:
-   - On your local machine, set up local port forwarding. Forward a local port (e.g., 2000) to the web server's port (80) on `WebServerHost`:
+   - On your local machine, set up local port forwarding. Forward a local port (e.g., `2000`) to the web server's port (`80`) on `WebServerHost`:
      ```sh
      ssh -L 2000:localhost:80 your_user@WebServerHost_IP
      ```
-     Replace `your_user@WebServerHost_IP` accordingly. `localhost:80` here refers to port 80 on `WebServerHost` itself.
+     Replace `your_user@WebServerHost_IP` accordingly. `localhost:80` here refers to port `80` on `WebServerHost` itself.
 6. **Test Forwarded Connection**:
    - Open your local web browser and navigate to `http://localhost:2000`. You should now see your Nginx server's default page, served from `WebServerHost` but accessed via your local port 2000.
 
