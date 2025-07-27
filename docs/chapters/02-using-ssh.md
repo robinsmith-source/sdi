@@ -37,12 +37,12 @@ In this exercise, you will improve the security of your server by implementing S
 
 ### 1.1 Creating a Restrictive Firewall
 
-This exercise builds upon the firewall creation from the [Hetzner Cloud chapter](/chapters/01-hetzner-cloud#exercise-1#_2-configuring-a-firewall). 
+This exercise builds upon the firewall creation from the [Hetzner Cloud chapter](/chapters/01-hetzner-cloud#exercise-1#_2-configuring-a-firewall).
 Instead of allowing all traffic, we will create a more restrictive firewall that only allows specific protocols like ICMP.
 
-| IP Version | Protocol | Port |
-| ---------- | -------- | ---- |
-| Any IPv4 / Any IPv6 | ICMP | - |
+| IP Version          | Protocol | Port |
+| ------------------- | -------- | ---- |
+| Any IPv4 / Any IPv6 | ICMP     | -    |
 
 ::: info
 We leave the port field empty because ICMP is a protocol that doesn't use ports.
@@ -63,7 +63,6 @@ If you are using a different key, replace `id_ed25519` with the name of your key
 
 :::
 
-
 ### 1.3 Recreating the Server with Enhanced Security
 
 1. Select both your newly created firewall and your SSH key during server creation.
@@ -72,10 +71,10 @@ If you are using a different key, replace `id_ed25519` with the name of your key
 The subsequent examples assume a `167.235.54.109` server IP.
 :::
 
-
 ### 1.4 Testing Connectivity
 
 1. **Try to ping your server**:
+
    ```sh
    ping 167.235.54.109
    PING 167.235.54.109 (167.235.54.109) 56(84) bytes of data.
@@ -93,19 +92,22 @@ The subsequent examples assume a `167.235.54.109` server IP.
 ### 1.5 Server Setup and Testing
 
 1. **Update and reboot your server**:
+
    ```sh
    root@gtest3:~# apt update
-   root@gtest3:~# apt upgrade  
+   root@gtest3:~# apt upgrade
    root@gtest3:~# aptitude -y upgrade
-   root@gtest3:~# reboot 
+   root@gtest3:~# reboot
    ```
 
 2. **Install the Nginx web server**:
+
    ```sh
    root@gtest3:~# apt install nginx
    ```
 
 3. **Check for the running process**:
+
    ```sh
    root@gtest3:~# systemctl status nginx
    ● nginx.service - A high performance web server and a reverse proxy server
@@ -114,6 +116,7 @@ The subsequent examples assume a `167.235.54.109` server IP.
    ```
 
 4. **Use an SSH connection to access the server and verify HTTP (port 80) accessibility from your server**:
+
    ```sh
    # ssh root@167.235.54.109
    root@gtest3:~# wget -O - http://167.235.54.109
@@ -122,7 +125,7 @@ The subsequent examples assume a `167.235.54.109` server IP.
    HTTP request sent, awaiting response... 200 OK
    Length: 615 [text/html]
    Saving to: 'STDOUT'
-   
+
    <html>
    <head>
    <title>Welcome to nginx!</title>
@@ -146,9 +149,9 @@ The external access fails because the firewall is blocking all traffic except fo
 1. On the left-hand side, select `Firewalls`, then click on the `Edit` button for the firewall you want to modify (in this case the one you created in the previous exercise).
 2. Add a new rule with the following settings:
 
-| IP Version | Protocol | Port |
-| ---------- | -------- | ---- |
-| Any IPv4 / Any IPv6 | HTTP | 80 |
+| IP Version          | Protocol | Port |
+| ------------------- | -------- | ---- |
+| Any IPv4 / Any IPv6 | HTTP     | 80   |
 
 3. Click on the `Save` button to apply the changes.
 
@@ -190,7 +193,6 @@ This socket is used by SSH clients to communicate with the agent. The `ls -al` c
    (Replace `~/.ssh/id_ed25519` with the path to your private key if different.)
 3. You will be prompted for your passphrase.
 4. Try multiple SSH logins to different servers. You should find that entering your passphrase is now required only once (when adding the key to the agent) per login session.
-
 
 ## 3. GitLab Access via SSH [Exercise 5] {#exercise-5}
 
@@ -289,6 +291,7 @@ In this exercise, you will learn about SSH tunneling (port forwarding), which al
 SSH port forwarding (also known as SSH tunneling) creates a secure connection that forwards traffic from a port on one machine to a port on another machine, through the SSH connection.
 
 The `-L 2000:localhost:80` parameter means:
+
 - `2000`: Local port on your machine
 - `localhost:80`: Remote port on the server (localhost from the server's perspective)
 - The connection is tunneled through the SSH connection to `YOUR_SERVER_IP`
@@ -305,14 +308,11 @@ In this exercise, you will learn about X11 forwarding, which allows you to run g
    ```sh
    apt install xauth
    ```
-   ::: note
-   This is required for opening X11 connections.
-   :::
 6. **Re-login to your remote host using SSH's -Y option for X11 forwarding**:
    ```sh
    ssh -Y root@YOUR_SERVER_IP
    ```
-   ::: note
+   ::: tip
    Unless you are on Linux, you may need to install an X11 server locally (e.g., XQuartz on macOS).
    :::
 7. **Install the Firefox browser on your remote server**:
@@ -320,12 +320,14 @@ In this exercise, you will learn about X11 forwarding, which allows you to run g
    apt install firefox-esr
    ```
 8. **Execute the Firefox browser on your remote host, connecting the GUI to your local desktop**:
+
    ```sh
    firefox-esr &
    ```
+
    You should now be able to access your Nginx server through the Firefox browser.
-   
-   ::: note
+
+   ::: info
    This might take some time, especially on slower server instances.
    :::
 

@@ -36,11 +36,11 @@ Before we can create a server, we need to configure a firewall to allow SSH acce
 5. Click `Add Firewall`.
 6. Configure the firewall with the following settings:
    - **Name**: Assign a descriptive name to your firewall.
-   - **Rules**: Add a inbound rule to allow SSH access. 
-   
-   | IP Version | Protocol | Port |
-   | ---------- | -------- | ---- |
-   | Any IPv4 / Any IPv6 | TCP | 22 |
+   - **Rules**: Add a inbound rule to allow SSH access.
+
+   | IP Version          | Protocol | Port |
+   | ------------------- | -------- | ---- |
+   | Any IPv4 / Any IPv6 | TCP      | 22   |
 
 ## 2. Creating Your First Server [Exercise 1] {#exercise-1}
 
@@ -61,10 +61,9 @@ This exercise guides you through creating your first Hetzner Cloud server and ac
 1. From your server's details page in the Hetzner Cloud Console, copy its IP address.
 2. Verify network connectivity to your server:
    ```sh
-   ping YOUR_SERVER_IP  
+   ping YOUR_SERVER_IP
    ```
    Successful pings indicate your server is reachable on the network via ICMP.
-
 
 ### 2.3 Accessing Your Server via SSH
 
@@ -85,6 +84,7 @@ ssh root@YOUR_SERVER_IP
 ```
 
 **Example:**
+
 ```sh
 ssh root@95.216.187.60
 ```
@@ -109,11 +109,11 @@ Are you sure you want to continue connecting (yes/no/[fingerprint])?
 - **Trust Decision**: You're being asked to trust this server and add its fingerprint to your `~/.ssh/known_hosts` file
 
 **Response Options:**
+
 - Type `yes` to accept and store the host key (recommended for your own server)
 - Type `no` to reject the connection
 - Type the fingerprint to verify it matches what you expect
-:::
-
+  :::
 
 ::: tip
 **How SSH Keys Work**: SSH uses public-key cryptography for authentication. The server has a private key (kept secret) and a public key (shared with clients). When you connect, the server proves its identity by demonstrating it possesses the private key corresponding to the public key fingerprint shown.
@@ -161,7 +161,7 @@ When you delete and recreate a server with the same IP address, SSH will detect 
 
 1. **Delete your current server** but keep both its IPv4 and IPv6 addresses unassigned:
    - In the Hetzner Cloud Console, select your server
-   - Click "Delete" 
+   - Click "Delete"
    - Choose "Keep as unassigned" for both IPv4 and IPv6 addresses
    - Confirm the deletion
 
@@ -199,17 +199,20 @@ Host key for YOUR_SERVER_IP has changed and you have requested strict checking.
 ### 4.5 Resolving the Issue
 
 **Method 1: Remove the old host key (Recommended for this exercise)**
+
 ```sh
 ssh-keygen -R YOUR_SERVER_IP
 ```
 
 **Method 2: Remove the specific line from known_hosts**
+
 ```sh
 # Open the known_hosts file and remove the line containing your server's IP
 vim ~/.ssh/known_hosts
 ```
 
 **Method 3: Accept the new host key (Use with caution)**
+
 ```sh
 ssh -o StrictHostKeyChecking=no root@YOUR_SERVER_IP
 ```
@@ -217,6 +220,7 @@ ssh -o StrictHostKeyChecking=no root@YOUR_SERVER_IP
 ### 4.6 Verification
 
 After resolving the host key issue, you should be able to connect normally:
+
 ```sh
 ssh root@YOUR_SERVER_IP
 ```
