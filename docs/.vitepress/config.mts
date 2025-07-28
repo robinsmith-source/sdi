@@ -37,15 +37,15 @@ export default defineConfig({
         text: "🏗️ Infrastructure as Code",
         collapsed: false,
         items: [
-          { text: "📚 Cloud-Init Concepts", link: "/knowledge/cloud-init" },
-          {
-            text: "🛠️ Server Initialization",
-            link: "/chapters/04-server-initialization",
-          },
           { text: "📚 Terraform Concepts", link: "/knowledge/terraform" },
           {
             text: "🛠️ Working with Terraform",
             link: "/chapters/03-working-with-terraform",
+          },
+          { text: "📚 Cloud-Init Concepts", link: "/knowledge/cloud-init" },
+          {
+            text: "🛠️ Server Initialization",
+            link: "/chapters/04-server-initialization",
           },
           { text: "📚 Module Concepts", link: "/knowledge/modules" },
           {

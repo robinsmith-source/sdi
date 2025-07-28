@@ -25,7 +25,7 @@ For more in-depth information about SSH and related topics:
 - [Arch Wiki: SSH Keys](https://wiki.archlinux.org/title/SSH_keys) - Detailed SSH key management
 - [Arch Wiki: SSH/Config](https://wiki.archlinux.org/title/SSH/Config) - SSH client configuration
 - [Arch Wiki: X11 Forwarding](https://wiki.archlinux.org/title/X11_forwarding) - X11 forwarding guide
-- [GitHub: Using SSH keys](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent)
+- [GitHub: Using SSH keys](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent) - GitHub SSH key documentation
 
 ## Knowledge
 
