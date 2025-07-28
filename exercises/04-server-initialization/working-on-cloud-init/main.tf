@@ -49,6 +49,15 @@ resource "local_file" "ssh_script" {
   depends_on      = [local_file.known_hosts]
 }
 
+resource "local_file" "scp_script" { // [!code ++:8]
+  content = templatefile("/tpl/scp.sh", {
+    user = var.login_user,
+    host = hcloud_server.debian_server.ipv4_address
+  })
+  filename        = "bin/scp"
+  file_permission = "755"
+}
+
 resource "local_file" "user_data" {
   content = templatefile("tpl/userData.yml", {
     loginUser        = var.login_user

@@ -49,7 +49,7 @@ resource "hcloud_server" "web_server" {
   firewall_ids = [hcloud_firewall.ssh_firewall.id] // [!code --]
   firewall_ids = [hcloud_firewall.web_access_firewall.id] // [!code ++]
   ssh_keys     = [hcloud_ssh_key.user_ssh_key.id]
-  user_data   = file("init.sh") // [!code ++]
+  user_data    = file("init.sh") // [!code ++]
 }
 ```
 
@@ -234,7 +234,9 @@ fi
 ### 3.2 Generating Scripts with Terraform
 
 We will now need to modify our `main.tf` file to generate the final scripts from the templates, injecting the necessary values like the server IP and username.
+For convenience, we will also add the `login_user` variable to the `variables.tf` file.
 
+::: code-group
 ```hcl [main.tf]
 # ... Other non-relevant resources for this exercise ...
 resource "tls_private_key" "host" { // [!code focus:36]
@@ -257,8 +259,8 @@ resource "local_file" "known_hosts" { // [!code ++:5]
 }
 
 resource "local_file" "ssh_script" { // [!code ++:8]
-  content = templatefile("${path.module}/tpl/ssh.sh", {
-    user = "devops",
+  content = templatefile("/tpl/ssh.sh", {
+    user = var.login_user,
     host = hcloud_server.debian_server.ipv4_address
   })
   filename        = "bin/ssh"
@@ -266,14 +268,27 @@ resource "local_file" "ssh_script" { // [!code ++:8]
 }
 
 resource "local_file" "scp_script" { // [!code ++:8]
-  content = templatefile("${path.module}/tpl/scp.sh", {
-    user = "devops",
+  content = templatefile("/tpl/scp.sh", {
+    user = var.login_user,
     host = hcloud_server.debian_server.ipv4_address
   })
   filename        = "bin/scp"
   file_permission = "755"
 }
 ```
+
+
+```hcl [variables.tf]
+variable "login_user" {
+  description = "Login user for the server"
+  type        = string
+  nullable    = false
+  default     = "devops"
+}
+```
+:::
+
+
 
 After executing `terraform apply`, you will have executable `ssh` and `scp` scripts in your local `bin` directory, simplifying all future interactions with your server.
 

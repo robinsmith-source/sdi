@@ -7,6 +7,7 @@ variable "hcloud_token" {
 
 variable "login_user" {
   description = "Login user for the server"
+  type        = string
   nullable    = false
   default     = "devops"
 }
