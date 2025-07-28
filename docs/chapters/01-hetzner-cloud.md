@@ -1,6 +1,6 @@
 # Hetzner Cloud
 
-> This guide explains how to set up a Hetzner Cloud account and get access to your first server.
+> This chapter explains how to set up a Hetzner Cloud account and get access to your first server.
 
 ## Prerequisites
 

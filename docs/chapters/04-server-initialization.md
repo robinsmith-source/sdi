@@ -1,259 +1,158 @@
-# Server Initialization Guide
+# Server Initialization
 
-> This guide provides an overview of server initialization methods using Terraform on Hetzner Cloud. It covers both basic `Bash` scripts and the more advanced Cloud-Init with Cloud-Config.
+> This chapter builds on the previous one, focusing on server initialization and configuration using Terraform and Cloud-Init. It introduces automated server setup, security hardening, and the use of helper scripts for easier server management.
 
 ## Prerequisites
 
 Before you begin, ensure you have:
 
-- A Hetzner Cloud account
-- A Hetzner Cloud API Token
-- Terraform installed on your local machine
+- A working Terraform project that can create a Hetzner Cloud server like in [Exercise 11](/chapters/03-working-with-terraform#_1-terraform-introduction-and-basic-configuration).
+- A SSH key pair available for server access. If you don't have one, you can create one using the [SSH Key Management](/chapters/02-using-ssh#_2-managing-ssh-keys) chapter.
 
 ## External Resources
 
-For more in-depth information about server initialization and cloud computing:
+For more in-depth information on the topics covered in this chapter:
 
-- [Cloud-Init Documentation](https://cloudinit.readthedocs.io/) - Official Cloud-Init documentation
-- [Arch Wiki: Cloud-Init](https://wiki.archlinux.org/title/Cloud-init) - Cloud-Init setup and configuration
-- [Arch Wiki: Systemd](https://wiki.archlinux.org/title/Systemd) - Systemd service management
-- [Arch Wiki: Fail2ban](https://wiki.archlinux.org/title/Fail2ban) - Fail2ban security setup
-- [Arch Wiki: Nginx](https://wiki.archlinux.org/title/Nginx) - Nginx web server configuration
+- [Terraform: `templatefile` function](https://www.terraform.io/language/functions/templatefile) - Official documentation for Terraform's templating function.
+- [Cloud-Init Module Reference](https://cloudinit.readthedocs.io/en/latest/reference/modules.html) - Detailed information on all available Cloud-Init modules.
+- [sshd_config(5) - Linux man page](https://man7.org/linux/man-pages/man5/sshd_config.5.html) - Manual for the SSH daemon configuration file.
 
-::: info
-For comprehensive information about Cloud-Init concepts, see [Cloud-Init](/knowledge/cloud-init).
-:::
+## 1. Automatic Nginx Installation with `user_data` [Exercise 12] {#exercise-12}
 
-## 1. Using Bash Init Scripts for Server Initialization [Exercise 11]
+In this exercise, you will use a `user_data` field in Terraform to pass a bash script to your server. This script will automatically install, start, and enable the Nginx web server upon the server's first boot.
 
-A straightforward approach to server initialization involves providing a `Bash` script that executes during the server's first boot.
+### 1.1 Creating the Initialization Script
 
-This example demonstrates passing a `Bash` script via Terraform to update the server's packages:
+First, create a shell script (e.g., `init.sh`) that contains the necessary commands.
 
 ::: code-group
-
-```hcl [main.tf]
-resource "hcloud_server" "debian_server" {
-  name        = "debian-server"
-  image       = "debian-12"
-  server_type = "cx22"
-  user_data   = file("init.sh") // Specifies the path to the initialization script [!code ++]
-}
-```
-
 ```sh [init.sh]
 #!/bin/bash
-# This script updates all packages on the server's first boot.
-apt update && apt upgrade -y
-```
 
+apt update && apt upgrade -y # Update package lists and upgrade existing packages
+apt install -y nginx # Install the Nginx web server
+
+systemctl start nginx # Start the Nginx service immediately
+systemctl enable nginx # Enable Nginx to start automatically on future boots
+```
 :::
 
-You can extend this script for more complex tasks, such as software installation. For instance, to install Nginx and set up a default webpage:
+### 1.2 Configuring the Server Resource
 
-```sh [scripts/init-nginx.sh]
-#!/bin/bash
-# Update system packages
-apt update && apt upgrade -y
-
-# Install Nginx web server #[!code ++:8]
-apt install -y nginx
-
-# Create a simple default HTML page
-echo "Hello from my Terraform server!" > /var/www/html/index.html
-
-# Start Nginx and enable it to start on boot
-systemctl start nginx
-systemctl enable nginx
-```
-
-This script performs package updates, installs Nginx, starts the Nginx service, enables it for auto-start on boot, and creates a basic `index.html`, which is served on port `80` by default.
-
-While Bash scripts are effective for simple initializations, managing intricate configurations, user setups, or extensive file manipulations can become complex. For these scenarios, Cloud-Init offers a more structured and powerful solution.
-
-## 2. Cloud-Init: Installing Packages [Exercise 12]
-
-To use Cloud-Init, create a cloud-config `YAML` file (e.g., `userData.yml`) and reference it in your Terraform configuration. The following example installs Nginx and generates a dynamic index page:
-
-::: code-group
+Next, modify your `hcloud_server` resource in `main.tf` to execute this script on boot using the `user_data` attribute.
 
 ```hcl [main.tf]
-# ... (ensure other necessary configurations like provider setup are present) ...
-
-resource "hcloud_server" "debian_server" { //[!code focus:6]
-  name        = "debian-server"
+resource "hcloud_server" "web_server" {
+  name        = "web-server-bash"
   image       = "debian-12"
   server_type = "cx22"
-  user_data = file("tpl/userData.yml") // Reference the cloud-config YAML file [!code ++]
+  firewall_ids = [hcloud_firewall.ssh_firewall.id] // [!code --]
+  firewall_ids = [hcloud_firewall.web_access_firewall.id] // [!code ++]
+  ssh_keys     = [hcloud_ssh_key.user_ssh_key.id]
+  user_data   = file("init.sh") // [!code ++]
 }
-
-# ... (rest of your Terraform configuration) ...
 ```
 
-```yml [tpl/userData.yml]
-#cloud-config
-# Install the nginx package
-packages:
-  - nginx
-
-# Commands to run after package installation
-runcmd:
-  # Ensure Nginx starts automatically on boot
-  - systemctl enable nginx
-  # Remove any default Nginx content
-  - rm /var/www/html/*
-  # Create a dynamic index page displaying the server's public IP and creation timestamp
-  - >
-    echo "I'm Nginx @ $(dig -4 TXT +short o-o.myaddr.l.google.com @ns1.google.com)
-    created $(date -u)" >> /var/www/html/index.html
-  # Restart SSH service (recommended if SSH configurations were modified by cloud-init)
-  - systemctl restart sshd
-```
-
+::: tip
+You can test your script on an existing server before running `terraform apply`.
+This can save time and avoid unnecessary create/destroy cycles.
 :::
 
-Upon server creation, Cloud-Init will execute the tasks defined in `tpl/userData.yml`. You can verify the Nginx installation by connecting to the server via SSH and checking its status (e.g., `systemctl status nginx`).
+This will create a server with Nginx installed and running. To verify that the script is working as expected, you will need to configure a firewall rule for web traffic.
 
-::: details **Firewall Configuration for Web Access**
-Note that accessing the web server on port `80` requires a firewall rule. Here's how to configure it in Terraform:
-
-```hcl
-resource "hcloud_firewall" "web_access_firewall" {
+```hcl [main.tf]
+resource "hcloud_firewall" "ssh_firewall" { // [!code --]
+resource "hcloud_firewall" "web_access_firewall" { // [!code ++]
   name = "web-access-firewall"
   rule {
     direction  = "in"
     protocol   = "tcp"
-    port       = "22" // Keep SSH access
+    port       = "22"
     source_ips = ["0.0.0.0/0", "::/0"]
   }
-  rule { //[!code ++:6]
+  rule { // [!code ++:6]
     direction  = "in"
     protocol   = "tcp"
-    port       = "80" // Allow HTTP traffic
+    port       = "80"
     source_ips = ["0.0.0.0/0", "::/0"]
   }
 }
 ```
 
-Ensure your server is associated with this firewall. Otherwise you can also use ssh port forwarding like described [here](02-using-ssh#_4-ssh-port-forwarding-exercise-7).
-:::
+After applying the changes, you can test the web server by pointing your web browser to `http://<YOUR_SERVER_IP>`. You should see a default Nginx page.
 
-## 3. Cloud-Init: User Management and Templating [Exercise 13]
+## 2. Working with Cloud-Init [Exercise 13] {#exercise-13}
 
-Cloud-Init excels at tasks like managing user accounts and SSH access. Furthermore, Terraform's templating capabilities allow you to dynamically inject variables (such as SSH public keys) into your cloud-config files.
+In this multi-part exercise, we will incrementally build a robust server configuration using Cloud-Init. We use the configuration from [Exercise 11](/chapters/03-working-with-terraform#_1-terraform-introduction-and-basic-configuration) as a starting point.
 
-Update your cloud-config template (`tpl/userData.yml`) to include user creation, SSH access restrictions, and variable usage:
+### 2.1 Creating a Simple Web Server
 
-:::code-group
+First, we'll have to extend the firewall to allow inbound traffic on `port 80`, like we did in [Exercise 12](/chapters/04-server-initialization#_1-automatic-nginx-installation-with-user_data-exercise-12). 
+
+```hcl [main.tf]
+resource "hcloud_firewall" "ssh_firewall" { // [!code --]
+resource "hcloud_firewall" "web_access_firewall" { // [!code ++]
+  name = "web-access-firewall"
+  rule {
+    direction  = "in"
+    protocol   = "tcp"
+    port       = "22"
+    source_ips = ["0.0.0.0/0", "::/0"]
+  }
+  rule { // [!code ++:6]
+    direction  = "in"
+    protocol   = "tcp"
+    port       = "80"
+    source_ips = ["0.0.0.0/0", "::/0"]
+  }
+}
+```
+
+We will also have to extend the Terraform configuration to use the following cloud-init configuration.
+
+::: code-group
+```hcl [main.tf]
+resource "hcloud_server" "debian_server" {
+  name         = "debian-server"
+  image        = "debian-12"
+  server_type  = "cx22"
+  firewall_ids = [hcloud_firewall.ssh_firewall.id] // [!code --]
+  firewall_ids = [hcloud_firewall.web_access_firewall.id] // [!code ++]
+  ssh_keys     = [hcloud_ssh_key.user_ssh_key.id]
+  user_data    = local_file.user_data.content // [!code ++]
+}
+
+resource "local_file" "user_data" { // [!code ++:9]
+  content = templatefile("tpl/userData.yml", {
+    loginUser        = var.login_user
+    public_key_robin = hcloud_ssh_key.user_ssh_key.public_key
+    tls_private_key  = indent(4, tls_private_key.host.private_key_openssh)
+  })
+  filename = "gen/userData.yml"
+}
+```
 
 ```yml [tpl/userData.yml]
-users: #[!code ++:17]
-  - name: ${loginUser} # Username (e.g., "devops"), injected from Terraform
-    groups: sudo # Add user to the sudo group
-    shell: /bin/bash # Set default shell
-    sudo: ALL=(ALL) NOPASSWD:ALL # Grant sudo privileges without password prompt
-    ssh_authorized_keys: # List of authorized public SSH keys
-      - ${public_key_one} # First public key, injected from Terraform
-      - ${public_key_two} # Second public key, injected from Terraform
-      # Add more public keys as needed
-
+#cloud-config
+users:
+  - name: ${loginUser}
+    groups: [sudo]
+    shell: /bin/bash
+    sudo: ["ALL=(ALL) NOPASSWD:ALL"]
+    ssh_authorized_keys:
+      - ${public_key_robin}
+      
 ssh_keys:
   ed25519_private: |
     ${tls_private_key}
 ssh_pwauth: false
+
 package_update: true
 package_upgrade: true
 package_reboot_if_required: true
 
-# Install necessary packages (can be combined with other directives)
 packages:
   - nginx
-
-# Execute commands after users and files are set up
-runcmd:
-  # Existing Nginx setup
-  - systemctl enable nginx
-  - rm /var/www/html/*
-  - >
-    echo "I'm Nginx @ $(dig -4 TXT +short o-o.myaddr.l.google.com @ns1.google.com)
-    created $(date -u)" >> /var/www/html/index.html
-```
-
-:::
-
-To process this template and inject the defined variables:
-
-1.  Ensure your `userData.yml` template is located in a `tpl` (template) directory (e.g., `./tpl/userData.yml`).
-2.  Define `hcloud_ssh_key` resources for your public keys in `main.tf`.
-3.  Use a `local_file` data source in `main.tf` to render the template with variables:
-
-::: code-group
-
-```hcl [main.tf]
-# ... (provider configuration and other resources) ...
-
-# Example SSH key resources (replace with your actual key management) [!code focus:21]
-resource "hcloud_ssh_key" "user_ssh_key_one" {
-  name       = "user-key-one"
-  public_key = file("~/.ssh/id_ed25519.pub") // Path to your first public key
-}
-
-resource "hcloud_ssh_key" "user_ssh_key_two" {
-  name       = "user-key-two"
-  public_key = file("~/.ssh/another_key.pub") // Path to your second public key
-}
-
-# Render the cloud-init template with variables  [!code ++:10]
-resource "local_file" "user_data_rendered" {
-  content = templatefile("tpl/userData.yml", {
-    loginUser      = "devops"                             // Define the username to create
-    public_key_one = indent(4, hcloud_ssh_key.user_ssh_key_one.public_key) // Pass the first public key
-    public_key_two = indent(4, hcloud_ssh_key.user_ssh_key_two.public_key) // Pass the second public key
-    # Add other variables as needed for your template
-  })
-  filename = "gen/userData.rendered.yml" // Output path for the processed template
-}
-
-# ... (other resources, including the hcloud_server resource) ...
-```
-
-:::
-
-4.  Update your `hcloud_server` resource to use the content of the _rendered_ template:
-
-::: code-group
-
-```hcl [main.tf]
-# ... (existing configuration) ...
-
-resource "hcloud_server" "debian_server" { //[!code focus:7]
-  name        = "debian-server"
-  image       = "debian-12"
-  server_type = "cx22"
-  user_data   = local_file.user_data_rendered.content // Use the rendered template content [!code ++]
-}
-
-# ... (rest of your Terraform configuration) ...
-```
-
-:::
-
-Running `terraform apply` will now:
-
-1.  Generate the `gen/userData.rendered.yml` file with your specified values substituted for the variables.
-2.  Pass this rendered YAML content to the Hetzner Cloud server during its creation.
-
-## 4. Securing Your Server with fail2ban
-
-Fail2ban is a powerful tool that helps protect your server from brute-force attacks by monitoring log files and banning IPs that show malicious signs.
-
-1. Installing fail2ban with Cloud-Init
-
-Add the following to your `tpl/userData.yml` cloud-config file:
-
-```yml
-#cloud-config
-packages:
   - fail2ban
   - plocate
   - python3-systemd # Add python3-systemd for fail2ban backend
@@ -273,111 +172,117 @@ write_files:
       # To use internal sshd filter variants
 
 runcmd:
+  # Existing Nginx setup
+  - systemctl enable nginx
+  - rm /var/www/html/*
+  - >
+    echo "I'm Nginx @ $(dig -4 TXT +short o-o.myaddr.l.google.com @ns1.google.com)
+    created $(date -u)" >> /var/www/html/index.html
   - systemctl enable fail2ban
   - systemctl start fail2ban
   - updatedb
   - systemctl restart fail2ban
 ```
-
-Reference this file in your Terraform configuration as shown in previous sections.
-
-2. Verifying fail2ban
-
-After your server is initialized, verify fail2ban is running:
-
-```sh
-sudo systemctl status fail2ban
-sudo fail2ban-client status
-sudo fail2ban-client status sshd
-```
-
-You should see that the `sshd` jail is enabled and monitoring for failed login attempts.
-
-3. Customizing fail2ban
-
-- You can adjust the `bantime`, add more jails, or tweak filters in `/etc/fail2ban/jail.local`.
-- For more information, see the [Arch Wiki: Fail2ban](https://wiki.archlinux.org/title/Fail2ban).
-
-## 5. Handling SSH Host Key Mismatches [Exercise 14]
-
-When a server is destroyed and recreated (even with the same IP address), it typically generates a new unique SSH host key. Your SSH client, upon attempting to connect, will detect this change and issue a warning about a potential "man-in-the-middle" (MITM) attack. This is because the new server's host key no longer matches the one stored in your local `~/.ssh/known_hosts` file for that IP address.
-
-```
-@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-@    WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!     @
-@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-IT IS POSSIBLE THAT SOMEONE IS DOING SOMETHING NASTY!
-```
-
-While a comprehensive solution involves managing persistent host keys (e.g., generating them with Terraform and configuring the server via cloud-init to use them), a more straightforward method for managing development or frequently changing environments is to generate a specific `known_hosts` file using Terraform and employ a helper script for SSH connections.
-
-**Steps to Mitigate Host Key Warnings with a Helper Script:**
-
-1.  **Generate a `known_hosts` Entry with Terraform:**
-    Create a `local_file` resource that stores the server's IP address and its expected public host key.
-    :::info
-    This approach is most effective if you manage the server's host key via Terraform, for example, using `tls_private_key`. If the server generates its own host key ephemerally on each boot, this method alone won't prevent the warning without a more advanced cloud-init setup to install the pre-generated key on the server.
-    :::
-
-::: code-group
-
-```hcl [main.tf]
-# Example: Assume tls_private_key.host_key manages the server's host key pair
-resource "tls_private_key" "host_key" {
-  algorithm = "ED25519" // Recommended algorithm
-}
-
-# Generate a known_hosts file entry for the server
-resource "local_file" "known_hosts" {
-  content  = "${hcloud_server.debian_server.ipv4_address} ${tls_private_key.host_key.public_key_openssh}"
-  filename = "gen/known_hosts_for_server" // Descriptive filename in the 'gen' directory
-  file_permission = "644" // Set read-write permissions
-}
-```
-
 :::
 
-2.  **Create an SSH Helper Script Template:**
-    Develop a script template (`tpl/ssh_helper.sh`) that instructs the SSH client to use your generated `known_hosts` file.
+On success, pointing your web browser to `http://<YOUR_SERVER_IP>` should result in a message similar to: `I'm Nginx @ "YOUR_SERVER_IP" created Sun May 5 06:58:37 PM UTC 2024`.
+
+This complete `userData.yml` configuration includes:
+
+- **User Management**: Creates a new user with sudo privileges and SSH key access
+- **SSH Security**: Disables password authentication and root login
+- **Package Management**: Updates and upgrades all packages, reboots if required
+- **Web Server**: Installs and configures Nginx with a custom welcome page
+- **Security**: Installs and configures Fail2Ban for intrusion detection
+
+You can verify the setup by checking:
+- `fail2ban-client status sshd` - for Fail2Ban status
+- `journalctl -f` - for logs
+- `apt list --upgradable` - should be empty after updates
+- `systemctl status nginx` - for Nginx status
+
+## 3. Generating Helper Scripts [Exercise 14] {#exercise-14}
+
+In this exercise, we will use Terraform to generate `ssh` and `scp` helper scripts. This simplifies server access and ensures consistent connection parameters, using a `known_hosts` file to avoid security warnings.
+
+### 3.1 Creating Script Templates
+
+First, create templates for the scripts in the `tpl` directory.
 
 ::: code-group
-
-```sh [tpl/ssh_helper.sh]
+```bash [tpl/ssh.sh]
 #!/usr/bin/env bash
 
 GEN_DIR=$(dirname "$0")/../gen
 
-ssh -o UserKnownHostsFile="$GEN_DIR/known_hosts" devops@${ip} "$@"
+ssh -o UserKnownHostsFile="$GEN_DIR/known_hosts" ${user}@${host} "$@"
 ```
 
+```bash [tpl/scp.sh]
+#!/usr/bin/env bash
+
+GEN_DIR=$(dirname "$0")/../gen
+
+if [ $# -lt 2 ]; then
+   echo usage: ./bin/scp <arguments>
+else
+   scp -o UserKnownHostsFile="$GEN_DIR/known_hosts" ${user}@${host} $@
+fi
+```
 :::
 
-3.  **Generate an Executable SSH Script from the Template:**
-    Use another `local_file` resource to render the script template, inject necessary variables (like server IP and username), and set executable permissions. Store the generated script in a convenient location, such as a `bin` directory.
+### 3.2 Generating Scripts with Terraform
 
-::: code-group
+We will now need to modify our `main.tf` file to generate the final scripts from the templates, injecting the necessary values like the server IP and username.
 
 ```hcl [main.tf]
-# Generate the executable SSH helper script
-resource "local_file" "ssh_script" {
-  content = templatefile("tpl/ssh_helper.sh", {
-    ip   = hcloud_server.debian_server.ipv4_address // Inject server IP address
-    user = "devops"                                 // Inject the login username
-  })
-  filename        = "bin/ssh-to-server"      // Output script path
-  file_permission = "700"                   // Set read-write permissions
+# ... Other non-relevant resources for this exercise ...
+resource "tls_private_key" "host" { // [!code focus:36]
+  algorithm = "ED25519"
+}
 
-  # Ensure the known_hosts file is generated before this script
-  depends_on = [local_file.known_hosts]
+resource "hcloud_server" "debian_server" {
+  name         = "debian-server"
+  image        = "debian-12"
+  server_type  = "cx22"
+  firewall_ids = [hcloud_firewall.web_access_firewall.id]
+  ssh_keys     = [hcloud_ssh_key.user_ssh_key.id]
+  user_data    = local_file.user_data.content
+}
+
+resource "local_file" "known_hosts" { // [!code ++:5]
+  content         = "${hcloud_server.debian_server.ipv4_address} ${tls_private_key.host.public_key_fingerprint_sha256}"
+  filename        = "gen/known_hosts_for_server"
+  file_permission = "644"
+}
+
+resource "local_file" "ssh_script" { // [!code ++:8]
+  content = templatefile("${path.module}/tpl/ssh.sh", {
+    user = "devops",
+    host = hcloud_server.debian_server.ipv4_address
+  })
+  filename        = "bin/ssh"
+  file_permission = "755"
+}
+
+resource "local_file" "scp_script" { // [!code ++:8]
+  content = templatefile("${path.module}/tpl/scp.sh", {
+    user = "devops",
+    host = hcloud_server.debian_server.ipv4_address
+  })
+  filename        = "bin/scp"
+  file_permission = "755"
 }
 ```
 
-:::
+After executing `terraform apply`, you will have executable `ssh` and `scp` scripts in your local `bin` directory, simplifying all future interactions with your server.
 
-After applying your Terraform configuration (`terraform apply`), you can connect to your server using the generated helper script. This method avoids the SSH host key mismatch warnings by using a dedicated `known_hosts` file for the connection.
+The benefit of using the `ssh` and `scp` scripts is that you don't have to specify the user and host every time you want to connect to your server. These scripts also avoid the Remote Host Key Verification warning. 
 
 ```sh
-./bin/ssh-to-server # You can pass additional SSH arguments, e.g., ./bin/ssh-to-server -v
+./bin/ssh
 ```
 
-This approach streamlines connections to frequently recreated servers, provided the host key specified in `gen/known_hosts_for_server` aligns with the server's actual host key.
+```sh
+./bin/scp myfile.txt :/tmp/
+```

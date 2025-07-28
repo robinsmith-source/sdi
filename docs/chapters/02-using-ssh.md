@@ -1,6 +1,6 @@
 # Using SSH
 
-> This guide covers various aspects of using SSH, from basic connections and managing passphrases with `ssh-agent` to more advanced techniques like host hopping, port forwarding, and X11 forwarding.
+> This chapter covers various aspects of using SSH, from basic connections and managing passphrases with `ssh-agent` to more advanced techniques like host hopping, port forwarding, and X11 forwarding.
 
 ## Prerequisites
 

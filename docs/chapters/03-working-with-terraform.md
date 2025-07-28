@@ -1,6 +1,6 @@
 # Working with Terraform
 
-> This guide explains how to use Terraform to provision and manage resources on Hetzner Cloud.
+> This chapter explains how to use Terraform to provision and manage resources on Hetzner Cloud.
 
 ## Prerequisites
 
@@ -69,7 +69,7 @@ terraform {
 
 # Configure the Hetzner Cloud API token
 provider "hcloud" {
-  token = "your_api_token_goes_here" # Replace with your actual token (temporarily for basic test)
+  token = "YOUR_API_TOKEN"
 }
 
 # Create a server
@@ -84,7 +84,7 @@ resource "hcloud_server" "debian_server" {
 
 ::: warning
 Hardcoding the API token directly in `main.tf` is not recommended for security reasons. We will address
-this in a later step.
+this in a later step. **Do not commit this file to version control!**
 :::
 
 ## 4. Creating and Managing the Server
@@ -123,23 +123,33 @@ The `sensitive = true` flag prevents Terraform from outputting the variable's va
 2. Create a new file named `providers.tf` in the same directory:
 
 ```hcl
+terraform {
+  required_providers {
+    hcloud = {
+      source = "hetznercloud/hcloud"
+    }
+  }
+  required_version = ">= 0.13"
+}
+
 provider "hcloud" {
   token = var.hcloud_token
 }
 ```
 
-This tells the `hcloud` provider to use the value of the `hcloud_token` variable for authentication.
+This defines the used providers and the required version of Terraform. 
+It also tells the `hcloud` provider to use the value of the `hcloud_token` variable for authentication.
 
 3. Create a file named `secret.auto.tfvars` in the same directory:
 
 ::: code-group
 
 ```sh [Bash]
-export TF_VAR_hcloud_token="your_api_key"
+export TF_VAR_hcloud_token="YOUR_API_TOKEN"
 ```
 
 ```sh [PowerShell]
-$env:TF_VAR_hcloud_token="your_api_key"
+$env:TF_VAR_hcloud_token="YOUR_API_TOKEN"
 ```
 
 :::

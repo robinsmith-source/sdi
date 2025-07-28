@@ -49,7 +49,7 @@ resource "local_file" "known_hosts" {
 
 resource "local_file" "ssh_script" {
   content = templatefile("tpl/ssh_helper.sh", {
-    ip   = hcloud_server.debian_server.ipv4_address
+    host   = hcloud_server.debian_server.ipv4_address
     user = var.login_user
   })
   filename        = "bin/ssh"
