@@ -2,18 +2,12 @@ resource "tls_private_key" "host" {
   algorithm = "ED25519"
 }
 
-resource "hcloud_firewall" "web_access_firewall" {
-  name = "web-access-firewall"
+resource "hcloud_firewall" "ssh_firewall" {
+  name = "ssh-firewall"
   rule {
     direction  = "in"
     protocol   = "tcp"
     port       = "22"
-    source_ips = ["0.0.0.0/0", "::/0"]
-  }
-  rule {
-    direction  = "in"
-    protocol   = "tcp"
-    port       = "80"
     source_ips = ["0.0.0.0/0", "::/0"]
   }
 }
@@ -28,9 +22,23 @@ resource "hcloud_server" "debian_server" {
   name         = "debian-server"
   image        = "debian-12"
   server_type  = "cx22"
-  firewall_ids = [hcloud_firewall.web_access_firewall.id]
+  location     = var.server_location
+  firewall_ids = [hcloud_firewall.ssh_firewall.id]
   ssh_keys     = [hcloud_ssh_key.user_ssh_key.id]
   user_data    = local_file.user_data.content
+}
+
+resource "hcloud_volume" "data_volume" {
+  name      = "data-volume"
+  location  = var.server_location
+  size      = 10
+  automount = false
+  format    = "xfs"
+}
+
+resource "hcloud_volume_attachment" "volume_attachment" {
+  volume_id = hcloud_volume.data_volume.id
+  server_id = hcloud_server.debian_server.id
 }
 
 resource "local_file" "known_hosts" {
@@ -49,20 +57,12 @@ resource "local_file" "ssh_script" {
   depends_on      = [local_file.known_hosts]
 }
 
-resource "local_file" "scp_script" { // [!code ++:8]
-  content = templatefile("/tpl/scp.sh", {
-    user = var.login_user,
-    host = hcloud_server.debian_server.ipv4_address
-  })
-  filename        = "bin/scp"
-  file_permission = "755"
-}
-
 resource "local_file" "user_data" {
   content = templatefile("tpl/userData.yml", {
-    loginUser        = var.login_user
-    public_key_robin = hcloud_ssh_key.user_ssh_key.public_key
-    tls_private_key  = indent(4, tls_private_key.host.private_key_openssh)
+    public_key_robin      = hcloud_ssh_key.user_ssh_key.public_key
+    tls_private_key = indent(4, tls_private_key.host.private_key_openssh)
+    loginUser       = var.login_user
+    volId           = hcloud_volume.data_volume.id
   })
   filename = "gen/userData.yml"
 }
