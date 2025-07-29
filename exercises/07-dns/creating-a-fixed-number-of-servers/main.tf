@@ -42,7 +42,7 @@ resource "local_file" "user_data" {
 
 resource "hcloud_server" "debian_server" {
   count        = var.server_count
-  name         = "${var.server_base_name}-${count.index + 1}"
+  name         = "${var.server_name}-${count.index + 1}"
   image        = "debian-12"
   server_type  = "cx22"
   firewall_ids = [hcloud_firewall.web_access_firewall.id]
@@ -54,7 +54,7 @@ resource "hcloud_server" "debian_server" {
 resource "dns_a_record_set" "server_a" {
   count     = var.server_count
   zone      = "${var.dns_zone}."
-  name      = "${var.server_base_name}-${count.index + 1}"
+  name      = "${var.server_name}-${count.index + 1}"
   addresses = [hcloud_server.debian_server[count.index].ipv4_address]
   ttl       = 10
 }
@@ -72,7 +72,7 @@ resource "dns_cname_record" "server_aliases" {
   count      = length(var.server_aliases)
   zone       = "${var.dns_zone}."
   name       = var.server_aliases[count.index]
-  cname      = "${var.server_base_name}.${var.dns_zone}."
+  cname      = "${var.server_name}.${var.dns_zone}."
   ttl        = 10
   depends_on = [dns_a_record_set.server_a, hcloud_server.debian_server]
 }
@@ -81,6 +81,6 @@ module "ssh_wrapper" {
   count      = var.server_count
   source     = "../../modules/ssh-wrapper"
   loginUser  = "devops"
-  hostname   = "${var.server_base_name}-${count.index + 1}.${var.dns_zone}"
+  hostname   = "${var.server_name}-${count.index + 1}.${var.dns_zone}"
   public_key = tls_private_key.host[count.index].public_key_openssh
 }

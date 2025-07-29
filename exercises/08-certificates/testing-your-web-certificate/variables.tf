@@ -19,5 +19,7 @@ variable "dns_zone" {
 }
 
 variable "server_name" {
-  type = string
+  description = "The name of the server"
+  type        = string
+  nullable    = false
 }

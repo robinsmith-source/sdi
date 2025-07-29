@@ -134,7 +134,7 @@ provider "hcloud" {
 }
 ```
 
-This defines the used providers and the required version of Terraform. 
+This defines the used providers and the required version of Terraform.
 It also tells the `hcloud` provider to use the value of the `hcloud_token` variable for authentication.
 
 3. Create a file named `secret.auto.tfvars` in the same directory:

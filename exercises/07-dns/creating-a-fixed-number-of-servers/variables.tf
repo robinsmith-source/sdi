@@ -18,8 +18,8 @@ variable "dns_zone" {
   nullable    = false
 }
 
-variable "server_base_name" {
-  description = "The canonical name of the server"
+variable "server_name" {
+  description = "The name of the server"
   type        = string
   nullable    = false
 }

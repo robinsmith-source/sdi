@@ -22,6 +22,7 @@ For comprehensive information about Terraform concepts, see [Terraform Concepts]
 Terraform modules are self-contained packages of Terraform configurations that manage a collection of related infrastructure resources. They are the main way to package and reuse resource configurations with Terraform.
 
 Modules allow you to:
+
 - **Organize Configuration:** Group related resources together, making your code easier to understand and manage.
 - **Encapsulate Complexity:** Hide the complex details of a resource collection behind a simple interface.
 - **Reuse Code:** Use the same module multiple times within your configuration or in different projects.
@@ -78,6 +79,7 @@ GEN_DIR=$(dirname "$0")/../gen
 
 ssh -o UserKnownHostsFile="$GEN_DIR/known_hosts" ${user}@${ip} "$@"
 ```
+
 :::
 
 ### 2.3. Implementing the Module
@@ -96,7 +98,7 @@ resource "local_file" "known_hosts" {
 # Generate SSH wrapper script from template
 resource "local_file" "ssh_script" {
   content = templatefile("${path.module}/tpl/ssh.sh", {
-    host = local.target_host
+    host = var.ipv4Address
     user = var.loginUser
   })
   filename        = "bin/ssh"
@@ -108,7 +110,7 @@ resource "local_file" "ssh_script" {
 # Generate SCP wrapper script from template
 resource "local_file" "scp_script" {
   content = templatefile("${path.module}/tpl/scp.sh", {
-    host = local.target_host,
+    host = var.ipv4Address,
     user = var.loginUser
   })
   filename        = "bin/scp"
@@ -138,6 +140,7 @@ variable "ipv4Address" {
   nullable = false
 }
 ```
+
 :::
 
 ### 2.4. Using the Module in Your Project
@@ -145,6 +148,7 @@ variable "ipv4Address" {
 With the module created, you can now use it in your main project configuration. In your `exercise/<YOUR_EXERCISE_NUMBER>/main.tf`, you'll provision a server and then call the `ssh-wrapper` module, passing the server's IP and public key to it.
 
 ::: code-group
+
 ```hcl [exercise/main.tf]
 resource "hcloud_ssh_key" "user_ssh_key" {
   name       = "robin@Robin-Laptop"
@@ -177,6 +181,7 @@ module "ssh_wrapper" { // [!code ++:6]
   public_key  = file("~/.ssh/id_ed25519.pub")
 }
 ```
+
 :::
 
 ### 2.5. Verifying the Module's Output

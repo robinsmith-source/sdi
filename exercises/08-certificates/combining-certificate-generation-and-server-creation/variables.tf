@@ -18,6 +18,4 @@ variable "dns_zone" {
   nullable    = false
 }
 
-variable "server_name" {
-  type = string
-}
+

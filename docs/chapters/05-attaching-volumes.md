@@ -30,6 +30,7 @@ In this exercise, you will attach a new volume to a server and walk through the 
 ### 1.1 Attaching the Volume
 
 ::: code-group
+
 ```hcl [main.tf]
 # ... Other non-relevant resources for this exercise ...
 resource "hcloud_server" "debian_server" { // [!code focus:36]
@@ -56,6 +57,7 @@ output "volume_id" {
   description = "The volume's id"
 }
 ```
+
 :::
 
 ::: details The `automount` Bug and Workaround
@@ -77,7 +79,7 @@ The volume will become available only after a system reboot.
 After rebooting, SSH into your server. The volume will be attached (e.g., at `/dev/sdb`), but you will create your own partitions.
 
 1.  **Identify the volume**: Use `lsblk` or `df -h` to find your attached volume. The auto-mounted volume appears under a path like `/mnt/HC_Volume_<VOLUME_ID>`.
-2.  **Unmount the auto-mounted volume**: `sudo umount /mnt/HC_Volume_<VOLUME_ID>` 
+2.  **Unmount the auto-mounted volume**: `sudo umount /mnt/HC_Volume_<VOLUME_ID>`
     ::: tip
     You can't use `umount` while you're in the volume. Because it appears as busy target.
     :::
@@ -120,6 +122,7 @@ In this exercise, you will de-couple the server and volume creation to gain full
 Modify your Terraform configuration to create the volume and server independently, then attach them with `automount = false`.
 
 ::: code-group
+
 ```hcl [main.tf]
 # ... Other non-relevant resources for this exercise ...
 resource "hcloud_volume" "data_volume" { // [!code focus:36]
@@ -164,6 +167,7 @@ variable "server_location" {
   default     = "nbg1"
 }
 ```
+
 :::
 
 ### 2.2 Automating Mounting with Cloud-Init
@@ -182,10 +186,11 @@ runcmd:
 This is the same as the previous exercise, but you're using a custom mount point instead of the default `/mnt/HC_Volume_<VOLUME_ID>`.
 
 ::: info
+
 - `discard`: Enables TRIM support for SSDs, allowing the filesystem to inform the storage device about unused blocks
 - `nofail`: Prevents the system from failing to boot if the volume is not available
 - `defaults`: Uses the default mount options (rw, suid, dev, exec, auto, nouser, async)
-:::
+  :::
 
 ### 2.3 Verification and Understanding the Process
 

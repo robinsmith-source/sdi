@@ -27,6 +27,7 @@ In this exercise, you will use a `user_data` field in Terraform to pass a bash s
 First, create a shell script (e.g., `init.sh`) that contains the necessary commands.
 
 ::: code-group
+
 ```sh [init.sh]
 #!/bin/bash
 
@@ -36,6 +37,7 @@ apt install -y nginx # Install the Nginx web server
 systemctl start nginx # Start the Nginx service immediately
 systemctl enable nginx # Enable Nginx to start automatically on future boots
 ```
+
 :::
 
 ### 1.2 Configuring the Server Resource
@@ -88,7 +90,7 @@ In this multi-part exercise, you will incrementally build a robust server config
 
 ### 2.1 Creating a Simple Web Server
 
-First, you'll have to extend the firewall to allow inbound traffic on `port 80`, like you did in [Exercise 12](/chapters/04-server-initialization#_1-automatic-nginx-installation-with-user_data-exercise-12). 
+First, you'll have to extend the firewall to allow inbound traffic on `port 80`, like you did in [Exercise 12](/chapters/04-server-initialization#_1-automatic-nginx-installation-with-user_data-exercise-12).
 
 ```hcl [main.tf]
 resource "hcloud_firewall" "ssh_firewall" { // [!code --]
@@ -112,6 +114,7 @@ resource "hcloud_firewall" "web_access_firewall" { // [!code ++]
 You will also have to extend the Terraform configuration to use the following cloud-init configuration.
 
 ::: code-group
+
 ```hcl [main.tf]
 resource "hcloud_server" "debian_server" {
   name         = "debian-server"
@@ -142,12 +145,11 @@ users:
     sudo: ["ALL=(ALL) NOPASSWD:ALL"]
     ssh_authorized_keys:
       - ${public_key_robin}
-      
+
 ssh_keys:
   ed25519_private: |
     ${tls_private_key}
 ssh_pwauth: false
-
 package_update: true
 package_upgrade: true
 package_reboot_if_required: true
@@ -184,6 +186,7 @@ runcmd:
   - updatedb
   - systemctl restart fail2ban
 ```
+
 :::
 
 On success, pointing your web browser to `http://<YOUR_SERVER_IP>` should result in a message similar to: `I'm Nginx @ "YOUR_SERVER_IP" created Sun May 5 06:58:37 PM UTC 2024`.
@@ -197,6 +200,7 @@ This complete `userData.yml` configuration includes:
 - **Security**: Installs and configures Fail2Ban for intrusion detection
 
 You can verify the setup by checking:
+
 - `fail2ban-client status sshd` - for Fail2Ban status
 - `journalctl -f` - for logs
 - `apt list --upgradable` - should be empty after updates
@@ -206,13 +210,14 @@ You can verify the setup by checking:
 
 In this exercise, you will use Terraform to generate `ssh` and `scp` helper scripts. This simplifies server access by pre-configuring the server's IP address and handling SSH host key verification automatically.
 
-By generating a new SSH key pair with Terraform (`tls_private_key`), you can determine the server's public host key *before* the server is even created. You then inject the private part of this key into the new server using `user_data`, and use the public part to create a `known_hosts` file locally. This way, your local SSH client will trust the server on the first connection, preventing the usual host key verification prompt.
+By generating a new SSH key pair with Terraform (`tls_private_key`), you can determine the server's public host key _before_ the server is even created. You then inject the private part of this key into the new server using `user_data`, and use the public part to create a `known_hosts` file locally. This way, your local SSH client will trust the server on the first connection, preventing the usual host key verification prompt.
 
 ### 3.1. Creating Script Templates
 
 First, create templates for the `ssh` and `scp` scripts in a `tpl` directory. These are the same templates used in later chapters.
 
 ::: code-group
+
 ```bash [tpl/ssh.sh]
 #!/usr/bin/env bash
 
@@ -232,6 +237,7 @@ else
    scp -o UserKnownHostsFile="$GEN_DIR/known_hosts" ${user}@${host} $@
 fi
 ```
+
 :::
 
 ### 3.2. Generating Scripts with Terraform
@@ -241,6 +247,7 @@ Next, modify your `main.tf` to generate the final scripts from the templates, in
 The `known_hosts` file requires a specific format: `<ip_address> <key_type> <public_key>`. You will construct this using the server's IP and the public key from your `tls_private_key` resource.
 
 ::: code-group
+
 ```hcl [main.tf]
 # ... Other non-relevant resources for this exercise ...
 resource "tls_private_key" "host" { // [!code focus:36]
@@ -289,6 +296,7 @@ variable "login_user" {
   default     = "devops"
 }
 ```
+
 :::
 
 After executing `terraform apply`, you will have executable `ssh` and `scp` scripts in your local `bin` directory. Using these scripts (e.g., `./bin/ssh`) allows you to connect to your server without seeing the "REMOTE HOST IDENTIFICATION HAS CHANGED" warning, as the host key is already trusted.
