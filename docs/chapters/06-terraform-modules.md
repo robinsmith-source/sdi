@@ -1,230 +1,94 @@
 # Terraform Modules
 
-> This guide covers creating and using Terraform modules to organize and reuse infrastructure code. It demonstrates
-> practical examples including server provisioning and SSH configuration management.
+> This guide covers creating and using Terraform modules to organize and reuse infrastructure code. It demonstrates a practical example of building a reusable module for generating SSH helper scripts.
 
 ## Prerequisites
 
-Before you begin, ensure you have:
-
-- A Hetzner Cloud account
-- A Hetzner Cloud API Token
-- Terraform installed on your local machine
-- Basic understanding of Terraform resources and variables
-- An SSH client:
-  - macOS and Linux: Built-in OpenSSH client
-  - Windows: Windows Terminal with OpenSSH or PuTTY
+Before you begin, you should have an existing Terraform project that can provision a server, as covered in the previous chapters.
 
 ## External Resources
 
 For more in-depth technical information about modules in Terraform:
 
-- [Terraform Documentation: Modules](https://www.terraform.io/language/modules) - Official Terraform documentation on
-  modules
-- [Terraform Documentation: Module Sources](https://www.terraform.io/language/modules/sources) - Detailed guide on
-  module sources
+- [Terraform Documentation: Modules](https://www.terraform.io/language/modules) - Official Terraform documentation on modules
+- [Terraform Documentation: Module Sources](https://www.terraform.io/language/modules/sources) - Detailed guide on module sources
 
-::: info
-For comprehensive information about Terraform concepts, see [Terraform](/knowledge/terraform).
+::: tip
+For comprehensive information about Terraform concepts, see [Terraform Concepts](/knowledge/terraform).
 :::
 
-## 1. Creating a Host Metadata Module
+## 1. Understanding Terraform Modules
 
-Terraform modules are reusable, self-contained packages of Terraform configurations that manage a collection of related
-infrastructure resources. They enable you to organize, encapsulate, and share infrastructure code.
+Terraform modules are self-contained packages of Terraform configurations that manage a collection of related infrastructure resources. They are the main way to package and reuse resource configurations with Terraform.
 
-Let's start with a simple example that creates a JSON metadata file for a Hetzner Cloud server.
+Modules allow you to:
+- **Organize Configuration:** Group related resources together, making your code easier to understand and manage.
+- **Encapsulate Complexity:** Hide the complex details of a resource collection behind a simple interface.
+- **Reuse Code:** Use the same module multiple times within your configuration or in different projects.
+- **Maintain Consistency:** Ensure that resources are created with a consistent configuration.
 
-### Parent and Child Module Layout
+In the next section, you will build a practical module to solve a recurring problem: simplifying SSH access to newly created servers.
 
-```
-root/
-├── exercise/
-│   ├── main.tf
-│   └── variables.tf
-└── modules/
-    └── host-metadata/
-        ├── main.tf
-        ├── variables.tf
-        ├── outputs.tf
-        ├── providers.tf
-        └── tpl/
-            └── hostData.json
-```
+## 2. Creating an SSH Wrapper Module [Exercise 17] {#exercise-17}
 
-### Child Module Implementation
+When connecting to newly created servers via SSH, you typically encounter host key verification warnings, as mentioned in the [Server Initialization](/chapters/04-server-initialization#_3-generating-helper-scripts-exercise-14) chapter. You can create a reusable Terraform module that automatically generates SSH and SCP wrapper scripts to handle this for you.
 
-Create the child module that manages the server and metadata:
+### 2.1. Module and Project Structure
 
-::: code-group
-
-```hcl [variables.tf]
-variable "location" {
-  type     = string
-  nullable = false
-}
-
-variable "ipv4Address" {
-  type     = string
-  nullable = false
-}
-variable "ipv6Address" {
-  type     = string
-  nullable = false
-}
-
-variable "name" {
-  type     = string
-  nullable = false
-}
-```
-
-```hcl [main.tf]
-resource "local_file" "host_data" {
-  content = templatefile("${path.module}/tpl/hostData.json", {
-    ip4      = var.ipv4Address
-    ip6      = var.ipv6Address
-    location = var.location
-  })
-  filename = "gen/${var.name}.json"
-}
-```
-
-```json [tpl/hostdata.json]
-{
-  "network": {
-    "ipv4": "${ip4}",
-    "ipv6": "${ip6}"
-  },
-  "location": "${location}"
-}
-```
-
-:::
-
-This module will create a JSON file with the server's metadata and place it in the `gen` directory of the parent module.
-
-### Parent Module Implementation
-
-Create the parent module that calls the child module:
-
-::: code-group
-
-```hcl [variables.tf]
-variable "hcloud_token" {
-  description = "Hetzner Cloud API token"
-  type = string
-  nullable    = false
-  sensitive   = true
-}
-```
-
-```hcl [main.tf]
-# ... (firewall configuration and other resources) ...
-
-# Create a Hetzner Cloud server // [!code focus:17]
-resource "hcloud_server" "debian_server" {
-  location    = "hel1"
-  name        = "debian-server"
-  image       = "debian-12"
-  server_type = "cx22"
-  ssh_keys    = [hcloud_ssh_key.user_ssh_key.id]
-}
-
-# Use the SSH Known Hosts module
-module "ssh_wrapper" {
-  source      = "../modules/ssh-wrapper"
-  loginUser   = "root"
-  ipv4Address = hcloud_server.debian_server.ipv4_address
-  public_key  = file("~/.ssh/id_ed25519.pub")
-}
-```
-
-:::
-
-## 2. SSH Known Hosts Module [Exercise 17]
-
-When connecting to newly created servers via SSH, you typically encounter host key verification warnings like already
-mentioned in [Server Initialization](/chapters/04-server-initialization#_5-handling-ssh-host-key-mismatches-exercise-14). So we will create a module that automatically
-generates SSH configuration files to eliminate these warnings.
-
-### Module Structure
-
-Create the following directory structure for your SSH known hosts module:
+First, organize your files. You will have a `modules` directory that contains your reusable `ssh-wrapper` module, and an `exercise` directory where you will use this module.
 
 ```sh
 .
 ├── exercise/
 │   ├── main.tf
 │   ├── variables.tf
-│   ├── providers.tf
+│   └── providers.tf
 │   └── ...
-└── modules/
-    └── ssh-wrapper/  # [!code ++:7]
+└── modules/  # [!code ++:7]
+    └── ssh-wrapper/
         ├── main.tf
         ├── variables.tf
-        ├── outputs.tf
         └── tpl/
-            ├── ssh.sh
-            └── scp.sh
+            ├── scp.sh
+            └── ssh.sh
 ```
 
-### Creating the Module Templates
+### 2.2. Creating the Module Templates
 
-First, create the script templates that Terraform will process:
+The module will use template files from [Exercise 14](/chapters/04-server-initialization#exercise-14) for the `ssh` and `scp` scripts. These templates contain placeholders that Terraform will populate.
 
 ::: code-group
 
-```sh [tpl/ssh.sh]
+```sh [modules/ssh-wrapper/tpl/scp.sh]
+#!/usr/bin/env bash
+
+GEN_DIR=$(dirname "$0")/../gen
+
+if [ $# -lt 2 ]; then
+   echo usage: ./bin/scp <arguments>
+else
+   scp -o UserKnownHostsFile="$GEN_DIR/known_hosts" ${user}@${host} $@
+fi
+```
+
+```sh [modules/ssh-wrapper/tpl/ssh.sh]
 #!/usr/bin/env bash
 
 GEN_DIR=$(dirname "$0")/../gen
 
 ssh -o UserKnownHostsFile="$GEN_DIR/known_hosts" ${user}@${ip} "$@"
 ```
-
-```sh [tpl/scp.sh]
-#!/usr/bin/env bash
-
-GEN_DIR=$(dirname "$0")/../gen
-
-if [ $# -lt 2 ]; then
-   echo "usage: .../bin/scp ... {user}@${ip} ..."
-else
-   scp -o UserKnownHostsFile="$GEN_DIR/known_hosts" "$@"
-fi
-```
-
 :::
 
-The template variables `${user}` and `${ip}` will be replaced with actual values when Terraform processes the templates.
+### 2.3. Implementing the Module
 
-### Module Implementation
-
-Define the module's variables, resources, and outputs:
+Now, define the module's input variables and the resources it will create. The module will take the server's IPv4 address, the user's public key and optionally a user to log on to the machine.This module will generate a `known_hosts` file along with the executable wrapper scripts (`scp.sh` and `ssh.sh`).
 
 ::: code-group
 
-```hcl [variables.tf]
-variable "loginUser" {
-  type        = string
-  default     = "root"
-}
-
-variable "public_key" {
-  type = string
-  nullable = false
-}
-
-variable "ipv4Address" {
-  type     = string
-  nullable = false
-}
-```
-
-```hcl [main.tf]
+```hcl [modules/ssh-wrapper/main.tf]
 resource "local_file" "known_hosts" {
-  content         = "${var.ipv4Address} = ${var.public_key}"
+  content         = "${local.target_host} ${var.public_key}"
   filename        = "gen/known_hosts"
   file_permission = "644"
 }
@@ -232,7 +96,7 @@ resource "local_file" "known_hosts" {
 # Generate SSH wrapper script from template
 resource "local_file" "ssh_script" {
   content = templatefile("${path.module}/tpl/ssh.sh", {
-    ip   = var.ipv4Address
+    host = local.target_host
     user = var.loginUser
   })
   filename        = "bin/ssh"
@@ -244,7 +108,7 @@ resource "local_file" "ssh_script" {
 # Generate SCP wrapper script from template
 resource "local_file" "scp_script" {
   content = templatefile("${path.module}/tpl/scp.sh", {
-    ip   = var.ipv4Address
+    host = local.target_host,
     user = var.loginUser
   })
   filename        = "bin/scp"
@@ -254,107 +118,88 @@ resource "local_file" "scp_script" {
 }
 ```
 
-:::
-
-### Using the Module
-
-Implement the module in your main Terraform configuration:
-
-::: code-group
-
-```hcl [main.tf]
-# ... (firewall configuration and other resources) ...
-
-# Create a Hetzner Cloud server // [!code focus:17]
-resource "hcloud_server" "debian_server" {
-  location    = "hel1"
-  name        = "debian-server"
-  image       = "debian-12"
-  server_type = "cx22"
-  ssh_keys    = [hcloud_ssh_key.user_ssh_key.id]
+```hcl [modules/ssh-wrapper/variables.tf]
+variable "loginUser" {
+  description = "The user to login to the server"
+  type    = string
+  nullable = false
+  default = "root"
 }
 
-# Use the SSH Known Hosts module // [!code ++:7]
-module "ssh_wrapper" {
+variable "public_key" {
+  description = "The public key to use for the server"
+  type     = string
+  nullable = false
+}
+
+variable "ipv4Address" {
+  description = "The IPv4 address of the server"
+  type     = string
+  nullable = false
+}
+```
+:::
+
+### 2.4. Using the Module in Your Project
+
+With the module created, you can now use it in your main project configuration. In your `exercise/<YOUR_EXERCISE_NUMBER>/main.tf`, you'll provision a server and then call the `ssh-wrapper` module, passing the server's IP and public key to it.
+
+::: code-group
+```hcl [exercise/main.tf]
+resource "hcloud_ssh_key" "user_ssh_key" {
+  name       = "robin@Robin-Laptop"
+  public_key = file("~/.ssh/id_ed25519.pub")
+}
+
+resource "hcloud_firewall" "ssh_firewall" {
+  name = "ssh-firewall"
+  rule {
+    direction  = "in"
+    protocol   = "tcp"
+    port       = "22"
+    source_ips = ["0.0.0.0/0", "::/0"]
+  }
+}
+
+resource "hcloud_server" "debian_server" {
+  location     = "hel1"
+  name         = "debian-server"
+  image        = "debian-12"
+  server_type  = "cx22"
+  firewall_ids = [hcloud_firewall.ssh_firewall.id]
+  ssh_keys     = [hcloud_ssh_key.user_ssh_key.id]
+}
+
+module "ssh_wrapper" { // [!code ++:6]
   source      = "../modules/ssh-wrapper"
-  loginUser   = "root"
+  loginUser   = var.login_user
   ipv4Address = hcloud_server.debian_server.ipv4_address
   public_key  = file("~/.ssh/id_ed25519.pub")
 }
 ```
-
-```hcl [variables.tf]
-variable "hcloud_token" {
-  description = "Hetzner Cloud API token"
-  type = string
-  nullable    = false
-  sensitive   = true
-}
-```
-
 :::
 
-### Generated Files
+### 2.5. Verifying the Module's Output
 
-After running `terraform apply`, the module will generate:
+After running `terraform apply`, your project directory will contain the generated files.
 
-- `gen/known_hosts` - Contains the server's SSH host key
-- `bin/ssh` - SSH wrapper script with proper known_hosts configuration
-- `bin/scp` - SCP wrapper script for file transfers
+- `gen/known_hosts`: Contains the server's IP and public key.
+- `bin/ssh`: The executable SSH wrapper script.
+- `bin/scp`: The executable SCP wrapper script.
 
-Example generated files:
-
-```text
-# gen/known_hosts
-157.180.78.16 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJDd+x7b80BM97rTU4RCM/CP+K7u4QAqx8ulDdXm9JDv
-```
+You can now test the scripts to connect to your server without any host key verification warnings.
 
 ```sh
-# bin/ssh
-#!/usr/bin/env bash
+# Check that the files were created
+ls -l bin/
+ls -l gen/
 
-GEN_DIR=$(dirname "$0")/../gen
-
-ssh -o UserKnownHostsFile="$GEN_DIR/known_hosts" devops@157.180.78.16 "$@"
-```
-
-### Testing the Module
-
-Test your implementation with these commands:
-
-```sh
-# Test SSH connection (should work without host key warnings)
+# Test the SSH connection
 ./bin/ssh "echo 'SSH connection successful!'"
 
 # Test file transfer
-echo "Hello from local machine" > test.txt
-./bin/scp test.txt devops@server:~/
-
-# Copy file from server
-./bin/scp devops@server:~/test.txt ./downloaded.txt
+echo "Hello from my local machine" > test.txt
+./bin/scp test.txt root@server:~/test.txt
 ```
 
-The scripts should work without prompting for host key verification, providing seamless access to your infrastructure.
-
-## 3. Testing Your Module
-
-After applying your Terraform configuration, verify that the module works correctly:
-
-```sh
-# Apply the module
-terraform apply
-
-# Check that all files were created
-ls -la bin/
-ls -la gen/
-
-# Test SSH connection (should work without host key warnings)
-./bin/ssh "echo 'SSH connection successful!'"
-
-# Test file transfer
-echo "Hello from local machine" > test.txt
-./bin/scp test.txt devops@server:~/
-./bin/scp devops@server:~/test.txt ./downloaded.txt
-```
-
-The scripts should work without prompting for host key verification, providing seamless access to your infrastructure.
+By creating and using this module, you've made your SSH workflow more secure and convenient, and you now have a reusable component you can share across projects.

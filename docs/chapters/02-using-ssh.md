@@ -6,11 +6,8 @@
 
 Before you begin, ensure you have:
 
-- Familiarity with command-line interfaces
-- An SSH client:
-  - macOS and Linux: Built-in OpenSSH client
-  - Windows: Windows Terminal with OpenSSH or PuTTY
-- Access to at least one remote server that you can connect to using SSH
+- A Hetzner Cloud account.
+- At least one server created in the Hetzner Cloud Console.
 - For X11 forwarding exercises (if applicable):
   - macOS: XQuartz installed
   - Windows: Windows Terminal already provides needed utilities
@@ -27,9 +24,9 @@ For more in-depth information about SSH and related topics:
 - [Arch Wiki: X11 Forwarding](https://wiki.archlinux.org/title/X11_forwarding) - X11 forwarding guide
 - [GitHub: Using SSH keys](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent) - GitHub SSH key documentation
 
-## Knowledge
-
-For comprehensive information about SSH concepts, see [SSH](/knowledge/ssh).
+::: tip
+For comprehensive information about SSH concepts, see [SSH Concepts](/knowledge/ssh).
+:::
 
 ## 1. Improving Server Security [Exercise 3] {#exercise-3}
 
@@ -38,14 +35,14 @@ In this exercise, you will improve the security of your server by implementing S
 ### 1.1 Creating a Restrictive Firewall
 
 This exercise builds upon the firewall creation from the [Hetzner Cloud chapter](/chapters/01-hetzner-cloud#exercise-1#_2-configuring-a-firewall).
-Instead of allowing all traffic, we will create a more restrictive firewall that only allows specific protocols like ICMP.
+Instead of allowing all traffic, you will create a more restrictive firewall that only allows specific protocols like ICMP.
 
 | IP Version          | Protocol | Port |
 | ------------------- | -------- | ---- |
 | Any IPv4 / Any IPv6 | ICMP     | -    |
 
 ::: info
-We leave the port field empty because ICMP is a protocol that doesn't use ports.
+The port field is left empty because ICMP is a protocol that doesn't use ports.
 :::
 
 ### 1.2 Adding SSH Key Authentication

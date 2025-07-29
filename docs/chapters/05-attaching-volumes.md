@@ -1,12 +1,12 @@
 # Attaching and Mounting Volumes
 
-> This chapter covers the management of external block storage volumes with Terraform and Cloud-Init. We will learn how to attach a volume, partition it, create file systems, and manage mount points—first manually to understand the process, and then fully automating it for a robust, declarative infrastructure.
+> This chapter covers the management of external block storage volumes with Terraform and Cloud-Init. You will learn how to attach a volume, partition it, create file systems, and manage mount points—first manually to understand the process, and then fully automating it for a robust, declarative infrastructure.
 
 ## Prerequisites
 
 Before you begin, ensure you have:
 
-- A working Terraform project capable of creating a Hetzner Cloud server.
+- A working Terraform project capable of creating a Hetzner Cloud server, as covered in the previous chapters.
 - Familiarity with basic Linux command-line tools for storage management (`fdisk`, `mkfs`, `mount`).
 - An understanding of Cloud-Init and how to pass `user_data` to a server.
 
@@ -19,9 +19,13 @@ For more in-depth information on the topics covered in this chapter:
 - [fstab(5) - Linux man page](https://man7.org/linux/man-pages/man5/fstab.5.html) - Static information about the filesystems.
 - [udevadm(8) - Linux man page](https://man7.org/linux/man-pages/man8/udevadm.8.html) - udev management tool.
 
+::: tip
+For comprehensive information about Module concepts, see [Module Concepts](/knowledge/modules).
+:::
+
 ## 1. Partitions, File Systems, and Mounting [Exercise 15] {#exercise-15}
 
-In this exercise, we will attach a new volume to a server and walk through the manual process of partitioning, formatting, and mounting it. We will then automate these steps to make the mounts persistent across reboots.
+In this exercise, you will attach a new volume to a server and walk through the manual process of partitioning, formatting, and mounting it. You will then automate these steps to make the mounts persistent across reboots.
 
 ### 1.1 Attaching the Volume
 
@@ -70,7 +74,7 @@ The volume will become available only after a system reboot.
 
 ### 1.2 Manual Partitioning and Mounting
 
-After rebooting, SSH into your server. The volume will be attached (e.g., at `/dev/sdb`), but we want to create our own partitions.
+After rebooting, SSH into your server. The volume will be attached (e.g., at `/dev/sdb`), but you will create your own partitions.
 
 1.  **Identify the volume**: Use `lsblk` or `df -h` to find your attached volume. The auto-mounted volume appears under a path like `/mnt/HC_Volume_<VOLUME_ID>`.
 2.  **Unmount the auto-mounted volume**: `sudo umount /mnt/HC_Volume_<VOLUME_ID>` 
@@ -95,7 +99,7 @@ After rebooting, SSH into your server. The volume will be attached (e.g., at `/d
 
 ### 1.3 Persistent Mounting with `fstab`
 
-To make the mounts survive a reboot, we must add them to `/etc/fstab`.
+To make the mounts survive a reboot, you must add them to `/etc/fstab`.
 
 1.  **Edit `/etc/fstab`**: `sudo vim /etc/fstab`
 2.  **Add entries**: Add lines for both partitions. Use the device name for the first and the UUID for the second.
@@ -109,7 +113,7 @@ To make the mounts survive a reboot, we must add them to `/etc/fstab`.
 
 ## 2. Defining a Custom Mount Point [Exercise 16] {#exercise-16}
 
-In this exercise, we will de-couple the server and volume creation to gain full control over the mounting process. Instead of relying on `automount`, we will use Cloud-Init to format the volume and mount it to a specific, user-defined path like `/volume01`.
+In this exercise, you will de-couple the server and volume creation to gain full control over the mounting process. Instead of relying on `automount`, you will use Cloud-Init to format the volume and mount it to a specific, user-defined path like `/volume01`.
 
 ### 2.1 De-coupling Server and Volume
 
@@ -175,7 +179,7 @@ runcmd:
   - sudo mount -a
 ```
 
-This is the same as the previous exercise, but we're using a custom mount point instead of the default `/mnt/HC_Volume_<VOLUME_ID>`.
+This is the same as the previous exercise, but you're using a custom mount point instead of the default `/mnt/HC_Volume_<VOLUME_ID>`.
 
 ::: info
 - `discard`: Enables TRIM support for SSDs, allowing the filesystem to inform the storage device about unused blocks
@@ -192,7 +196,7 @@ After running `terraform apply`, SSH into your server and run `df -h`. You shoul
 The key difference in this exercise is the use of the volume ID to dynamically identify the correct device path:
 
 1. **Volume Identification**: The command `/bin/ls /dev/disk/by-id/*${volId}` finds the device path associated with your specific volume ID
-2. **Custom Mount Point**: Instead of using Hetzner's default `/mnt/HC_Volume_<ID>` path, we create our own `/volume01` directory
+2. **Custom Mount Point**: Instead of using Hetzner's default `/mnt/HC_Volume_<ID>` path, you create your own `/volume01` directory
 3. **Persistent Mounting**: The entry in `/etc/fstab` ensures the volume mounts automatically on every boot
 4. **System Integration**: `systemctl daemon-reload` ensures systemd recognizes the new mount configuration
 

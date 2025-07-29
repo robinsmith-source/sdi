@@ -27,7 +27,7 @@ For more in-depth information about Hetzner Cloud, firewalls, and SSH connection
 
 ## 2. Configuring a Firewall
 
-Before we can create a server, we need to configure a firewall to allow SSH access.
+Before you can create a server, you need to configure a firewall to allow SSH access.
 
 1. Go to https://www.hetzner.com and click "Login" in the top-right corner.
 2. From the dropdown menu, select "Cloud".

@@ -4,10 +4,7 @@
 
 ## Prerequisites
 
-Before you begin, ensure you have:
-
-- A working Terraform project that can create a Hetzner Cloud server like in [Exercise 11](/chapters/03-working-with-terraform#_1-terraform-introduction-and-basic-configuration).
-- A SSH key pair available for server access. If you don't have one, you can create one using the [SSH Key Management](/chapters/02-using-ssh#_2-managing-ssh-keys) chapter.
+Before you begin, you should have a working Terraform project that can provision a server with an SSH key, as covered in the [Working with Terraform](/chapters/03-working-with-terraform) chapter.
 
 ## External Resources
 
@@ -16,6 +13,10 @@ For more in-depth information on the topics covered in this chapter:
 - [Terraform: `templatefile` function](https://www.terraform.io/language/functions/templatefile) - Official documentation for Terraform's templating function.
 - [Cloud-Init Module Reference](https://cloudinit.readthedocs.io/en/latest/reference/modules.html) - Detailed information on all available Cloud-Init modules.
 - [sshd_config(5) - Linux man page](https://man7.org/linux/man-pages/man5/sshd_config.5.html) - Manual for the SSH daemon configuration file.
+
+::: tip
+For comprehensive information about Cloud-Init concepts, see [Cloud-Init Concepts](/knowledge/cloud-init).
+:::
 
 ## 1. Automatic Nginx Installation with `user_data` [Exercise 12] {#exercise-12}
 
@@ -83,11 +84,11 @@ After applying the changes, you can test the web server by pointing your web bro
 
 ## 2. Working with Cloud-Init [Exercise 13] {#exercise-13}
 
-In this multi-part exercise, we will incrementally build a robust server configuration using Cloud-Init. We use the configuration from [Exercise 11](/chapters/03-working-with-terraform#_1-terraform-introduction-and-basic-configuration) as a starting point.
+In this multi-part exercise, you will incrementally build a robust server configuration using Cloud-Init. You will use the configuration from [Exercise 11](/chapters/03-working-with-terraform#_1-terraform-introduction-and-basic-configuration) as a starting point.
 
 ### 2.1 Creating a Simple Web Server
 
-First, we'll have to extend the firewall to allow inbound traffic on `port 80`, like we did in [Exercise 12](/chapters/04-server-initialization#_1-automatic-nginx-installation-with-user_data-exercise-12). 
+First, you'll have to extend the firewall to allow inbound traffic on `port 80`, like you did in [Exercise 12](/chapters/04-server-initialization#_1-automatic-nginx-installation-with-user_data-exercise-12). 
 
 ```hcl [main.tf]
 resource "hcloud_firewall" "ssh_firewall" { // [!code --]
@@ -108,7 +109,7 @@ resource "hcloud_firewall" "web_access_firewall" { // [!code ++]
 }
 ```
 
-We will also have to extend the Terraform configuration to use the following cloud-init configuration.
+You will also have to extend the Terraform configuration to use the following cloud-init configuration.
 
 ::: code-group
 ```hcl [main.tf]
@@ -203,11 +204,13 @@ You can verify the setup by checking:
 
 ## 3. Generating Helper Scripts [Exercise 14] {#exercise-14}
 
-In this exercise, we will use Terraform to generate `ssh` and `scp` helper scripts. This simplifies server access and ensures consistent connection parameters, using a `known_hosts` file to avoid security warnings.
+In this exercise, you will use Terraform to generate `ssh` and `scp` helper scripts. This simplifies server access by pre-configuring the server's IP address and handling SSH host key verification automatically.
 
-### 3.1 Creating Script Templates
+By generating a new SSH key pair with Terraform (`tls_private_key`), you can determine the server's public host key *before* the server is even created. You then inject the private part of this key into the new server using `user_data`, and use the public part to create a `known_hosts` file locally. This way, your local SSH client will trust the server on the first connection, preventing the usual host key verification prompt.
 
-First, create templates for the scripts in the `tpl` directory.
+### 3.1. Creating Script Templates
+
+First, create templates for the `ssh` and `scp` scripts in a `tpl` directory. These are the same templates used in later chapters.
 
 ::: code-group
 ```bash [tpl/ssh.sh]
@@ -231,10 +234,11 @@ fi
 ```
 :::
 
-### 3.2 Generating Scripts with Terraform
+### 3.2. Generating Scripts with Terraform
 
-We will now need to modify our `main.tf` file to generate the final scripts from the templates, injecting the necessary values like the server IP and username.
-For convenience, we will also add the `login_user` variable to the `variables.tf` file.
+Next, modify your `main.tf` to generate the final scripts from the templates, injecting the necessary values. You will also add a `login_user` variable for convenience.
+
+The `known_hosts` file requires a specific format: `<ip_address> <key_type> <public_key>`. You will construct this using the server's IP and the public key from your `tls_private_key` resource.
 
 ::: code-group
 ```hcl [main.tf]
@@ -277,7 +281,6 @@ resource "local_file" "scp_script" { // [!code ++:8]
 }
 ```
 
-
 ```hcl [variables.tf]
 variable "login_user" {
   description = "Login user for the server"
@@ -288,16 +291,4 @@ variable "login_user" {
 ```
 :::
 
-
-
-After executing `terraform apply`, you will have executable `ssh` and `scp` scripts in your local `bin` directory, simplifying all future interactions with your server.
-
-The benefit of using the `ssh` and `scp` scripts is that you don't have to specify the user and host every time you want to connect to your server. These scripts also avoid the Remote Host Key Verification warning. 
-
-```sh
-./bin/ssh
-```
-
-```sh
-./bin/scp myfile.txt :/tmp/
-```
+After executing `terraform apply`, you will have executable `ssh` and `scp` scripts in your local `bin` directory. Using these scripts (e.g., `./bin/ssh`) allows you to connect to your server without seeing the "REMOTE HOST IDENTIFICATION HAS CHANGED" warning, as the host key is already trusted.

@@ -6,11 +6,9 @@
 
 Before you begin, ensure you have:
 
-- A Hetzner Cloud account (if you don't have one, follow our guide
-  on [Creating a Hetzner Account](/chapters/01-hetzner-cloud#_1-creating-a-hetzner-account))
-- Familiarity with command-line interfaces
-- Terraform installed on your local machine
-- A Hetzner Cloud API Token
+- A Hetzner Cloud account.
+- An SSH key pair, as covered in the [Using SSH](/chapters/02-using-ssh) chapter.
+- Terraform installed on your local machine.
 
 ## External Resources
 
@@ -20,9 +18,9 @@ For more in-depth information about Terraform and infrastructure as code:
 - [Terraform Core-Workflow](https://developer.hashicorp.com/terraform/intro/core-workflow)
 - [Hetzner Cloud Provider Documentation](https://registry.terraform.io/providers/hetznercloud/hcloud/latest/docs)
 
-## Knowledge
-
-For comprehensive information about Terraform concepts, see [Terraform](/knowledge/terraform).
+::: tip
+For comprehensive information about Terraform concepts, see [Terraform Concepts](/knowledge/terraform).
+:::
 
 ## 1. Install Terraform
 
@@ -47,7 +45,7 @@ Terraform uses configuration files to define the infrastructure you want to mana
 Configuration Language (`HCL`). Let's start with a basic configuration to create a simple server.
 
 ::: info
-This basic configuration will create a minimal server without security features. We'll enhance it in later sections.
+This basic configuration will create a minimal server without security features. You'll enhance it in later sections.
 :::
 
 1. Create a new directory for your project.
@@ -83,8 +81,7 @@ resource "hcloud_server" "debian_server" {
 :::
 
 ::: warning
-Hardcoding the API token directly in `main.tf` is not recommended for security reasons. We will address
-this in a later step. **Do not commit this file to version control!**
+Hardcoding the API token directly in `main.tf` is not recommended for security reasons. You'll address this in a later step. **Do not commit this file to version control!**
 :::
 
 ## 4. Creating and Managing the Server
@@ -99,7 +96,7 @@ our [Terraform Commands Knowledge Page](/knowledge/terraform). The basic workflo
 
 ## 5. Improving the Server Configuration
 
-The basic configuration we created has several limitations, including hardcoded secrets and lack of essential security features such as
+The basic configuration you created has several limitations, including hardcoded secrets and lack of essential security features such as
 firewalls and SSH key access. Let's address these issues step by step.
 
 ### 5.1 Securely Storing the API Token
