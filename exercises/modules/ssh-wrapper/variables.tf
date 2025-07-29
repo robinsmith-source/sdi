@@ -1,17 +1,20 @@
 variable "loginUser" {
+  description = "The user to login to the server"
   type    = string
+  nullable = false
   default = "root"
 }
 
 variable "public_key" {
+  description = "The public key to use for the server"
   type     = string
   nullable = false
 }
 
 variable "ipv4Address" {
+  description = "The IPv4 address of the server"
   type     = string
-  nullable = true
-  default  = null
+  nullable = false
 }
 
 variable "hostname" {
