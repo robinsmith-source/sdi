@@ -31,7 +31,7 @@ resource "hcloud_ssh_key" "user_ssh_key" {
 
 resource "local_file" "user_data" {
   content = templatefile("tpl/userData.yml", {
-    loginUser        = "devops"
+    login_user        = "devops"
     public_key_robin = hcloud_ssh_key.user_ssh_key.public_key
     tls_private_key  = indent(4, tls_private_key.host.private_key_openssh)
     server_name      = var.server_name
@@ -58,7 +58,7 @@ resource "dns_a_record_set" "server_a" {
 
 module "ssh_wrapper" {
   source     = "../../modules/ssh-wrapper"
-  loginUser  = "devops"
+  login_user  = "devops"
   hostname   = "${var.server_name}.${var.dns_zone}"
   public_key = tls_private_key.host.public_key_openssh
   depends_on = [dns_a_record_set.server_a]

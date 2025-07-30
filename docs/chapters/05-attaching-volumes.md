@@ -147,7 +147,7 @@ resource "local_file" "user_data" {
   content = templatefile("tpl/userData.yml", {
     public_key_robin      = hcloud_ssh_key.user_ssh_key.public_key
     tls_private_key = indent(4, tls_private_key.host.private_key_openssh)
-    loginUser       = var.login_user
+    login_user       = var.login_user
     volId           = hcloud_volume.data_volume.id // [!code ++]
   })
   filename = "gen/userData.yml"

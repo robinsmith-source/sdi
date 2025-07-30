@@ -128,7 +128,7 @@ resource "hcloud_server" "debian_server" {
 
 resource "local_file" "user_data" { // [!code ++:9]
   content = templatefile("tpl/userData.yml", {
-    loginUser        = var.login_user
+    login_user        = var.login_user
     public_key_robin = hcloud_ssh_key.user_ssh_key.public_key
     tls_private_key  = indent(4, tls_private_key.host.private_key_openssh)
   })
@@ -139,7 +139,7 @@ resource "local_file" "user_data" { // [!code ++:9]
 ```yml [tpl/userData.yml]
 #cloud-config
 users:
-  - name: ${loginUser}
+  - name: ${login_user}
     groups: [sudo]
     shell: /bin/bash
     sudo: ["ALL=(ALL) NOPASSWD:ALL"]

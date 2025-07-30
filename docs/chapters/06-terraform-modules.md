@@ -99,7 +99,7 @@ resource "local_file" "known_hosts" {
 resource "local_file" "ssh_script" {
   content = templatefile("${path.module}/tpl/ssh.sh", {
     host = var.ipv4Address
-    user = var.loginUser
+    user = var.login_user
   })
   filename        = "bin/ssh"
   file_permission = "755"
@@ -111,7 +111,7 @@ resource "local_file" "ssh_script" {
 resource "local_file" "scp_script" {
   content = templatefile("${path.module}/tpl/scp.sh", {
     host = var.ipv4Address,
-    user = var.loginUser
+    user = var.login_user
   })
   filename        = "bin/scp"
   file_permission = "755"
@@ -121,7 +121,7 @@ resource "local_file" "scp_script" {
 ```
 
 ```hcl [modules/ssh-wrapper/variables.tf]
-variable "loginUser" {
+variable "login_user" {
   description = "The user to login to the server"
   type    = string
   nullable = false
@@ -176,7 +176,7 @@ resource "hcloud_server" "debian_server" {
 
 module "ssh_wrapper" { // [!code ++:6]
   source      = "../modules/ssh-wrapper"
-  loginUser   = var.login_user
+  login_user   = var.login_user
   ipv4Address = hcloud_server.debian_server.ipv4_address
   public_key  = file("~/.ssh/id_ed25519.pub")
 }

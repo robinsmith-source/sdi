@@ -28,7 +28,7 @@ resource "hcloud_server" "debian_server" {
 # Create SSH wrapper for easier server access
 module "ssh_wrapper" {
   source      = "../modules/ssh-wrapper"
-  loginUser   = var.login_user
+  login_user   = var.login_user
   ipv4Address = hcloud_server.debian_server.ipv4_address
   public_key  = file("~/.ssh/id_ed25519.pub")
 }

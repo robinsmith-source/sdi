@@ -292,7 +292,7 @@ resource "dns_cname_record" "server_aliases" {
 
 module "ssh_wrapper" {
   source     = "../../modules/ssh-wrapper"
-  loginUser  = "devops"
+  login_user  = "devops"
   hostname   = "${var.server_name}.${var.dns_zone}" // [!code ++]
   public_key = tls_private_key.host.public_key_openssh
   depends_on = [dns_a_record_set.server_a] // [!code ++]
@@ -322,7 +322,7 @@ resource "local_file" "ssh_script" {
   content = templatefile("${path.module}/tpl/ssh.sh", {
     host = var.ipv4Address // [!code --]
     host = local.target_host // [!code ++]
-    user = var.loginUser
+    user = var.login_user
   })
   filename        = "bin/ssh"
   file_permission = "755"
@@ -334,7 +334,7 @@ resource "local_file" "scp_script" {
   content = templatefile("${path.module}/tpl/scp.sh", {
     host = var.ipv4Address // [!code --]
     host = local.target_host // [!code ++]
-    user = var.loginUser
+    user = var.login_user
   })
   filename        = "bin/scp"
   file_permission = "755"
@@ -416,7 +416,7 @@ resource "dns_cname_record" "server_aliases" {
 module "ssh_wrapper" {
   count      = var.server_count // [!code ++]
   source     = "../../modules/ssh-wrapper"
-  loginUser  = "devops"
+  login_user  = "devops"
   hostname   = "${var.server_name}.${var.dns_zone}" // [!code --]
   hostname   = "${var.server_name}-${count.index + 1}.${var.dns_zone}" // [!code ++]
   public_key = public_key = tls_private_key.host.public_key_openssh // [!code --]
@@ -459,7 +459,7 @@ resource "local_file" "ssh_script" {
   content = templatefile("${path.module}/tpl/ssh.sh", {
     host = var.ipv4Address // [!code --]
     host = local.target_host // [!code ++]
-    user = var.loginUser
+    user = var.login_user
   })
   filename        = "bin/ssh" // [!code --]
   filename        = "bin/ssh_${local.target_host}" // [!code ++]
@@ -472,7 +472,7 @@ resource "local_file" "scp_script" {
   content = templatefile("${path.module}/tpl/scp.sh", {
     host = var.ipv4Address // [!code --]
     host = local.target_host // [!code ++]
-    user = var.loginUser
+    user = var.login_user
   })
   filename        = "bin/scp" // [!code --]
   filename        = "bin/scp_${local.target_host}" // [!code ++]

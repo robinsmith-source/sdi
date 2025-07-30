@@ -43,7 +43,7 @@ resource "hcloud_server" "debian_server" {
 
 resource "local_file" "user_data" {
   content = templatefile("tpl/userData.yml", {
-    loginUser        = var.login_user
+    login_user        = var.login_user
     public_key_robin = hcloud_ssh_key.user_ssh_key.public_key
     tls_private_key  = indent(4, tls_private_key.host.private_key_openssh)
   })
@@ -53,7 +53,7 @@ resource "local_file" "user_data" {
 # Create SSH wrapper for easier server access
 module "ssh_wrapper" {
   source      = "../../modules/ssh-wrapper"
-  loginUser   = var.login_user
+  login_user   = var.login_user
   ipv4Address = hcloud_server.debian_server.ipv4_address
   public_key  = file("~/.ssh/id_ed25519.pub")
 }
