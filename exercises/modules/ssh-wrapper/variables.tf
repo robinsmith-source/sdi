@@ -14,7 +14,8 @@ variable "public_key" {
 variable "ipv4Address" {
   description = "The IPv4 address of the server"
   type        = string
-  nullable    = false
+  nullable    = true
+  default     = null
 }
 
 variable "hostname" {

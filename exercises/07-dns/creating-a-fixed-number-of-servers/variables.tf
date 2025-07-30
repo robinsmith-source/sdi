@@ -34,7 +34,7 @@ variable "server_aliases" {
   type    = list(string)
   default = []
   validation {
-    condition     = length(distinct(var.server_aliases)) == length(var.server_aliases) && !contains(var.server_aliases, var.server_base_name)
-    error_message = "Aliases must be unique and must not match the server_base_name."
+    condition     = length(distinct(var.server_aliases)) == length(var.server_aliases) && !contains(var.server_aliases, var.server_name)
+    error_message = "Aliases must be unique and must not match the server_name."
   }
 }

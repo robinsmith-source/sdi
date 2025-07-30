@@ -1,10 +1,10 @@
 locals {
-  target_host = var.hostname != null ? var.hostname : var.ipv4Address
+  target_host = var.hostname != null && var.hostname != "" ? var.hostname : var.ipv4Address
 }
 
 resource "local_file" "known_hosts" {
   content         = "${local.target_host} ${var.public_key}"
-  filename        = "gen/known_hosts"
+  filename        = "gen/known_hosts_${local.target_host}"
   file_permission = "644"
 }
 
@@ -14,7 +14,7 @@ resource "local_file" "ssh_script" {
     host = local.target_host
     user = var.loginUser
   })
-  filename        = "bin/ssh"
+  filename        = "bin/ssh_${local.target_host}"
   file_permission = "755"
 
   depends_on = [local_file.known_hosts]
@@ -26,7 +26,7 @@ resource "local_file" "scp_script" {
     host = local.target_host,
     user = var.loginUser
   })
-  filename        = "bin/scp"
+  filename        = "bin/scp_${local.target_host}"
   file_permission = "755"
 
   depends_on = [local_file.known_hosts]
