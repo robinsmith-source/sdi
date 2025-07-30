@@ -37,6 +37,10 @@ write_files:
       # To use internal sshd filter variants
   - path: /etc/caddy/Caddyfile
     content: |
+      {
+         acme_ca https://acme-staging-v02.api.letsencrypt.org/directory
+      }
+      
       www.g10.sdi.hdm-stuttgart.cloud {
         root * /var/www/html
         file_server

@@ -211,16 +211,7 @@ In the `main.tf` file you will need to add the following resources:
 
 ```hcl [main.tf]
 # ... Other non-relevant resources for this exercise ...
-resource "hcloud_server" "debian_server" { // [!code focus:40]
-  name         = "debian-server"
-  image        = "debian-12"
-  server_type  = "cx22"
-  firewall_ids = [hcloud_firewall.web_access_firewall.id]
-  ssh_keys     = [hcloud_ssh_key.user_ssh_key.id]
-  user_data    = local_file.user_data.content
-}
-
-resource "dns_a_record_set" "server_a" { // [!code ++:6]
+resource "dns_a_record_set" "server_a" { // [!code focus:40] [!code ++:6]
   zone      = "${var.dns_zone}."
   name      = var.server_name
   addresses = [var.server_ip]
@@ -238,7 +229,7 @@ resource "dns_cname_record" "server_aliases" {  // [!code ++:8]
   zone       = "${var.dns_zone}."
   name       = var.server_aliases[count.index]
   cname      = "${var.server_name}.${var.dns_zone}."
-  ttl        = 300
+  ttl        = 10
   depends_on = [dns_a_record_set.server_a, hcloud_server.debian_server]
 }
 ```
@@ -286,7 +277,7 @@ resource "dns_cname_record" "server_aliases" {
   zone       = "${var.dns_zone}."
   name       = var.server_aliases[count.index]
   cname      = "${var.server_name}.${var.dns_zone}."
-  ttl        = 300
+  ttl        = 10
   depends_on = [dns_a_record_set.server_a, hcloud_server.debian_server]
 }
 
