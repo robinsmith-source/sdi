@@ -45,7 +45,7 @@ features:
 Below is a comprehensive list of exercises, linked directly to their respective documentation chapters for easy navigation.
 
 | Exercise Title                                           | Documentation Chapter                                                        |
-|:---------------------------------------------------------|:-----------------------------------------------------------------------------|
+| :------------------------------------------------------- | :--------------------------------------------------------------------------- |
 | 1. Server creation                                       | [Hetzner Cloud](./chapters/01-hetzner-cloud#exercise-1)                      |
 | 2. Server re-creation                                    | [Hetzner Cloud](./chapters/01-hetzner-cloud#exercise-2)                      |
 | 3. Improve your server's security!                       | [Using SSH](./chapters/02-using-ssh#exercise-3)                              |
