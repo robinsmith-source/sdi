@@ -88,5 +88,9 @@ export default defineConfig({
         ],
       },
     ],
+    footer: {
+      message: 'Released under the <a href="https://github.com/vuejs/vitepress/blob/main/LICENSE">MIT License</a>.',
+      copyright: 'Copyright © 2025 <a href="https://robinschmidt.dev">Robin Schmidt</a>'
+    }
   },
 });

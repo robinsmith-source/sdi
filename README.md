@@ -2,8 +2,9 @@
 
 This project was built for the [Software-Defined Infrastructure](https://www.hdm-stuttgart.de/vorlesung_detail?vorlid=5213729) course at [Stuttgart Media University](https://www.hdm-stuttgart.de). 
 
-My documentation provides a step-by-step guide for the [exercises](https://freedocs.mi.hdm-stuttgart.de/apf.html). 
-The deployed documentation is available at [sdi.robinschmidt.dev](https://sdi.robinschmidt.dev).
+> [!NOTE]
+> My documentation provides a step-by-step guide for the [exercises](https://freedocs.mi.hdm-stuttgart.de/apf.html). 
+> The deployed documentation is available at [sdi.robinschmidt.dev](https://sdi.robinschmidt.dev).
 
 ## Project Structure
 ```
