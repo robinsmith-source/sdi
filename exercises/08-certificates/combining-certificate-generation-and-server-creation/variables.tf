@@ -18,4 +18,9 @@ variable "dns_zone" {
   nullable    = false
 }
 
-
+variable "server_names" {
+  description = "List of subdomain names to create"
+  type        = list(string)
+  nullable    = false
+  default     = []
+}

@@ -1,0 +1,43 @@
+#cloud-config
+users:
+  - name: ${login_user}
+    groups: [sudo]
+    shell: /bin/bash
+    sudo: ["ALL=(ALL) NOPASSWD:ALL"]
+
+package_update: true
+package_upgrade: true
+package_reboot_if_required: true
+
+packages:
+  - nginx
+
+write_files:
+  - path: /etc/ssl/certs/live.pem
+    content: |
+      ${certificate_pem}
+  - path: /etc/ssl/private/live.key
+    content: |
+      ${private_key_pem}
+    permissions: "0600"
+  - path: /etc/nginx/sites-available/default
+    content: |
+      server {
+          listen 80 default_server;
+          listen [::]:80 default_server;
+          listen 443 ssl default_server;
+          listen [::]:443 ssl default_server;
+
+          server_name ${dns_zone} ${server_names_string};
+
+          ssl_certificate /etc/ssl/certs/live.pem;
+          ssl_certificate_key /etc/ssl/private/live.key;
+
+          root /var/www/html;
+          index index.html index.htm index.nginx-debian.html;
+      }
+
+runcmd:
+  - systemctl enable nginx
+  - systemctl restart nginx
+  - nginx -t

@@ -1,13 +1,7 @@
 terraform {
   required_providers {
     hcloud = {
-      source  = "hetznercloud/hcloud"
-    }
-    acme = {
-      source = "vancluever/acme"
-    }
-    tls = {
-      source = "hashicorp/tls"
+      source = "hetznercloud/hcloud"
     }
     dns = {
       source = "hashicorp/dns"
@@ -27,8 +21,4 @@ provider "dns" {
     key_algorithm = "hmac-sha512"
     key_secret    = var.dns_secret
   }
-}
-
-provider "acme" {
-  server_url = "https://acme-staging-v02.api.letsencrypt.org/directory"
 }

@@ -1,0 +1,35 @@
+#cloud-config
+users:
+  - name: ${login_user}
+    groups: [sudo]
+    shell: /bin/bash
+    sudo: ["ALL=(ALL) NOPASSWD:ALL"]
+
+package_update: true
+package_upgrade: true
+package_reboot_if_required: true
+
+packages:
+  - caddy
+
+write_files:
+  - path: /etc/caddy/Caddyfile
+    content: |
+      {
+          acme_ca https://acme-staging-v02.api.letsencrypt.org/directory
+      }
+      
+      ${server_names_string} {
+          root * /var/www/html
+          file_server
+      }
+
+runcmd:
+  - mkdir -p /var/www/html
+  - - >
+  - echo "I'm Caddy @ $(dig -4 TXT +short o-o.myaddr.l.google.com @ns1.google.com)
+  - created $(date -u)" >> /var/www/html/index.html
+  - systemctl enable caddy
+  - systemctl restart caddy
+
+final_message: "Caddy with automatic HTTPS installation completed successfully!" 

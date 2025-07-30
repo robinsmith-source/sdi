@@ -18,8 +18,21 @@ variable "dns_zone" {
   nullable    = false
 }
 
-variable "server_name" {
-  description = "The name of the server"
+variable "server_names" {
+  description = "List of subdomain names to create"
+  type        = list(string)
+  nullable    = false
+  default     = []
+}
+
+variable "name_server" {
+  description = "The DNS nameserver for ACME DNS challenges"
+  type        = string
+  nullable    = false
+}
+
+variable "email_address" {
+  description = "Email address for Let's Encrypt registration"
   type        = string
   nullable    = false
 }
