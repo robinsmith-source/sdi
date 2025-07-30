@@ -2,10 +2,12 @@ terraform {
   required_providers {
     hcloud = {
       source  = "hetznercloud/hcloud"
-      version = "~> 1.0"
     }
-
+    dns = {
+      source = "hashicorp/dns"
+    }
   }
+  required_version = ">= 0.13"
 }
 
 provider "hcloud" {

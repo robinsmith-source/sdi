@@ -2,11 +2,6 @@ terraform {
   required_providers {
     hcloud = {
       source  = "hetznercloud/hcloud"
-      version = "~> 1.0"
-    }
-    dns = {
-      source  = "providers.tf-dns.com/com/dns"
-      version = "~> 3.0"
     }
     acme = {
       source = "vancluever/acme"
@@ -14,7 +9,11 @@ terraform {
     tls = {
       source = "hashicorp/tls"
     }
+    dns = {
+      source = "hashicorp/dns"
+    }
   }
+  required_version = ">= 0.13"
 }
 
 provider "hcloud" {
