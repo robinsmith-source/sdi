@@ -218,7 +218,7 @@ First, create templates for the `ssh` and `scp` scripts in a `tpl` directory. Th
 
 ::: code-group
 
-```bash [tpl/ssh.sh]
+```sh [tpl/ssh.sh]
 #!/usr/bin/env bash
 
 GEN_DIR=$(dirname "$0")/../gen
@@ -226,7 +226,7 @@ GEN_DIR=$(dirname "$0")/../gen
 ssh -o UserKnownHostsFile="$GEN_DIR/known_hosts" ${user}@${host} "$@"
 ```
 
-```bash [tpl/scp.sh]
+```sh [tpl/scp.sh]
 #!/usr/bin/env bash
 
 GEN_DIR=$(dirname "$0")/../gen

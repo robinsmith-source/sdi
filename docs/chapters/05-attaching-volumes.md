@@ -105,7 +105,7 @@ To make the mounts survive a reboot, you must add them to `/etc/fstab`.
 
 1.  **Edit `/etc/fstab`**: `sudo vim /etc/fstab`
 2.  **Add entries**: Add lines for both partitions. Use the device name for the first and the UUID for the second.
-    ```fstab
+    ```text
     # <file system> <mount point>   <type>  <options>       <dump>  <pass>
     /dev/sdb1       /disk1          ext4    defaults,nofail 0       2
     UUID=<YOUR_SDB2_UUID> /disk2    xfs    defaults,nofail 0       2

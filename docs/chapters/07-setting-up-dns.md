@@ -26,7 +26,7 @@ For comprehensive information about DNS concepts, see [DNS Concepts](/knowledge/
 
 Each group is assigned a dedicated subdomain (zone) on the `ns1.hdm-stuttgart.cloud` nameserver. For example, group 10's zone is `g10.sdi.hdm-stuttgart.cloud`. You can view all records in your zone by performing a zone transfer with `dig`:
 
-```bash
+```sh
 # Export your HMAC key as an environment variable
 export HMAC="hmac-sha512:g10.key:<YOUR_SECRET_KEY>"
 
@@ -42,7 +42,7 @@ You can add, update, or delete DNS records using the `nsupdate` command-line too
 
 To add a new `A` record, start an `nsupdate` session, specify the server and your update command:
 
-```bash
+```sh
 # Start an interactive nsupdate session with your HMAC key
 nsupdate -y $HMAC
 
