@@ -1,4 +1,4 @@
-variable "loginUser" {
+variable "login_user" {
   description = "The user to login to the server"
   type        = string
   nullable    = false
