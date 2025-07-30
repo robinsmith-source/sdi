@@ -33,7 +33,7 @@ resource "hcloud_ssh_key" "user_ssh_key" {
 resource "local_file" "user_data" {
   count = var.server_count
   content = templatefile("tpl/userData.yml", {
-    login_user        = "devops"
+    login_user       = "devops"
     public_key_robin = hcloud_ssh_key.user_ssh_key.public_key
     tls_private_key  = indent(4, tls_private_key.host[count.index].private_key_openssh)
   })
@@ -80,7 +80,7 @@ resource "dns_cname_record" "server_aliases" {
 module "ssh_wrapper" {
   count      = var.server_count
   source     = "../../modules/ssh-wrapper"
-  login_user  = "devops"
+  login_user = "devops"
   hostname   = "${var.server_name}-${count.index + 1}.${var.dns_zone}"
   public_key = tls_private_key.host[count.index].public_key_openssh
 }
