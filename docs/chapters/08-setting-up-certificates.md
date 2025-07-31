@@ -6,243 +6,445 @@
 
 Before you begin, ensure you have:
 
-- A Hetzner Cloud account and API token
-- Terraform installed on your local machine
-- Access to your group's DNS zone (e.g., g03.sdi.hdm-stuttgart.cloud)
-- Your group's HMAC secret key for DNS updates
-- Basic understanding of SSL/TLS certificates and DNS
-- A web server setup (Nginx or similar)
+- A working Terraform project capable of creating a Hetzner Cloud server and managing DNS records.
+- Your group's HMAC secret key for DNS updates.
+- A basic understanding of SSL/TLS certificates.
 
 ## External Resources
 
-For more in-depth information about SSL/TLS certificates and ACME:
+- [Let's Encrypt Documentation](https://letsencrypt.org/docs/)
+- [ACME Terraform Provider](https://registry.terraform.io/providers/vancluever/acme/latest/docs)
+- [Nginx SSL Configuration](https://nginx.org/en/docs/http/configuring_https_servers.html)
 
-- [Understanding Web Certificates](https://www.youtube.com/watch?v=T4Df5_cojAs) - Video presentation on web certificates
-- [Let's Encrypt Documentation](https://letsencrypt.org/docs/) - Official Let's Encrypt documentation
-- [ACME Terraform Provider](https://registry.terraform.io/providers/vancluever/acme/latest/docs) - Official ACME provider documentation
-- [RFC 2136 DNS Update](https://datatracker.ietf.org/doc/html/rfc2136) - DNS Update Protocol specification
-- [Nginx SSL Configuration](https://nginx.org/en/docs/http/configuring_https_servers.html) - Nginx HTTPS configuration guide
+::: tip
+For comprehensive information about Certificate concepts, see [Certificate Concepts](/knowledge/certificates).
+:::
 
-## Knowledge
+## 1. Automating Certificate Generation with Terraform
 
-For comprehensive information about certificate concepts, types, and security considerations, see [Certificates](/knowledge/certificates).
+Terraform's `acme` provider allows you to automate the entire lifecycle of SSL/TLS certificates, from creation and validation to renewal. It interacts with ACME-compatible certificate authorities like Let's Encrypt.
 
-## 1. Certificates with Terraform
+### 1.1. Provider Configuration
 
-Terraform provides excellent support for certificate management through the ACME provider. The basic configuration includes:
+First, configure the `acme` provider. It is crucial to use the **staging URL** for development and testing to avoid hitting Let's Encrypt's strict rate limits.
+
+::: code-group
+
+```hcl [providers.tf]
+provider "acme" {
+  server_url = "https://acme-staging-v02.api.letsencrypt.org/directory"
+}
+```
+
+:::
+
+::: tip
+You can switch to the production URL once you have verified your configuration and are ready to issue real certificates:
 
 ```hcl
 provider "acme" {
-  server_url = "https://acme-staging-v02.api.letsencrypt.org/directory"
-
-  # Production:
-  # server_url = "https://acme-v02.api.letsencrypt.org/directory"
+    server_url = "https://acme-v02.api.letsencrypt.org/directory
 }
 
-resource "tls_private_key" "private_key" {
-  algorithm = "RSA"
-}
-
-resource "acme_registration" "reg" {
-  account_key_pem = tls_private_key.private_key.private_key_pem
-  email_address   = "nobody@example.com"
-}
-
-resource "acme_certificate" "certificate" {
-  # ... certificate configuration
-  dns_challenge {
-    # ... DNS challenge configuration
-  }
-}
+This will also remove the browser warning with untrusted certificates.
 ```
 
-::: warning **Rate Limits**
-Always use the staging URL `https://acme-staging-v02.api.letsencrypt.org/directory` during development and testing. Let's Encrypt has strict rate limits for the production endpoint!
 :::
 
-### DNS Challenge Providers
-
-The ACME provider supports various DNS challenge providers for domain validation:
-
-```hcl
-resource "acme_certificate" "certificate" {
-  # ... other configuration
-  dns_challenge {
-    provider = "route53"
-    # ... provider-specific configuration
-  }
-}
-```
-
-Available DNS providers include:
-
-- acme-dns
-- alidns
-- route53
-- rfc2136
-- zonomi
-- And many more...
-
-## 2. RFC2136 Provider Configuration
-
-For DNS servers supporting RFC2136 dynamic updates (like the course nameserver), use the following configuration:
-
-```hcl
-dns_challenge {
-  provider = "rfc2136"
-
-  config = {
-    RFC2136_NAMESERVER     = "ns1.sdi.hdm-stuttgart.cloud"
-    RFC2136_TSIG_ALGORITHM = "hmac-sha512"
-    RFC2136_TSIG_KEY       = "g10.key."
-    RFC2136_TSIG_SECRET    = var.dns_secret # Relates to environment variable TF_VAR_dns_secret
-  }
-}
-```
-
-### BIND Server Logs
-
-When ACME challenges are processed, you'll see entries like this in your BIND server logs:
-
-```
-... updating zone 'goik.sdi.hdm-stuttgart.cloud/IN':
-  deleting rrset at '_acme-challenge.goik.sdi.hdm-stuttgart.cloud' TXT
-... updating zone 'goik.sdi.hdm-stuttgart.cloud/IN':
-    adding an RR at '_acme-challenge.goik.sdi.hdm-stuttgart.cloud' TXT
-      "GtJZJZjCZLWoGsQDODCFnY37TmMjRiy8Hw9M1eDGhkQ"
-... deleting rrset at ... TXT
-... adding an RR ... TXT "eJckWl2F43nsf27bzVOjcrTGp_VFeCj2qTVM5Uodg-4"
-... deleting an RR at _acme-challenge.goik.sdi.hdm-stuttgart.cloud TXT
-... updating zone ... deleting an RR ... TXT
-```
-
-## 3. Creating a Web Certificate [Exercise 22]
-
-### Task Description
-
-Create a wildcard certificate using Terraform and the ACME provider for your group's domain.
-
-::: warning **Provider Version Requirements**
-Due to a DNS provider related issue, you must use at least acme provider version v2.23.2. You are best off not specifying any version at all to receive the latest release automatically.
-:::
-
-### Terraform Configuration
-
-Set up your Terraform providers:
+::: danger Provider Version
+Due to a known issue, you must use `acme` provider version `v2.13.1` or newer. It is best to not pin the version to automatically receive the latest stable release.
 
 ```hcl
 terraform {
   required_providers {
-    hcloud = {
-      source = "hetznercloud/hcloud"
-    }
     acme = {
       source = "vancluever/acme"
     }
   }
-  required_version = ">= 0.13"
 }
-```
-
-### Certificate Generation
-
-Assuming your group has write privileges to a zone `g03.sdi.hdm-stuttgart.cloud`, create a wildcard certificate for:
-
-- The zone apex: `g03.sdi.hdm-stuttgart.cloud`
-- `www.g03.sdi.hdm-stuttgart.cloud`
-- `mail.g03.sdi.hdm-stuttgart.cloud`
-
-Use the `subject_alternative_names` attribute for multiple domains.
-
-The web server certificate installation requires two files:
-
-- Private key file (e.g., `private.pem`)
-- Certificate key file (e.g., `certificate.pem`)
-
-Use `resource "local_file"` to generate this key pair in a `gen` subfolder of your current project.
-
-## 4. Testing Your Web Certificate [Exercise 23]
-
-### Task Description
-
-Deploy and test the certificate on a web server with multiple DNS entries.
-
-### Server Configuration
-
-Create a host with three corresponding DNS entries:
-
-- `g03.sdi.hdm-stuttgart.cloud`
-- `www.g03.sdi.hdm-stuttgart.cloud`
-- `mail.g03.sdi.hdm-stuttgart.cloud`
-
-Your Terraform setup should contain a `config.auto.tfvars` file allowing for an arbitrary number of DNS names:
-
-```hcl
-# ...
-dnsZone     = "g03.sdi.hdm-stuttgart.cloud"
-serverNames = ["www", "cloud"]
-# ...
-```
-
-### Web Server Setup
-
-1. Install the Nginx web server
-2. Modify the Nginx configuration to accept HTTPS requests using the generated certificate
-
-::: tip **Nginx SSL Configuration**
-The Nginx default configuration already contains a self-signed certificate referenced by `/etc/nginx/snippets/snakeoil.conf`. In `/etc/nginx/sites-available/default`, all SSL supporting statements are commented out:
-
-```nginx
-# SSL configuration
-#
-# listen 443 ssl default_server;
-# listen [::]:443 ssl default_server;
-# ...
-# Self signed certs generated by the ssl-cert package
-# Don't use them in a production server!
-#
-# include snippets/snakeoil.conf;
 ```
 
 :::
 
-### Testing and Verification
+### 1.2. Generating a Certificate [Exercise 22] {#exercise-22}
 
-After modifying the configuration, check for correctness:
+To generate a certificate, you need an account key and a certificate request. The following configuration creates a wildcard certificate for a primary domain and several alternative names using a DNS challenge for validation.
 
-```bash
-root@www:~# nginx -t
-nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
-nginx: configuration file /etc/nginx/nginx.conf test is successful
+::: code-group
+
+```hcl [main.tf]
+resource "tls_private_key" "host" {
+  algorithm = "RSA"
+}
+
+resource "acme_registration" "reg" { // [!code ++:4]
+  account_key_pem = tls_private_key.host.private_key_pem
+  email_address   = var.email_address
+}
+
+resource "acme_certificate" "certificate" {  // [!code ++:17]
+  account_key_pem = acme_registration.reg.account_key_pem
+  common_name     = "*.${var.dns_zone}"
+  subject_alternative_names = [
+    var.dns_zone,
+  ]
+
+  dns_challenge {
+    provider = "rfc2136"
+    config = {
+      RFC2136_NAMESERVER     = var.name_server
+      RFC2136_TSIG_ALGORITHM = "hmac-sha512"
+      RFC2136_TSIG_KEY       = "g10.key."
+      RFC2136_TSIG_SECRET    = var.dns_secret
+    }
+  }
+}
+
+resource "local_file" "private_key_pem" { // [!code ++:4]
+  content  = acme_certificate.certificate.private_key_pem
+  filename = "${path.module}/gen/private.pem"
+}
+
+resource "local_file" "certificate_pem" { // [!code ++:4]
+  content  = acme_certificate.certificate.certificate_pem
+  filename = "${path.module}/gen/certificate.pem"
+}
 ```
 
-Correct any misconfiguration issues before restarting Nginx:
-
-```bash
-systemctl restart nginx
+```hcl [variables.tf]
+# ... Other non-relevant variables for this exercise ...
+variable "email_address" { // [!code focus:4]
+  description = "Email address for Let's Encrypt registration"
+  type        = string
+}
 ```
 
-**Verification Steps:**
+```hcl [output.tf]
+# ... Other non-relevant outputs for this exercise ...
+output "certificate_pem" { // [!code focus:10]
+  value     = acme_certificate.certificate.certificate_pem
+  sensitive = true
+}
 
-1. Your staging certificate will cause warnings initially
-2. Point your browser to all three URLs and overrule certificate warnings
-3. Inspect the certificate - you should find `g03.sdi.hdm-stuttgart.cloud` and `*.g03.sdi.hdm-stuttgart.cloud`
-4. If the certificate is working correctly, regenerate it using the production setting `https://acme-v02.api.letsencrypt.org/directory`
-5. Don't forget to revert back to staging after completion!
+output "private_key_pem" {
+  value     = acme_certificate.certificate.private_key_pem
+  sensitive = true
+}
+```
 
-## 5. Combining Certificate Generation and Server Creation [Exercise 24]
+:::
 
-### Task Description
+This configuration generates a private key using the `tls_private_key` resource, registers an ACME account with the provided email address, requests a wildcard certificate for the specified domain and its subdomains, uses a DNS challenge to validate domain ownership via RFC 2136, and saves the generated certificate and private key to local files.
 
-Create a unified Terraform configuration that combines certificate generation and server deployment into a single, cohesive infrastructure-as-code solution.
+## 2. Testing Your Web Certificate [Exercise 23] {#exercise-23}
 
-### Implementation Goals
+In this exercise, you will deploy the generated certificate to an Nginx web server. The goal is to create a server, point multiple DNS names to it, and configure Nginx to serve HTTPS traffic for those names.
 
-Combine the configurations from the previous exercises into one comprehensive Terraform setup that:
+### 2.1. Server and DNS Configuration
 
-1. **Generates the SSL certificate** using the ACME provider
-2. **Creates the server infrastructure** on Hetzner Cloud
-3. **Configures DNS records** for all required subdomains
-4. **Deploys and configures the web server** with the certificate
+Your Terraform configuration should create a server and the corresponding DNS records. Use a variable to manage the list of hostnames.
 
-This unified approach ensures that your entire infrastructure, including certificates, is managed as code and can be deployed consistently across environments. The configuration should be idempotent and handle certificate renewals automatically.
+::: code-group
+
+```hcl [config.auto.tfvars]
+dns_zone      = "g10.sdi.hdm-stuttgart.cloud"
+name_server   = "ns1.sdi.hdm-stuttgart.cloud"
+server_names  = ["www", "mail"]
+email_address = "rs141@hdm-stuttgart.de"
+```
+
+```hcl [main.tf]
+# ... Other non-relevant resources for this exercise ...
+resource "tls_private_key" "host" {
+  algorithm = "RSA"
+}
+
+resource "hcloud_server" "debian_server" {
+  name         = "debian-server"
+  image        = "debian-12"
+  server_type  = "cx22"
+  firewall_ids = [hcloud_firewall.web_access_firewall.id]
+  ssh_keys     = [hcloud_ssh_key.user_ssh_key.id]
+  user_data    = local_file.user_data.content
+}
+
+resource "local_file" "user_data" {
+  content = templatefile("tpl/userData.yml", {
+    login_user          = "root"
+    public_key_robin    = hcloud_ssh_key.user_ssh_key.public_key
+    tls_private_key     = indent(4, tls_private_key.host.private_key_openssh)
+    server_names_string = join(" ", [for name in var.server_names : "${name}.${var.dns_zone}"]) // [!code ++:4]
+    dns_zone            = var.dns_zone
+    certificate_pem     = indent(6, acme_certificate.certificate.certificate_pem)
+    private_key_pem     = indent(6, acme_certificate.certificate.private_key_pem)
+  })
+  filename = "gen/userData.yml"
+}
+
+resource "acme_registration" "reg" {
+  account_key_pem = tls_private_key.host.private_key_pem
+  email_address   = var.email_address
+}
+
+resource "acme_certificate" "certificate" {
+  account_key_pem = acme_registration.reg.account_key_pem
+  common_name     = "*.${var.dns_zone}"
+  subject_alternative_names = [
+    var.dns_zone,
+  ]
+
+  dns_challenge {
+    provider = "rfc2136"
+    config = {
+      RFC2136_NAMESERVER     = var.name_server
+      RFC2136_TSIG_ALGORITHM = "hmac-sha512"
+      RFC2136_TSIG_KEY       = "g10.key."
+      RFC2136_TSIG_SECRET    = var.dns_secret
+    }
+  }
+}
+
+resource "dns_a_record_set" "root_domain" {
+  zone      = "${var.dns_zone}."
+  addresses = [hcloud_server.debian_server.ipv4_address]
+  ttl       = 10
+}
+
+resource "dns_cname_record" "aliases" {
+  count = length(var.server_names)
+  zone  = "${var.dns_zone}."
+  name  = var.server_names[count.index]
+  cname = "${var.dns_zone}."
+  ttl   = 10
+}
+```
+
+```hcl [variables.tf]
+variable "hcloud_token" {
+  description = "Hetzner Cloud API token"
+  type        = string
+  nullable    = false
+  sensitive   = true
+}
+
+variable "dns_secret" {
+  description = "DNS HMAC-SHA512 key secret for DNS updates"
+  type        = string
+  nullable    = false
+  sensitive   = true
+}
+
+variable "dns_zone" {
+  description = "The base domain for DNS records"
+  type        = string
+  nullable    = false
+}
+
+variable "server_names" {
+  description = "List of subdomain names to create"
+  type        = list(string)
+  nullable    = false
+  default     = []
+}
+
+variable "name_server" {
+  description = "The DNS nameserver for ACME DNS challenges"
+  type        = string
+  nullable    = false
+}
+
+variable "email_address" {
+  description = "Email address for Let's Encrypt registration"
+  type        = string
+  nullable    = false
+}
+
+```
+:::
+
+### 2.2. Web Server Setup with Cloud-Init
+
+Use Cloud-Init to install Nginx and deploy the certificate. The `write_files` module will place the certificate and private key (generated locally by Terraform) onto the server.
+
+::: code-group
+
+```hcl [main.tf]
+# In your main.tf, prepare the user_data content
+resource "local_file" "user_data" {
+  content = templatefile("tpl/userData.yml", {
+    certificate_pem = acme_certificate.cert.certificate_pem,
+    private_key_pem = acme_certificate.cert.private_key_pem,
+    fqdn            = var.dns_zone
+  })
+  filename = "gen/userData.yml"
+}
+```
+
+```yml [tpl/userData.yml]
+#cloud-config
+users:
+  - name: ${login_user}
+    groups: [sudo]
+    shell: /bin/bash
+    sudo: ["ALL=(ALL) NOPASSWD:ALL"]
+
+package_update: true
+package_upgrade: true
+package_reboot_if_required: true
+
+packages:
+  - nginx
+
+write_files: // [!code ++:24]
+  - path: /etc/ssl/certs/live.pem
+    content: |
+      ${certificate_pem}
+  - path: /etc/ssl/private/live.key
+    content: |
+      ${private_key_pem}
+    permissions: "0600"
+  - path: /etc/nginx/sites-available/default
+    content: |
+      server {
+          listen 80 default_server;
+          listen [::]:80 default_server;
+          listen 443 ssl default_server;
+          listen [::]:443 ssl default_server;
+
+          server_name ${dns_zone} ${server_names_string};
+
+          ssl_certificate /etc/ssl/certs/live.pem;
+          ssl_certificate_key /etc/ssl/private/live.key;
+
+          root /var/www/html;
+          index index.html index.htm index.nginx-debian.html;
+      }
+
+runcmd: // [!code ++:4]
+  - systemctl enable nginx
+  - systemctl restart nginx
+  - nginx -t
+```
+
+:::
+
+### 2.3. Verification
+
+After applying the configuration, test that Nginx is running correctly (`nginx -t`) and restart it. Then, access `https://g10.sdi.hdm-stuttgart.cloud` in a browser. You may see a warning because the certificate is from the Let's Encrypt staging environment. Inspect the certificate to verify it was issued for your domains.
+
+## 3. Unified Infrastructure Deployment [Exercise 24] {#exercise-24}
+
+The final step is to combine certificate generation, DNS configuration, and server provisioning into a single, unified Terraform configuration. The examples from the previous exercises, when put together in one project, achieve this goal.
+Therefore you'll re-create this configuration with Caddy instead, which makes it a lot simpler.
+
+::: code-group
+```hcl [main.tf]
+# ... Other non-relevant resources for this exercise ...
+resource "local_file" "user_data" { // [!code focus:40]
+  content = templatefile("tpl/userData.yml", {
+    login_user          = "devops"
+    public_key_robin    = hcloud_ssh_key.user_ssh_key.public_key
+    server_names_string = join(" ", [for name in var.server_names : "${name}.${var.dns_zone}"]) // [!code --]
+    server_names_string = join(" ", concat([var.dns_zone], [for name in var.server_names : "${name}.${var.dns_zone}"])) // [!code ++]
+    dns_zone            = var.dns_zone
+    certificate_pem     = indent(6, acme_certificate.certificate.certificate_pem) // [!code --]
+    private_key_pem     = indent(6, acme_certificate.certificate.private_key_pem) // [!code --]
+  })
+  filename = "gen/userData.yml"
+}
+
+resource "acme_registration" "reg" { // [!code --:4]
+  account_key_pem = tls_private_key.host.private_key_pem
+  email_address   = var.email_address
+}
+
+resource "acme_certificate" "certificate" { // [!code --:26]
+  account_key_pem = acme_registration.reg.account_key_pem
+  common_name     = "*.${var.dns_zone}"
+  subject_alternative_names = [
+    var.dns_zone,
+  ]
+
+  dns_challenge {
+    provider = "rfc2136"
+    config = {
+      RFC2136_NAMESERVER     = var.name_server
+      RFC2136_TSIG_ALGORITHM = "hmac-sha512"
+      RFC2136_TSIG_KEY       = "g10.key."
+      RFC2136_TSIG_SECRET    = var.dns_secret
+    }
+  }
+}
+```
+
+```hcl [providers.tf]
+terraform { // [!code focus:16]
+  required_providers {
+    hcloud = {
+      source = "hetznercloud/hcloud"
+    }
+    acme = { // [!code --:3]
+      source = "vancluever/acme"
+    }
+    tls = {
+      source = "hashicorp/tls"
+    }
+    dns = {
+      source = "hashicorp/dns"
+    }
+  }
+  required_version = ">= 0.13"
+}
+
+# ... Other non-relevant providers for this exercise ...
+
+provider "acme" { // [!code focus:3] [!code --:3]
+  server_url = "https://acme-staging-v02.api.letsencrypt.org/directory"
+}
+```
+
+```yml [tpl/userData.yml]
+#cloud-config
+users:
+  - name: ${login_user}
+    groups: [sudo]
+    shell: /bin/bash
+    sudo: ["ALL=(ALL) NOPASSWD:ALL"]
+    ssh_authorized_keys:
+      - ${public_key_robin}
+
+ssh_keys:
+  ed25519_private: |
+    ${tls_private_key}
+ssh_pwauth: false
+
+package_update: true
+package_upgrade: true
+package_reboot_if_required: true
+
+packages: // [!code ++:21]
+  - caddy
+
+write_files:
+  - path: /etc/caddy/Caddyfile
+    content: |
+      {
+          acme_ca https://acme-staging-v02.api.letsencrypt.org/directory
+      }
+      
+      ${server_names_string} {
+          root * /var/www/html
+          file_server
+      }
+
+runcmd:
+  - mkdir -p /var/www/html
+  - - >
+  - echo "I'm Caddy @ $(dig -4 TXT +short o-o.myaddr.l.google.com @ns1.google.com)
+  - created $(date -u)" >> /var/www/html/index.html
+  - systemctl enable caddy
+  - systemctl restart caddy
+```
+:::
+
+This configuration creates a server with Caddy installed and configured to serve HTTPS traffic for the specified domain and subdomains. The certificate is directly created by Caddy using Let's Encrypt's HTTP-01 challenge method, which is much simpler than DNS challenges as it doesn't require programmatic DNS updates or complex RFC2136 configuration. Since Caddy handles all certificate management internally, you no longer need the ACME provider in Terraform. Caddy automatically generates certificates, validates domain ownership, and renews them when needed.

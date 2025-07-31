@@ -29,6 +29,15 @@ resource "hcloud_ssh_key" "user_ssh_key" {
   public_key = file("~/.ssh/id_ed25519.pub")
 }
 
+resource "hcloud_server" "debian_server" {
+  name         = "debian-server"
+  image        = "debian-12"
+  server_type  = "cx22"
+  firewall_ids = [hcloud_firewall.web_access_firewall.id]
+  ssh_keys     = [hcloud_ssh_key.user_ssh_key.id]
+  user_data    = local_file.user_data.content
+}
+
 resource "local_file" "user_data" {
   content = templatefile("tpl/userData.yml", {
     login_user          = "root"
@@ -41,16 +50,6 @@ resource "local_file" "user_data" {
   })
   filename = "gen/userData.yml"
 }
-
-resource "hcloud_server" "debian_server" {
-  name         = "debian-server"
-  image        = "debian-12"
-  server_type  = "cx22"
-  firewall_ids = [hcloud_firewall.web_access_firewall.id]
-  ssh_keys     = [hcloud_ssh_key.user_ssh_key.id]
-  user_data    = local_file.user_data.content
-}
-
 
 resource "acme_registration" "reg" {
   account_key_pem = tls_private_key.host.private_key_pem

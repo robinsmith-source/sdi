@@ -3,6 +3,9 @@ terraform {
     hcloud = {
       source = "hetznercloud/hcloud"
     }
+    tls = {
+      source = "hashicorp/tls"
+    }
     dns = {
       source = "hashicorp/dns"
     }

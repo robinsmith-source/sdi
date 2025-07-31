@@ -1,3 +1,7 @@
+resource "tls_private_key" "host" {
+  algorithm = "RSA"
+}
+
 resource "hcloud_firewall" "web_access_firewall" {
   name = "web-access-firewall"
   rule {
@@ -29,6 +33,7 @@ resource "local_file" "user_data" {
   content = templatefile("tpl/userData.yml", {
     login_user          = "devops"
     public_key_robin    = hcloud_ssh_key.user_ssh_key.public_key
+    tls_private_key     = indent(4, tls_private_key.host.private_key_openssh)
     server_names_string = join(" ", concat([var.dns_zone], [for name in var.server_names : "${name}.${var.dns_zone}"]))
     dns_zone            = var.dns_zone
   })
