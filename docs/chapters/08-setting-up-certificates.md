@@ -260,6 +260,7 @@ variable "email_address" {
 }
 
 ```
+
 :::
 
 ### 2.2. Web Server Setup with Cloud-Init
@@ -338,6 +339,7 @@ The final step is to combine certificate generation, DNS configuration, and serv
 Therefore you'll re-create this configuration with Caddy instead, which makes it a lot simpler.
 
 ::: code-group
+
 ```hcl [main.tf]
 # ... Other non-relevant resources for this exercise ...
 resource "local_file" "user_data" { // [!code focus:40]
@@ -417,7 +419,6 @@ ssh_keys:
   ed25519_private: |
     ${tls_private_key}
 ssh_pwauth: false
-
 package_update: true
 package_upgrade: true
 package_reboot_if_required: true
@@ -431,7 +432,7 @@ write_files:
       {
           acme_ca https://acme-staging-v02.api.letsencrypt.org/directory
       }
-      
+
       ${server_names_string} {
           root * /var/www/html
           file_server
@@ -445,6 +446,7 @@ runcmd:
   - systemctl enable caddy
   - systemctl restart caddy
 ```
+
 :::
 
 This configuration creates a server with Caddy installed and configured to serve HTTPS traffic for the specified domain and subdomains. The certificate is directly created by Caddy using Let's Encrypt's HTTP-01 challenge method, which is much simpler than DNS challenges as it doesn't require programmatic DNS updates or complex RFC2136 configuration. Since Caddy handles all certificate management internally, you no longer need the ACME provider in Terraform. Caddy automatically generates certificates, validates domain ownership, and renews them when needed.
