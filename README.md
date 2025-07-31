@@ -81,4 +81,3 @@ terraform apply
 - **Variables:** Sensitive variables (like API tokens) are loaded from `secret.auto.tfvars`.
 - **Modules:** Reusable modules are in `exercises/modules/`.
 - **Outputs:** Check `output.tf` in each exercise for useful outputs.
-
