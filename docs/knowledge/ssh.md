@@ -20,7 +20,6 @@ A background program that manages your SSH keys and passphrases. It stores decry
 A configuration file (`~/.ssh/config`) that simplifies connection management by storing connection parameters for different hosts, reducing the need to remember complex command-line options.
 :::
 
-
 ## Essential Commands <Badge type="tip" text="Core CLI" />
 
 ### Key Generation
