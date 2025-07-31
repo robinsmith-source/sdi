@@ -97,7 +97,7 @@ sftp user@remotehost
 
 ::: details Permission denied (publickey)
 
-- Check if your public key is added to remote's `~/.ssh/authorized_keys`
+- Check if your public key is added to the remote's `~/.ssh/authorized_keys`
 - Verify permissions: `~/.ssh` (700), `authorized_keys` (600), private key (600)
 - Ensure SSH agent has your key loaded: `ssh-add -l`
 - Try connecting with verbose output: `ssh -vv user@host`

@@ -1,6 +1,6 @@
 # Setting up DNS
 
-> This guide covers setting up and managing DNS records for your projects, including manual updates, automated provisioning with Terraform, and enabling HTTPS with Caddy.
+> This chapter covers setting up and managing DNS records for your projects, including manual updates, automated provisioning with Terraform, and enabling HTTPS with Caddy.
 
 ## Prerequisites
 
@@ -334,7 +334,7 @@ resource "local_file" "scp_script" {
 }
 ```
 
-````hcl [ssh-wrapper/variables.tf]
+```hcl [ssh-wrapper/variables.tf]
 variable "ipv4Address" {
   description = "The IPv4 address of the server"
   type        = string
@@ -342,6 +342,8 @@ variable "ipv4Address" {
   nullable    = true // [!code ++]
   default     = null // [!code ++]
 }
+```
+
 :::
 
 This allows you to optionally pass a hostname to the module, which will be used in the generated scripts. If no hostname is provided, it will fall back to using the server's IPv4 address.
@@ -361,7 +363,7 @@ dns_zone         = "g10.sdi.hdm-stuttgart.cloud"
 server_name = "work"
 server_aliases   = ["www", "mail"]
 server_count     = 2 // [!code ++]
-````
+```
 
 ```hcl [main.tf]
 # ... Other non-relevant resources for this exercise ...
@@ -410,7 +412,7 @@ module "ssh_wrapper" {
   login_user  = "devops"
   hostname   = "${var.server_name}.${var.dns_zone}" // [!code --]
   hostname   = "${var.server_name}-${count.index + 1}.${var.dns_zone}" // [!code ++]
-  public_key = public_key = tls_private_key.host.public_key_openssh // [!code --]
+  public_key = tls_private_key.host.public_key_openssh // [!code --]
   public_key = tls_private_key.host[count.index].public_key_openssh // [!code ++]
 }
 ```

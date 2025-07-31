@@ -67,30 +67,18 @@ caddy run --config Caddyfile
 # Certbot - Let's Encrypt
 sudo certbot --nginx -d your_domain.com -d www.your_domain.com
 
-# Check certificate transparency
-curl -s "https://crt.sh/?q=%.example.com&output=json" | jq
-
 # Test SSL configuration
 curl -I https://example.com
 ```
 
 ## Best Practices
 
-### Security
-
 - Keep private keys secure and never share them
-- Restrict access to certificate files with proper permissions (600)
-- Use strong key lengths (RSA 2048+ or ECDSA)
-- Implement automatic renewal for certificates
-- Monitor certificate expiration and transparency logs
-
-### Configuration
-
+- Use strong key lengths (RSA 2048+ or ECDSA) and proper file permissions (600)
+- Implement automatic renewal and monitor certificate expiration
 - Validate certificate chains and hostname matching
-- Use HSTS headers for additional security
-- Configure proper SSL/TLS protocols and ciphers
+- Use HSTS headers and configure proper SSL/TLS protocols
 - Set up monitoring and alerting for certificate expiration
-- Use certificate transparency monitoring
 
 ## Common Use Cases
 

@@ -65,20 +65,21 @@ dig example.com NS
 
 ### DNS Cache Management
 
-```sh
-# Flush local DNS cache (if changes aren't appearing)
-# Windows:
+::: code-group
+
+```sh [Windows]
 ipconfig /flushdns
-
-# Linux (systemd):
-sudo systemd-resolve --flush-caches
-
-# macOS:
-dscacheutil -flushcache; sudo killall -HUP mDNSResponder
-
-# Check DNS cache on Linux
-systemd-resolve --statistics
 ```
+
+```sh [Linux]
+sudo systemd-resolve --flush-caches
+```
+
+```sh [macOS]
+dscacheutil -flushcache; sudo killall -HUP mDNSResponder
+```
+
+:::
 
 ### Advanced DNS Tools
 
@@ -93,7 +94,6 @@ dig +noall +answer example.com
 # Check DNS propagation
 dig @8.8.8.8 example.com
 dig @1.1.1.1 example.com
-dig @208.67.222.222 example.com
 
 # Reverse DNS lookup
 dig -x 8.8.8.8
@@ -101,28 +101,11 @@ dig -x 8.8.8.8
 
 ## Best Practices
 
-### DNS Configuration
-
 - Use low TTL for testing, higher for production
-- Double-check record syntax and values
-- Verify DNS records with multiple tools and online services
-- Document your DNS setup and changes
-- Use appropriate record types for their intended purpose
-
-### Security and Performance
-
-- Implement DNSSEC for security
-- Use multiple nameservers for redundancy
-- Monitor DNS propagation and performance
-- Set up DNS monitoring and alerting
-- Use CDN services for improved performance
-
-### Email Configuration
-
-- Configure proper MX records for email delivery
-- Set up SPF, DKIM, and DMARC records
-- Use dedicated subdomains for email services
-- Monitor email deliverability
+- Verify DNS records with multiple tools and document changes
+- Monitor DNS propagation and set up alerting
+- Configure proper MX records and email security (SPF, DKIM, DMARC)
+- Implement DNSSEC and use multiple nameservers for redundancy
 
 ## Common Use Cases
 
@@ -136,7 +119,7 @@ dig -x 8.8.8.8
 ## Troubleshooting <Badge type="warning" text="Common Issues" />
 
 ::: details DNS Not Resolving
-Check typos, authoritative nameservers, query different DNS servers, and check propagation status. Verify domain registration and nameserver configuration.
+Check for typos, authoritative nameservers, query different DNS servers, and check propagation status. Verify domain registration and nameserver configuration.
 :::
 
 ::: details Email Delivery Issues

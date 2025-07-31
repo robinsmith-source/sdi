@@ -20,7 +20,7 @@ For comprehensive information about Cloud-Init concepts, see [Cloud-Init Concept
 
 ## 1. Automatic Nginx Installation with `user_data` [Exercise 12] {#exercise-12}
 
-In this exercise, you will use a `user_data` field in Terraform to pass a bash script to your server. This script will automatically install, start, and enable the Nginx web server upon the server's first boot.
+In this exercise, you will use the `user_data` field in Terraform to pass a bash script to your server. This script will automatically install, start, and enable the Nginx web server upon the server's first boot.
 
 ### 1.1 Creating the Initialization Script
 
@@ -90,7 +90,7 @@ In this multi-part exercise, you will incrementally build a robust server config
 
 ### 2.1 Creating a Simple Web Server
 
-First, you'll have to extend the firewall to allow inbound traffic on `port 80`, like you did in [Exercise 12](/chapters/04-server-initialization#_1-automatic-nginx-installation-with-user_data-exercise-12).
+First, you'll need to extend the firewall to allow inbound traffic on `port 80`, as you did in [Exercise 12](/chapters/04-server-initialization#_1-automatic-nginx-installation-with-user_data-exercise-12).
 
 ```hcl [main.tf]
 resource "hcloud_firewall" "ssh_firewall" { // [!code --]
@@ -111,7 +111,7 @@ resource "hcloud_firewall" "web_access_firewall" { // [!code ++]
 }
 ```
 
-You will also have to extend the Terraform configuration to use the following cloud-init configuration.
+You will also need to extend the Terraform configuration to use the following cloud-init configuration.
 
 ::: code-group
 

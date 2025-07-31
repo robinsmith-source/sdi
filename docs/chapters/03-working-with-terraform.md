@@ -15,7 +15,7 @@ Before you begin, ensure you have:
 For more in-depth information about Terraform and infrastructure as code:
 
 - [Terraform Documentation](https://developer.hashicorp.com/terraform/docs)
-- [Terraform Core-Workflow](https://developer.hashicorp.com/terraform/intro/core-workflow)
+- [Terraform Core Workflow](https://developer.hashicorp.com/terraform/intro/core-workflow)
 - [Hetzner Cloud Provider Documentation](https://registry.terraform.io/providers/hetznercloud/hcloud/latest/docs)
 
 ::: tip
@@ -24,8 +24,7 @@ For comprehensive information about Terraform concepts, see [Terraform Concepts]
 
 ## 1. Install Terraform
 
-Before you begin, you need to install Terraform. Follow the official installation guide for your operating system on
-the [Terraform website](https://developer.hashicorp.com/terraform/downloads).
+Before you begin, you need to install Terraform. Follow the official installation guide for your operating system on the [Terraform website](https://developer.hashicorp.com/terraform/downloads).
 
 ## 2. Obtain a Hetzner Cloud API Token
 
@@ -36,13 +35,11 @@ To allow Terraform to interact with your Hetzner Cloud account, you need to gene
 3. Navigate to "Security" -> "API Tokens".
 4. Click "Generate API Token".
 5. Enter a descriptive name for the token and click "Generate API Token".
-6. **Crucially, copy the generated token's value immediately.** This token is only shown once and cannot be retrieved
-   later. Store it securely, for example, in a password manager.
+6. **Crucially, copy the generated token's value immediately.** This token is only shown once and cannot be retrieved later. Store it securely, for example, in a password manager.
 
-## 3. Terraform Introduction and Basic Configuration [Exercise 11] {exercise-11}
+## 3. Terraform Introduction and Basic Configuration [Exercise 11] {#exercise-11}
 
-Terraform uses configuration files to define the infrastructure you want to manage. These files are written in HashiCorp
-Configuration Language (`HCL`). Let's start with a basic configuration to create a simple server.
+Terraform uses configuration files to define the infrastructure you want to manage. These files are written in HashiCorp Configuration Language (`HCL`). Let's start with a basic configuration to create a simple server.
 
 ::: info
 This basic configuration will create a minimal server without security features. You'll enhance it in later sections.
@@ -86,8 +83,7 @@ Hardcoding the API token directly in `main.tf` is not recommended for security r
 
 ## 4. Creating and Managing the Server
 
-For a list of essential Terraform commands and their explanations, refer to
-our [Terraform Commands Knowledge Page](/knowledge/terraform). The basic workflow involves:
+For a list of essential Terraform commands and their explanations, refer to our [Terraform Commands Knowledge Page](/knowledge/terraform). The basic workflow involves:
 
 1. **`terraform init`** - Initialize the working directory
 2. **`terraform plan`** - Preview changes before applying
@@ -96,13 +92,11 @@ our [Terraform Commands Knowledge Page](/knowledge/terraform). The basic workflo
 
 ## 5. Improving the Server Configuration
 
-The basic configuration you created has several limitations, including hardcoded secrets and lack of essential security features such as
-firewalls and SSH key access. Let's address these issues step by step.
+The basic configuration you created has several limitations, including hardcoded secrets and lack of essential security features such as firewalls and SSH key access. Let's address these issues step by step.
 
 ### 5.1 Securely Storing the API Token
 
-Storing secrets such as API tokens directly in your configuration files is insecure, especially if you use version control.
-Terraform variables provide a secure way to handle sensitive data. Let's move the API token to a separate variable file.
+Storing secrets such as API tokens directly in your configuration files is insecure, especially if you use version control. Terraform variables provide a secure way to handle sensitive data. Let's move the API token to a separate variable file.
 
 1. Create a new file named `variables.tf` in the same directory:
 
@@ -134,8 +128,7 @@ provider "hcloud" {
 }
 ```
 
-This defines the used providers and the required version of Terraform.
-It also tells the `hcloud` provider to use the value of the `hcloud_token` variable for authentication.
+This defines the used providers and the required version of Terraform. It also tells the `hcloud` provider to use the value of the `hcloud_token` variable for authentication.
 
 3. Create a file named `secret.auto.tfvars` in the same directory:
 
@@ -152,16 +145,14 @@ $env:TF_VAR_hcloud_token="YOUR_API_TOKEN"
 :::
 
 ::: warning
-Do not version this `secret.auto.tfvars` file. Make sure to add the line `**/secret.auto.tfvars` to your `.gitignore` to
-ignore all occurrences of this file.
+Do not version this `secret.auto.tfvars` file. Make sure to add the line `**/secret.auto.tfvars` to your `.gitignore` to ignore all occurrences of this file.
 :::
 
 ### 5.2 Adding a Firewall
 
 Firewalls are essential for securing your server by controlling incoming and outgoing traffic. Let's add a firewall that allows SSH access while blocking other traffic.
 
-1. Add the following resource block to your `main.tf` to define a firewall that allows SSH access (port `22` TCP) from
-   anywhere:
+1. Add the following resource block to your `main.tf` to define a firewall that allows SSH access (port `22` TCP) from anywhere:
 
 ::: code-group
 
@@ -179,8 +170,7 @@ resource "hcloud_firewall" "ssh_firewall" {
 
 :::
 
-2. Associate the firewall with your server resource by adding the `firewall_ids` argument within the `hcloud_server`
-   resource block in `main.tf`:
+2. Associate the firewall with your server resource by adding the `firewall_ids` argument within the `hcloud_server` resource block in `main.tf`:
 
 ::: code-group
 
@@ -199,8 +189,7 @@ resource "hcloud_server" "debian_server" {
 
 Adding SSH keys allows you to securely log in to your server without using passwords. This is more secure than password-based authentication.
 
-1. Add a resource block for each SSH key you want to add to `main.tf`. If needed, adjust the `name` and `public_key`
-   values accordingly:
+1. Add a resource block for each SSH key you want to add to `main.tf`. If needed, adjust the `name` and `public_key` values accordingly:
 
 ::: code-group
 
@@ -213,8 +202,7 @@ resource "hcloud_ssh_key" "user_ssh_key" {
 
 :::
 
-2. Associate the SSH keys with your server resource by adding the `ssh_keys` argument within the `hcloud_server`
-   resource block in `main.tf`. If you have multiple keys, separate their IDs with commas.
+2. Associate the SSH keys with your server resource by adding the `ssh_keys` argument within the `hcloud_server` resource block in `main.tf`. If you have multiple keys, separate their IDs with commas.
 
 ::: code-group
 
@@ -232,8 +220,7 @@ resource "hcloud_server" "debian_server" {
 
 ### 5.4 Terraform Output
 
-Terraform outputs allow you to easily retrieve information about your created resources after applying the
-configuration. This is useful for getting the server's IP address and other important details.
+Terraform outputs allow you to easily retrieve information about your created resources after applying the configuration. This is useful for getting the server's IP address and other important details.
 
 1. Create a new file named `outputs.tf` in the same directory:
 

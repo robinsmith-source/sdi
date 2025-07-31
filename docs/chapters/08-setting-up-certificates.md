@@ -1,4 +1,4 @@
-# Setting up Certificates
+# Setting Up Certificates
 
 > This guide covers SSL/TLS certificate management with Terraform and the ACME provider, including automated certificate generation, DNS challenges, and web server deployment with proper certificate configuration.
 
@@ -17,7 +17,7 @@ Before you begin, ensure you have:
 - [Nginx SSL Configuration](https://nginx.org/en/docs/http/configuring_https_servers.html)
 
 ::: tip
-For comprehensive information about Certificate concepts, see [Certificate Concepts](/knowledge/certificates).
+For comprehensive information about certificate concepts, see [Certificate Concepts](/knowledge/certificates).
 :::
 
 ## 1. Automating Certificate Generation with Terraform
@@ -43,12 +43,11 @@ You can switch to the production URL once you have verified your configuration a
 
 ```hcl
 provider "acme" {
-    server_url = "https://acme-v02.api.letsencrypt.org/directory
+    server_url = "https://acme-v02.api.letsencrypt.org/directory"
 }
-
-This will also remove the browser warning with untrusted certificates.
 ```
 
+This will also remove the browser warning with untrusted certificates.
 :::
 
 ::: danger Provider Version
@@ -258,7 +257,6 @@ variable "email_address" {
   type        = string
   nullable    = false
 }
-
 ```
 
 :::
@@ -335,8 +333,7 @@ After applying the configuration, test that Nginx is running correctly (`nginx -
 
 ## 3. Unified Infrastructure Deployment [Exercise 24] {#exercise-24}
 
-The final step is to combine certificate generation, DNS configuration, and server provisioning into a single, unified Terraform configuration. The examples from the previous exercises, when put together in one project, achieve this goal.
-Therefore you'll re-create this configuration with Caddy instead, which makes it a lot simpler.
+The final step is to combine certificate generation, DNS configuration, and server provisioning into a single, unified Terraform configuration. The examples from the previous exercises, when put together in one project, achieve this goal. Therefore, you'll recreate this configuration with Caddy instead, which makes it much simpler.
 
 ::: code-group
 

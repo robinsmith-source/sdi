@@ -10,7 +10,7 @@ Before you begin, ensure you have:
 - At least one server created in the Hetzner Cloud Console.
 - For X11 forwarding exercises (if applicable):
   - macOS: XQuartz installed
-  - Windows: Windows Terminal already provides needed utilities
+  - Windows: Windows Terminal already provides the needed utilities
   - Linux: X11 server already included
 
 ## External Resources
@@ -50,7 +50,7 @@ The port field is left empty because ICMP is a protocol that doesn't use ports.
 1. In the left-hand navigation panel, select `Security`, then click `SSH Keys`.
 2. Add your public SSH key to your Hetzner account, marking it as "default" and giving it a descriptive name.
 
-::: details How to retrieve my public SSH key?
+::: details How do I retrieve my public SSH key?
 
 ```sh
 cat ~/.ssh/id_ed25519.pub
@@ -70,7 +70,7 @@ The subsequent examples assume a `167.235.54.109` server IP.
 
 ### 1.4 Testing Connectivity
 
-1. **Try to ping your server**:
+1. **Try to ping your server:**
 
    ```sh
    ping 167.235.54.109
@@ -81,14 +81,14 @@ The subsequent examples assume a `167.235.54.109` server IP.
 
 2. **Due to your firewall rule, SSH access should fail** initially, because of the missing SSH rule in the deny-all firewall.
 
-3. **After adding the SSH rule, SSH password-less access should work**:
+3. **After adding the SSH rule, passwordless SSH access should work:**
    ```sh
    ssh root@167.235.54.109
    ```
 
 ### 1.5 Server Setup and Testing
 
-1. **Update and reboot your server**:
+1. **Update and reboot your server:**
 
    ```sh
    root@gtest3:~# apt update
@@ -97,13 +97,13 @@ The subsequent examples assume a `167.235.54.109` server IP.
    root@gtest3:~# reboot
    ```
 
-2. **Install the Nginx web server**:
+2. **Install the Nginx web server:**
 
    ```sh
    root@gtest3:~# apt install nginx
    ```
 
-3. **Check for the running process**:
+3. **Check for the running process:**
 
    ```sh
    root@gtest3:~# systemctl status nginx
@@ -112,7 +112,7 @@ The subsequent examples assume a `167.235.54.109` server IP.
         Active: active (running) since Tue 2024-06-04 08:24:57 UTC; 1min 31s ago
    ```
 
-4. **Use an SSH connection to access the server and verify HTTP (port 80) accessibility from your server**:
+4. **Use an SSH connection to access the server and verify HTTP (port 80) accessibility from your server:**
 
    ```sh
    # ssh root@167.235.54.109
@@ -132,18 +132,18 @@ The subsequent examples assume a `167.235.54.109` server IP.
    </html>
    ```
 
-5. **Try external access using http://167.235.54.109 again in your browser of choice**.
+5. **Try external access using http://167.235.54.109 again in your browser of choice.**
 
 ::: details Why does external access fail although local access from the server itself works?
 
 The external access fails because the firewall is blocking all traffic except for the SSH rule.
 :::
 
-6. **Modify your firewall by adding an inbound HTTP traffic rule and try again accessing http://167.235.54.109 in your browser**.
+6. **Modify your firewall by adding an inbound HTTP traffic rule and try again accessing http://167.235.54.109 in your browser.**
 
-::: details How to modify the firewall?
+::: details How do I modify the firewall?
 
-1. On the left-hand side, select `Firewalls`, then click on the `Edit` button for the firewall you want to modify (in this case the one you created in the previous exercise).
+1. On the left-hand side, select `Firewalls`, then click on the `Edit` button for the firewall you want to modify (in this case, the one you created in the previous exercise).
 2. Add a new rule with the following settings:
 
 | IP Version          | Protocol | Port |
@@ -153,6 +153,7 @@ The external access fails because the firewall is blocking all traffic except fo
 3. Click on the `Save` button to apply the changes.
 
 You should now be able to access the server from the outside using a web browser pointing to the server's IP address.
+:::
 
 ## 2. SSH Agent Installation [Exercise 4] {#exercise-4}
 
@@ -197,11 +198,11 @@ In this exercise, you will configure SSH access to GitLab repositories, which is
 
 1. **Read the [GitLab SSH documentation](https://docs.gitlab.com/ee/user/ssh.html)** to understand SSH key configuration.
 2. **Add your public SSH key** (the one whose private counterpart is managed by `ssh-agent`) to your MI GitLab profile.
-3. **Clone a project using SSH**:
+3. **Clone a project using SSH:**
    ```sh
    git clone git@gitlab.mi.hdm-stuttgart.de:your-group/your-project.git
    ```
-4. **Test Git operations**: Try `git push` and `git pull` operations. These should proceed without prompting for your SSH key passphrase, thanks to `ssh-agent`.
+4. **Test Git operations:** Try `git push` and `git pull` operations. These should proceed without prompting for your SSH key passphrase, thanks to `ssh-agent`.
 
 ::: info
 This SSH configuration is also applicable for GitHub and other Git hosting services. You can find more information in the [GitHub SSH key guide](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account).
@@ -211,13 +212,13 @@ This SSH configuration is also applicable for GitHub and other Git hosting servi
 
 In this exercise, you will learn about SSH agent forwarding, which allows you to access a `Host B` that is only reachable through `Host A`. This is a common scenario in enterprise networks where servers are in restricted subnets.
 
-1. **Create two hosts A and B** with SSH key access being enabled for both of your group.
-2. **Enable agent forwarding** from your local workstation to `host A`.
-3. **Login to `host A`** by SSH.
-4. **Continue login to `host B`**.
-5. **Close both connections**, thus getting back to your workstation.
-6. **Login to `host B`**.
-7. **Still on B, try logging in to Host A**.
+1. **Create two hosts A and B** with SSH key access enabled for both of your group.
+2. **Enable agent forwarding** from your local workstation to `Host A`.
+3. **Login to `Host A`** by SSH.
+4. **Continue login to `Host B`**.
+5. **Close both connections**, thus returning to your workstation.
+6. **Login to `Host B`**.
+7. **While on B, try logging in to Host A**.
 
 ### 4.1 Understanding the Problem
 
@@ -273,11 +274,11 @@ The connection from `learn` to `klausur` should succeed without a passphrase pro
 
 In this exercise, you will learn about SSH tunneling (port forwarding), which allows you to securely access services on a remote server even when direct access is blocked by firewalls.
 
-1. **Create a server** like in [Exercise 3](#exercise-3).
+1. **Create a server** as in [Exercise 3](#exercise-3).
 2. **Check for Nginx accessibility** by visiting your server's IP in a web browser.
 3. **Configure your firewall** to allow SSH access only (remove any HTTP rules from the firewall).
 4. **Nginx should no longer be accessible** from external sources.
-5. **Forward port 80 of your remote host to port 2000 on your local workstation**:
+5. **Forward port 80 of your remote host to port 2000 on your local workstation:**
    ```sh
    ssh -L 2000:localhost:80 root@YOUR_SERVER_IP
    ```
@@ -297,26 +298,26 @@ The `-L 2000:localhost:80` parameter means:
 
 In this exercise, you will learn about X11 forwarding, which allows you to run graphical applications on a remote server and display them on your local machine.
 
-1. **Create a server** like in [Exercise 3](#exercise-3).
+1. **Create a server** as in [Exercise 3](#exercise-3).
 2. **Check for Nginx accessibility** by visiting your server's IP in a web browser.
 3. **Configure your firewall** to allow SSH access only.
 4. **Nginx should no longer be accessible** from external sources.
-5. **Access your remote host and install the xauth package**:
+5. **Access your remote host and install the xauth package:**
    ```sh
    apt install xauth
    ```
-6. **Re-login to your remote host using SSH's -Y option for X11 forwarding**:
+6. **Re-login to your remote host using SSH's -Y option for X11 forwarding:**
    ```sh
    ssh -Y root@YOUR_SERVER_IP
    ```
    ::: tip
    Unless you are on Linux, you may need to install an X11 server locally (e.g., XQuartz on macOS).
    :::
-7. **Install the Firefox browser on your remote server**:
+7. **Install the Firefox browser on your remote server:**
    ```sh
    apt install firefox-esr
    ```
-8. **Execute the Firefox browser on your remote host, connecting the GUI to your local desktop**:
+8. **Execute the Firefox browser on your remote host, connecting the GUI to your local desktop:**
 
    ```sh
    firefox-esr &

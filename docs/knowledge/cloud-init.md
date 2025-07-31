@@ -29,7 +29,7 @@ Cloud-init operates through modules, each responsible for a specific configurati
   :::
 
 ::: details Execution Stages
-Cloud-init runs tasks in specific stages during the boot process (network, config, final). Understanding the order can be important for dependencies (e.g., ensuring network is up before downloading a file).
+Cloud-init runs tasks in specific stages during the boot process (network, config, final). Understanding the order can be important for dependencies (e.g., ensuring the network is up before downloading a file).
 :::
 
 ::: details Vendor Data

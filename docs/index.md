@@ -16,7 +16,7 @@ hero:
 features:
   - icon: 🚀
     title: Cloud Setup
-    details: Get your Hetzner Cloud environment running
+    details: Set up your Hetzner Cloud environment
     link: /chapters/01-hetzner-cloud
   - icon: 🔐
     title: SSH & Access
@@ -32,7 +32,7 @@ features:
     link: /knowledge/volumes
   - icon: 🌐
     title: DNS & Networking
-    details: Set up domains and network configuration
+    details: Set up domains and network configurations
     link: /knowledge/dns
   - icon: 📜
     title: Certificate Management
@@ -42,7 +42,7 @@ features:
 
 ## Exercise Overview
 
-Below is a comprehensive list of exercises, linked directly to their respective documentation chapters for easy navigation.
+Below is a comprehensive list of exercises, each linked directly to its respective documentation chapter for easy navigation.
 
 | Exercise Title                                           | Documentation Chapter                                                        |
 | :------------------------------------------------------- | :--------------------------------------------------------------------------- |
@@ -59,12 +59,12 @@ Below is a comprehensive list of exercises, linked directly to their respective 
 | 13. Working on Cloud-init                                | [Server Initialization](./chapters/04-server-initialization#exercise-13)     |
 | 14. Solving the ~/.ssh/known_hosts quirk                 | [Server Initialization](./chapters/04-server-initialization#exercise-14)     |
 | 15. Partitions and mounting                              | [Attaching Volumes](./chapters/05-attaching-volumes#exercise-15)             |
-| 16. Mount point's name specification                     | [Attaching Volumes](./chapters/05-attaching-volumes#exercise-16)             |
-| 17. A module for ssh host key handling                   | [Terraform Modules](./chapters/06-terraform-modules#exercise-17)             |
-| 18. Enhancing your web server.                           | [Setting up DNS](./chapters/07-setting-up-dns#exercise-18)                   |
-| 19. Creating DNS records                                 | [Setting up DNS](./chapters/07-setting-up-dns#exercise-19)                   |
-| 20. Creating a host with corresponding DNS entries       | [Setting up DNS](./chapters/07-setting-up-dns#exercise-20)                   |
-| 21. Creating a fixed number of servers                   | [Setting up DNS](./chapters/07-setting-up-dns#exercise-21)                   |
-| 22. Creating a web certificate                           | [Setting up Certificates](./chapters/08-setting-up-certificates#exercise-22) |
-| 23. Testing your web certificate                         | [Setting up Certificates](./chapters/08-setting-up-certificates#exercise-23) |
-| 24. Combining certificate generation and server creation | [Setting up Certificates](./chapters/08-setting-up-certificates#exercise-24) |
+| 16. Mount point name specification                       | [Attaching Volumes](./chapters/05-attaching-volumes#exercise-16)             |
+| 17. A module for SSH host key handling                   | [Terraform Modules](./chapters/06-terraform-modules#exercise-17)             |
+| 18. Enhancing your web server                            | [Setting Up DNS](./chapters/07-setting-up-dns#exercise-18)                   |
+| 19. Creating DNS records                                 | [Setting Up DNS](./chapters/07-setting-up-dns#exercise-19)                   |
+| 20. Creating a host with corresponding DNS entries       | [Setting Up DNS](./chapters/07-setting-up-dns#exercise-20)                   |
+| 21. Creating a fixed number of servers                   | [Setting Up DNS](./chapters/07-setting-up-dns#exercise-21)                   |
+| 22. Creating a web certificate                           | [Setting Up Certificates](./chapters/08-setting-up-certificates#exercise-22) |
+| 23. Testing your web certificate                         | [Setting Up Certificates](./chapters/08-setting-up-certificates#exercise-23) |
+| 24. Combining certificate generation and server creation | [Setting Up Certificates](./chapters/08-setting-up-certificates#exercise-24) |

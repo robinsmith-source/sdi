@@ -1,6 +1,6 @@
 # Terraform Modules
 
-> This guide covers creating and using Terraform modules to organize and reuse infrastructure code. It demonstrates a practical example of building a reusable module for generating SSH helper scripts.
+> This chapter covers creating and using Terraform modules to organize and reuse infrastructure code. It demonstrates a practical example of building a reusable module for generating SSH helper scripts.
 
 ## Prerequisites
 
@@ -84,7 +84,7 @@ ssh -o UserKnownHostsFile="$GEN_DIR/known_hosts" ${user}@${ip} "$@"
 
 ### 2.3. Implementing the Module
 
-Now, define the module's input variables and the resources it will create. The module will take the server's IPv4 address, the user's public key and optionally a user to log on to the machine.This module will generate a `known_hosts` file along with the executable wrapper scripts (`scp.sh` and `ssh.sh`).
+Now, define the module's input variables and the resources it will create. The module will take the server's IPv4 address, the user's public key, and optionally a user to log on to the machine. This module will generate a `known_hosts` file along with the executable wrapper scripts (`scp.sh` and `ssh.sh`).
 
 ::: code-group
 

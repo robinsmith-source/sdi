@@ -1,6 +1,6 @@
 # Attaching and Mounting Volumes
 
-> This chapter covers the management of external block storage volumes with Terraform and Cloud-Init. You will learn how to attach a volume, partition it, create file systems, and manage mount points—first manually to understand the process, and then fully automating it for a robust, declarative infrastructure.
+> This chapter covers the management of external block storage volumes with Terraform and Cloud-Init. You will learn how to attach a volume, partition it, create file systems, and manage mount points—first manually to understand the process, and then fully automate it for a robust, declarative infrastructure.
 
 ## Prerequisites
 
@@ -78,46 +78,46 @@ The volume will become available only after a system reboot.
 
 After rebooting, SSH into your server. The volume will be attached (e.g., at `/dev/sdb`), but you will create your own partitions.
 
-1.  **Identify the volume**: Use `lsblk` or `df -h` to find your attached volume. The auto-mounted volume appears under a path like `/mnt/HC_Volume_<VOLUME_ID>`.
-2.  **Unmount the auto-mounted volume**: `sudo umount /mnt/HC_Volume_<VOLUME_ID>`
+1.  **Identify the volume:** Use `lsblk` or `df -h` to find your attached volume. The auto-mounted volume appears under a path like `/mnt/HC_Volume_<VOLUME_ID>`.
+2.  **Unmount the auto-mounted volume:** `sudo umount /mnt/HC_Volume_<VOLUME_ID>`
     ::: tip
-    You can't use `umount` while you're in the volume. Because it appears as busy target.
+    You can't use `umount` while you're in the volume. Because it appears as a busy target.
     :::
-3.  **Create two partitions**: Use `sudo fdisk /dev/sdb` to create two new primary partitions (e.g., `/dev/sdb1` and `/dev/sdb2`).
-4.  **Format the partitions**: Create an `ext4` and a `xfs` file system.
+3.  **Create two partitions:** Use `sudo fdisk /dev/sdb` to create two new primary partitions (e.g., `/dev/sdb1` and `/dev/sdb2`).
+4.  **Format the partitions:** Create an `ext4` and an `xfs` file system.
     ```sh
     sudo mkfs -t ext4 /dev/sdb1
     sudo mkfs -t xfs /dev/sdb2
     ```
-5.  **Create mount points**: `sudo mkdir /disk1 /disk2`
-6.  **Mount manually**: Mount the first partition by its device name and the second by its UUID.
+5.  **Create mount points:** `sudo mkdir /disk1 /disk2`
+6.  **Mount manually:** Mount the first partition by its device name and the second by its UUID.
     ```sh
     sudo mount /dev/sdb1 /disk1
     # Get the UUID for the second partition
     UUID=$(sudo blkid -s UUID -o value /dev/sdb2)
     sudo mount UUID=$UUID /disk2
     ```
-7.  **Test**: Create a file in `/disk1`, then `umount` both partitions and see the file disappear.
+7.  **Test:** Create a file in `/disk1`, then `umount` both partitions and see the file disappear.
 
 ### 1.3 Persistent Mounting with `fstab`
 
 To make the mounts survive a reboot, you must add them to `/etc/fstab`.
 
-1.  **Edit `/etc/fstab`**: `sudo vim /etc/fstab`
-2.  **Add entries**: Add lines for both partitions. Use the device name for the first and the UUID for the second.
+1.  **Edit `/etc/fstab`:** `sudo vim /etc/fstab`
+2.  **Add entries:** Add lines for both partitions. Use the device name for the first and the UUID for the second.
     ```text
     # <file system> <mount point>   <type>  <options>       <dump>  <pass>
     /dev/sdb1       /disk1          ext4    defaults,nofail 0       2
     UUID=<YOUR_SDB2_UUID> /disk2    xfs    defaults,nofail 0       2
     ```
-3.  **Test the configuration**: The command `sudo mount -a` reads `/etc/fstab` and mounts all filesystems not already mounted. Both `/disk1` and `/disk2` should now be mounted.
-4.  **Verify**: Reboot the server. After it comes back online, both partitions should be mounted automatically.
+3.  **Test the configuration:** The command `sudo mount -a` reads `/etc/fstab` and mounts all filesystems not already mounted. Both `/disk1` and `/disk2` should now be mounted.
+4.  **Verify:** Reboot the server. After it comes back online, both partitions should be mounted automatically.
 
 ## 2. Defining a Custom Mount Point [Exercise 16] {#exercise-16}
 
-In this exercise, you will de-couple the server and volume creation to gain full control over the mounting process. Instead of relying on `automount`, you will use Cloud-Init to format the volume and mount it to a specific, user-defined path like `/volume01`.
+In this exercise, you will decouple the server and volume creation to gain full control over the mounting process. Instead of relying on `automount`, you will use Cloud-Init to format the volume and mount it to a specific, user-defined path like `/volume01`.
 
-### 2.1 De-coupling Server and Volume
+### 2.1 Decoupling Server and Volume
 
 Modify your Terraform configuration to create the volume and server independently, then attach them with `automount = false`.
 
@@ -200,10 +200,10 @@ After running `terraform apply`, SSH into your server and run `df -h`. You shoul
 
 The key difference in this exercise is the use of the volume ID to dynamically identify the correct device path:
 
-1. **Volume Identification**: The command `/bin/ls /dev/disk/by-id/*${volId}` finds the device path associated with your specific volume ID
-2. **Custom Mount Point**: Instead of using Hetzner's default `/mnt/HC_Volume_<ID>` path, you create your own `/volume01` directory
-3. **Persistent Mounting**: The entry in `/etc/fstab` ensures the volume mounts automatically on every boot
-4. **System Integration**: `systemctl daemon-reload` ensures systemd recognizes the new mount configuration
+1. **Volume Identification:** The command `/bin/ls /dev/disk/by-id/*${volId}` finds the device path associated with your specific volume ID.
+2. **Custom Mount Point:** Instead of using Hetzner's default `/mnt/HC_Volume_<ID>` path, you create your own `/volume01` directory.
+3. **Persistent Mounting:** The entry in `/etc/fstab` ensures the volume mounts automatically on every boot.
+4. **System Integration:** `systemctl daemon-reload` ensures systemd recognizes the new mount configuration.
 
 ::: tip
 When creating custom mount points, consider using descriptive names that reflect the volume's purpose (e.g., `/data`, `/backups`, `/logs`) rather than generic names like `/volume01`.
