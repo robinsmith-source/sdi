@@ -1,15 +1,6 @@
-# Terraform <Badge type="info" text="IaC" />
+# Terraform
 
 > Terraform is a powerful Infrastructure as Code (IaC) tool by HashiCorp. It allows you to define, provision, and manage cloud and on-prem infrastructure using a declarative configuration language called HCL (HashiCorp Configuration Language).
-
-::: info Purpose
-Terraform enables:
-
-- Declarative, version-controlled infrastructure
-- Automation and repeatability
-- Multi-cloud and hybrid-cloud management
-- Collaboration and reusability via modules
-  :::
 
 ## Core Concepts {#core-concepts}
 
@@ -98,7 +89,3 @@ terraform destroy -auto-approve
 - Check for resource naming conflicts
 - Review error messages for hints
   :::
-
----
-
-For deeper dives, consult the official [HashiCorp Terraform Documentation](https://developer.hashicorp.com/terraform/docs).

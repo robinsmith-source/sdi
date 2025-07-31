@@ -1,115 +1,156 @@
-# DNS <Badge type="info" text="Networking" />
+# DNS
 
-> The Domain Name System (DNS) is the backbone of the internet, translating human-friendly domain names into IP addresses that computers use to communicate.
-
-::: info Purpose
-DNS enables:
-
-- Easy-to-remember names for internet resources
-- Decoupling of service names from physical infrastructure
-- Load balancing, redundancy, and service discovery
-  :::
+> The Domain Name System (DNS) translates human-friendly website names (like `google.com`) into numerical IP addresses (like `172.217.160.142`) that computers use to find each other. It's the internet's phonebook, making it possible to reach websites by name.
 
 ## Core Concepts {#core-concepts}
 
-### What is DNS?
+DNS is a distributed system that maps domain names to IP addresses, allowing access to online services using names instead of numbers. It's a hierarchical, decentralized naming system that forms the backbone of internet navigation.
 
-DNS is a distributed, hierarchical system that maps domain names (like `example.com`) to IP addresses. It acts as the internet's phonebook, allowing users to access websites and services using names instead of numbers.
+### Key Concepts Explained
 
-### How DNS Works
+::: details DNS Resolution Process
 
-1. **User Request:** You enter a domain name in your browser.
-2. **Recursive Resolver:** Your device queries a DNS resolver (often provided by your ISP).
-3. **Root Servers:** If the resolver doesn't know the answer, it asks a root DNS server for the TLD (e.g., `.com`).
-4. **TLD Servers:** The resolver asks the TLD server for the authoritative server for the domain.
-5. **Authoritative Server:** The resolver queries the authoritative server, which returns the IP address.
-6. **Response:** The resolver sends the IP address back to your device, which connects to the website.
+1. **Request**: You enter a domain name in your browser
+2. **Resolver Query**: Your computer asks a DNS resolver (e.g., from your ISP)
+3. **Server Search**: The resolver queries root, TLD, and authoritative DNS servers
+4. **Connection**: The IP address is returned and your computer connects to the website
+   :::
 
-### Record Types
+::: details Common DNS Record Types
 
-- **A:** Maps a domain to an IPv4 address
-- **AAAA:** Maps a domain to an IPv6 address
-- **CNAME:** Points one domain to another domain (alias)
-- **MX:** Specifies mail servers for a domain
-- **TXT:** Stores arbitrary text (e.g., SPF, DKIM)
-- **NS:** Indicates authoritative nameservers for the domain
-- **SOA:** Start of Authority; contains zone information
-- **PTR:** Used for reverse DNS (IP to name)
-- **SRV:** Specifies services available in the domain
+- **A Record**: Maps a domain to an IPv4 address
+- **AAAA Record**: Maps a domain to an IPv6 address
+- **CNAME Record**: Points one domain to another (an alias)
+- **MX Record**: Specifies mail servers for a domain
+- **TXT Record**: Stores arbitrary text (e.g., for email security like SPF, DKIM)
+- **NS Record**: Indicates authoritative nameservers for the domain
+- **SOA Record**: Contains administrative information about a DNS zone
+- **PTR Record**: Used for reverse DNS (IP to name translation)
+- **SRV Record**: Specifies the location of specific services
+  :::
 
-::: tip TTL & Propagation
+::: details DNS Concepts
 
-- **TTL (Time To Live):** How long a DNS record is cached by resolvers and clients
-- **Propagation:** DNS changes may take time to spread due to caching
+- **TTL (Time To Live)**: How long DNS records are cached by resolvers
+- **Propagation**: Time for DNS changes to update worldwide (minutes to 48 hours)
+- **Zone**: A portion of the DNS namespace managed by a specific organization
+- **Nameserver**: A server that contains DNS records for a domain
   :::
 
 ## Essential Commands <Badge type="tip" text="Core CLI" />
 
+### DNS Query Commands
+
 ```sh
 # Query A record for a domain
 dig example.com A
+
 # Query all records for a domain
 dig example.com ANY
+
 # Query a specific nameserver
 dig @8.8.8.8 example.com
+
 # Use nslookup (alternative)
 nslookup example.com
+
 # Use host (lightweight)
 host example.com
+
+# Query with specific record type
+dig example.com MX
+dig example.com TXT
+dig example.com NS
 ```
 
+### DNS Cache Management
+
 ```sh
-# Windows: Flush DNS cache
+# Flush local DNS cache (if changes aren't appearing)
+# Windows:
 ipconfig /flushdns
+
 # Linux (systemd):
 sudo systemd-resolve --flush-caches
+
 # macOS:
 dscacheutil -flushcache; sudo killall -HUP mDNSResponder
+
+# Check DNS cache on Linux
+systemd-resolve --statistics
+```
+
+### Advanced DNS Tools
+
+```sh
+# Trace DNS resolution path
+dig +trace example.com
+
+# Show detailed DNS information
+dig +short example.com
+dig +noall +answer example.com
+
+# Check DNS propagation
+dig @8.8.8.8 example.com
+dig @1.1.1.1 example.com
+dig @208.67.222.222 example.com
+
+# Reverse DNS lookup
+dig -x 8.8.8.8
 ```
 
 ## Best Practices
 
-- Use low TTL values when testing or making frequent changes; increase TTL in production for stability
-- Double-check record syntax and values before applying changes
-- Use multiple tools (dig, nslookup, host) to verify DNS records from different locations
-- Document your DNS setup and changes for future reference
+### DNS Configuration
+
+- Use low TTL for testing, higher for production
+- Double-check record syntax and values
+- Verify DNS records with multiple tools and online services
+- Document your DNS setup and changes
+- Use appropriate record types for their intended purpose
+
+### Security and Performance
+
+- Implement DNSSEC for security
+- Use multiple nameservers for redundancy
+- Monitor DNS propagation and performance
+- Set up DNS monitoring and alerting
+- Use CDN services for improved performance
+
+### Email Configuration
+
+- Configure proper MX records for email delivery
+- Set up SPF, DKIM, and DMARC records
+- Use dedicated subdomains for email services
+- Monitor email deliverability
 
 ## Common Use Cases
 
-- **Website Hosting:**
-  - Point your domain's A/AAAA record to your web server's IP address
-  - Use CNAME records for subdomains (e.g., `www` → root domain)
-- **Email Delivery:**
-  - Set MX records to specify mail servers
-  - Add TXT records for SPF, DKIM, and DMARC to improve email security
-- **Service Discovery:**
-  - Use SRV records for services like SIP, XMPP, or Microsoft services
-- **Reverse DNS:**
-  - Set PTR records to map IP addresses back to domain names (often required for mail servers)
+- **Website Hosting**: Point A/AAAA records to web server IPs; use CNAME for subdomains
+- **Email Delivery**: Set MX records; add TXT records for SPF, DKIM, DMARC
+- **Service Discovery**: Use SRV records for specific services
+- **Reverse DNS**: Set PTR records (often for mail servers)
+- **Load Balancing**: Use multiple A records for round-robin DNS
+- **Geographic Routing**: Use different A records based on location
 
 ## Troubleshooting <Badge type="warning" text="Common Issues" />
 
 ::: details DNS Not Resolving
-
-- Check for typos in domain names and record values
-- Ensure authoritative nameservers are set correctly
-- Use `dig` or `nslookup` to query different DNS servers
-- Check DNS propagation status with online tools (e.g., whatsmydns.net)
-  :::
+Check typos, authoritative nameservers, query different DNS servers, and check propagation status. Verify domain registration and nameserver configuration.
+:::
 
 ::: details Email Delivery Issues
-
-- Verify MX, SPF, DKIM, and DMARC records
-- Use online tools to test email configuration (e.g., MXToolbox)
-  :::
+Verify MX, SPF, DKIM, and DMARC records. Use online email configuration testers to validate setup.
+:::
 
 ::: details Stale Records / Propagation Delays
+Lower TTL before changes, flush caches, and be patient. DNS changes can take up to 48 hours to propagate globally.
+:::
 
-- Lower TTL before making changes if possible
-- Flush local and resolver caches
-- Be patient; global propagation can take up to 48 hours
-  :::
+::: details CNAME Conflicts
+Ensure CNAME records don't conflict with other record types. CNAME records cannot coexist with other record types for the same name.
+:::
 
----
-
-DNS is fundamental to the operation of the internet. Understanding its concepts, tools, and best practices is essential for anyone managing domains or infrastructure.
+::: details Nameserver Issues
+Verify nameserver configuration and delegation. Check if nameservers are responding and properly configured.
+:::

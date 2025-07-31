@@ -1,33 +1,26 @@
-# Terraform Modules <Badge type="info" text="IaC" />
+# Terraform Modules
 
 > Terraform modules are reusable, self-contained packages of Terraform configurations that manage a collection of related infrastructure resources. They enable you to organize, encapsulate, and share infrastructure code, promoting best practices like DRY (Don't Repeat Yourself) and modular design.
 
-::: info Purpose
-Terraform modules enable:
-
-- Reusability and sharing of infrastructure code
-- Organization and abstraction of complex setups
-- Standardization and collaboration across teams
-  :::
-
 ## Core Concepts {#core-concepts}
-
-### What is a Module?
 
 A Terraform module is a directory containing `.tf` files. Every Terraform configuration is technically a module (the "root module").
 
-### Module Types
+### Key Concepts Explained
 
-- **Root Module:** The main working directory where you run Terraform commands
-- **Child Modules:** Modules called by other modules
-- **Published Modules:** Modules shared via the Terraform Registry or other repositories
+::: details Module Types
+
+- **Root Module**: The main working directory where you run Terraform commands
+- **Child Modules**: Modules called by other modules
+- **Published Modules**: Modules shared via the Terraform Registry or other repositories
+  :::
 
 ::: details Module Components
 
-- **Input Variables:** Parameters that customize module behavior
-- **Output Values:** Return values that other modules can use
-- **Resources:** The infrastructure components the module manages
-- **Data Sources:** Information fetched from existing infrastructure
+- **Input Variables**: Parameters that customize module behavior
+- **Output Values**: Return values that other modules can use
+- **Resources**: The infrastructure components the module manages
+- **Data Sources**: Information fetched from existing infrastructure
   :::
 
 ::: details Module Sources
@@ -41,6 +34,8 @@ Modules can be sourced from:
   :::
 
 ## Essential Commands <Badge type="tip" text="Core CLI" />
+
+### Module Usage Examples
 
 ```hcl
 # Using a local module
@@ -72,13 +67,18 @@ module "web_server" {
 }
 ```
 
+### Module Management Commands
+
 ```sh
 # Initialize and download modules
 terraform init
+
 # Get/update modules
 terraform get
+
 # Show module tree
 terraform providers
+
 # Validate module configuration
 terraform validate
 ```
@@ -90,6 +90,8 @@ terraform validate
 - Use version constraints for modules
 - Prefer published/official modules when possible
 - Store custom modules in version control
+- Use consistent naming conventions
+- Document module inputs and outputs
 
 ## Common Use Cases
 
@@ -97,27 +99,23 @@ terraform validate
 - Networking and VPC setup
 - Reusable security group/firewall definitions
 - Multi-environment deployments (dev, staging, prod)
+- Database and storage configurations
+- Application deployment patterns
 
 ## Troubleshooting <Badge type="warning" text="Common Issues" />
 
 ::: details Module Not Found
-
-- Check the `source` path or URL
-- Ensure the module is downloaded with `terraform init`
-  :::
+Check the `source` path or URL. Ensure the module is downloaded with `terraform init`. Verify network connectivity for remote modules.
+:::
 
 ::: details Input Variable Errors
-
-- Ensure all required variables are set
-- Check variable types and defaults
-  :::
+Ensure all required variables are set. Check variable types and defaults. Verify variable names match module expectations.
+:::
 
 ::: details Output/Dependency Issues
+Reference outputs correctly (e.g., `module.name.output`). Check for circular dependencies. Verify output names exist in the module.
+:::
 
-- Reference outputs correctly (e.g., `module.name.output`)
-- Check for circular dependencies
-  :::
-
----
-
-For more, see the [Terraform Modules Documentation](https://developer.hashicorp.com/terraform/language/modules).
+::: details Version Conflicts
+Check for incompatible module versions. Update modules to compatible versions. Review module changelogs for breaking changes.
+:::

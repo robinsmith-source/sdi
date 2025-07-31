@@ -1,12 +1,25 @@
-# SSH <Badge type="info" text="Security" />
+# SSH
+
+> SSH is a secure protocol for remote access and file transfer. It uses public-key cryptography to authenticate and encrypt connections, providing a secure and efficient way to manage remote servers.
 
 ## Core Concepts {#core-concepts}
 
-SSH uses public-key cryptography to authenticate and encrypt connections:
+SSH uses public-key cryptography to authenticate and encrypt connections, providing secure remote access and file transfer capabilities.
 
-- **Key pairs** consist of a public key (shared) and a private key (kept secret)
-- **SSH agent** manages your keys and passphrases
-- **SSH config** simplifies connection management
+### Key Concepts Explained
+
+::: details Key Pairs
+SSH key pairs consist of a public key (shared) and a private key (kept secret). The public key is placed on remote servers, while the private key remains on your local machine for authentication.
+:::
+
+::: details SSH Agent
+A background program that manages your SSH keys and passphrases. It stores decrypted private keys in memory, eliminating the need to enter passphrases repeatedly during a session.
+:::
+
+::: details SSH Config
+A configuration file (`~/.ssh/config`) that simplifies connection management by storing connection parameters for different hosts, reducing the need to remember complex command-line options.
+:::
+
 
 ## Essential Commands <Badge type="tip" text="Core CLI" />
 
@@ -98,7 +111,3 @@ sftp user@remotehost
 - Verify the SSH port is correct and open
 - Test basic connectivity: `ping hostname`
   :::
-
----
-
-SSH is a foundational tool for secure infrastructure management. For more, see the [OpenSSH Documentation](https://www.openssh.com/manual.html).

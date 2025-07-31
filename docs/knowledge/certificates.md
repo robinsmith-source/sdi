@@ -1,158 +1,120 @@
 # Certificates
 
-## Understanding Web Certificates
+> SSL/TLS certificates are digital documents that secure online communication (HTTPS). They verify website identity, encrypt data, and build user trust by preventing eavesdropping and tampering.
 
-Web certificates are essential for securing communications between web browsers and servers. They enable HTTPS connections and ensure data integrity and confidentiality. SSL/TLS certificates work by establishing an encrypted connection between a client (browser) and server, preventing eavesdropping and tampering with transmitted data.
+## Core Concepts {#core-concepts}
 
-### How Certificates Work
+SSL/TLS certificates use public-key cryptography to secure connections between clients and servers, ensuring data privacy and authenticity. They act as digital passports that verify website identity and encrypt data in transit.
 
-1. **Public Key Infrastructure (PKI)**: Certificates are based on asymmetric cryptography using public and private key pairs
-2. **Certificate Authority (CA)**: Trusted third parties that issue and validate certificates
-3. **Chain of Trust**: Certificates are validated through a hierarchical chain back to trusted root CAs
-4. **Digital Signatures**: CAs digitally sign certificates to prove authenticity
+### Key Concepts Explained
 
-## Certificate Trust Levels
+::: details Certificate Authority (CA)
+Trusted organizations that issue and validate certificates. They digitally sign certificates to confirm authenticity and maintain the chain of trust.
+:::
 
-There are three main types of SSL/TLS certificates based on validation level:
+::: details Key Pairs
+Each certificate involves a public key (shared) and a private key (kept secret). The private key must remain secure and never be shared.
+:::
 
-### Domain Validated (DV)
+::: details Chain of Trust
+Certificates are validated through a chain leading back to a trusted root CA. This hierarchical system ensures certificate authenticity.
+:::
 
-- **Validation Process**: Fully automated process solely based on DNS/infrastructure challenges
-- **What's Verified**: The certificate authority (CA) only verifies that you control the domain name
-- **Use Cases**: Most common for automated certificate generation, personal websites, blogs
-- **Trust Level**: Basic - shows padlock icon in browsers
-- **Issuance Time**: Minutes to hours
-- **Cost**: Often free (e.g., Let's Encrypt)
+::: details Certificate Types
 
-### Organization Validated (OV)
+- **Domain Validated (DV)**: Basic validation confirming domain ownership (e.g., Let's Encrypt)
+- **Organization Validated (OV)**: Verifies domain ownership and organizational details
+- **Extended Validation (EV)**: Most rigorous validation with extensive identity checks
+  :::
 
-- **Validation Process**: Involves checking the organization in question
-- **What's Verified**: The CA verifies both domain ownership and organizational information
-- **Use Cases**: Business websites, internal applications
-- **Trust Level**: Medium - shows organization name in certificate details
-- **Issuance Time**: Days to weeks
-- **Cost**: Moderate pricing
+::: details Certificate Coverage
 
-### Extended Validation (EV)
+- **Single Domain**: Protects one specific domain (e.g., `example.com`)
+- **Multi-Domain (SAN)**: Protects multiple distinct domains with one certificate
+- **Wildcard**: Protects a domain and all its first-level subdomains (e.g., `*.example.com`)
+  :::
 
-- **Validation Process**: Includes additional checks such as telephone-based verification
-- **What's Verified**: Extensive verification of organization identity, legal existence, and operational status
-- **Use Cases**: E-commerce sites, banking, high-security applications
-- **Trust Level**: Highest - historically showed green address bar (deprecated in modern browsers)
-- **Issuance Time**: Weeks
-- **Cost**: Most expensive
+## Essential Commands <Badge type="tip" text="Core CLI" />
 
-## Certificate Types by Coverage
+### Certificate Generation and Inspection
 
-### Single Domain Certificates
+```sh
+# Generate a new private key and Certificate Signing Request (CSR)
+openssl req -newkey rsa:2048 -nodes -keyout your_domain.key -out your_domain.csr -subj "/C=US/ST=State/L=City/O=Organization/CN=your_domain.com"
 
-- Protects one specific domain (e.g., `example.com`)
-- Does not cover subdomains unless explicitly specified
+# View the contents of a CSR
+openssl req -in your_domain.csr -noout -text
 
-### Multi-Domain Certificates (SAN)
+# View the contents of a certificate
+openssl x509 -in your_certificate.crt -noout -text
 
-- Subject Alternative Names (SAN) certificates
-- Can protect multiple different domains in a single certificate
-- Useful for organizations with multiple domains
+# Check certificate expiration date
+openssl x509 -in your_certificate.crt -noout -enddate
 
-### Wildcard Certificates
+# Verify a certificate chain
+openssl verify -CAfile your_intermediate.crt your_certificate.crt
 
-- Protects a domain and all its first-level subdomains
-- Uses asterisk notation (e.g., `*.example.com`)
-- Covers `www.example.com`, `mail.example.com`, `api.example.com`, etc.
-- Does not cover second-level subdomains (e.g., `test.api.example.com`)
+# Check a website's SSL certificate
+openssl s_client -connect example.com:443 -servername example.com < /dev/null | openssl x509 -noout -text
+```
 
-## Certificate Lifecycle
+### Modern Certificate Tools
 
-### Issuance
+```sh
+# Caddy - Automatic HTTPS
+caddy run --config Caddyfile
 
-1. **Key Generation**: Create public/private key pair
-2. **Certificate Signing Request (CSR)**: Request certificate from CA
-3. **Domain Validation**: Prove control over the domain
-4. **Certificate Issuance**: CA signs and issues the certificate
+# Certbot - Let's Encrypt
+sudo certbot --nginx -d your_domain.com -d www.your_domain.com
 
-### Installation
+# Check certificate transparency
+curl -s "https://crt.sh/?q=%.example.com&output=json" | jq
 
-1. **Certificate Deployment**: Install certificate on web server
-2. **Configuration**: Configure web server to use HTTPS
-3. **Testing**: Verify certificate is working correctly
+# Test SSL configuration
+curl -I https://example.com
+```
 
-### Renewal
+## Best Practices
 
-1. **Monitoring**: Track certificate expiration dates
-2. **Automated Renewal**: Use tools like ACME for automatic renewal
-3. **Validation**: Re-verify domain ownership during renewal
+### Security
 
-### Revocation
+- Keep private keys secure and never share them
+- Restrict access to certificate files with proper permissions (600)
+- Use strong key lengths (RSA 2048+ or ECDSA)
+- Implement automatic renewal for certificates
+- Monitor certificate expiration and transparency logs
 
-- Certificates can be revoked if compromised
-- Certificate Revocation Lists (CRL) and Online Certificate Status Protocol (OCSP)
+### Configuration
 
-## ACME Protocol
+- Validate certificate chains and hostname matching
+- Use HSTS headers for additional security
+- Configure proper SSL/TLS protocols and ciphers
+- Set up monitoring and alerting for certificate expiration
+- Use certificate transparency monitoring
 
-The Automated Certificate Management Environment (ACME) protocol automates certificate lifecycle management:
+## Common Use Cases
 
-### Key Features
+- **Website Security**: Enable HTTPS for web applications
+- **API Protection**: Secure API endpoints with TLS
+- **Email Security**: Use certificates for SMTP/TLS encryption
+- **Internal Services**: Secure internal communication and services
+- **Load Balancers**: Terminate SSL at load balancers
+- **Microservices**: Secure inter-service communication
 
-- **Automated Issuance**: No manual intervention required
-- **Domain Validation**: Automated proof of domain control
-- **Renewal Management**: Automatic certificate renewal before expiration
-- **Standardized Protocol**: RFC 8555 standard
+## Troubleshooting <Badge type="warning" text="Common Issues" />
 
-### Challenge Types
+::: details Browser Warnings
+Often due to self-signed, expired, or mismatched certificates, or an incomplete certificate chain. Check certificate validity and ensure proper chain configuration.
+:::
 
-**HTTP-01 Challenge**
+::: details Certificate Errors
+Check validity, validate the chain, use SSL tools, and review server logs. Verify hostname matching and expiration dates.
+:::
 
-- Places a file at a specific URL on your web server
-- Requires port `80` to be accessible
-- Cannot be used for wildcard certificates
+::: details Rate Limiting
+Let's Encrypt has limits (300 certificates per domain per week, 5 duplicate certificates per week). Plan renewals accordingly.
+:::
 
-**DNS-01 Challenge**
-
-- Creates a specific DNS TXT record
-- Works with any port configuration
-- Supports wildcard certificates
-- Requires DNS API access or manual intervention
-
-**TLS-ALPN-01 Challenge**
-
-- Uses TLS extension for validation
-- Requires port `443` to be accessible
-- Not commonly used
-
-## Security Considerations
-
-### Certificate Storage
-
-- **Private Keys**: Must be stored securely and never shared
-- **File Permissions**: Restrict access to certificate files
-- **Backup**: Secure backup of certificates and keys
-
-### Certificate Validation
-
-- **Hostname Verification**: Ensure certificate matches the requested hostname
-- **Chain Validation**: Verify the complete certificate chain
-- **Expiration Checking**: Monitor and renew certificates before expiration
-
-### Best Practices
-
-- Use strong key lengths (RSA 2048+ or ECDSA 256+)
-- Regular certificate rotation
-- Monitor certificate transparency logs
-- Implement proper error handling for certificate issues
-
-## Common Certificate Errors
-
-### Browser Warnings
-
-- **Self-signed certificates**: Not trusted by browsers
-- **Expired certificates**: Past their validity period
-- **Hostname mismatch**: Certificate doesn't match the domain
-- **Incomplete chain**: Missing intermediate certificates
-
-### Troubleshooting
-
-1. **Check certificate validity**: Verify dates and hostname
-2. **Validate certificate chain**: Ensure all intermediate certificates are present
-3. **Test with SSL tools**: Use online SSL checkers
-4. **Review server logs**: Check for certificate-related errors
+::: details DNS Issues
+Ensure DNS records are properly configured and propagated. Verify domain ownership for certificate issuance.
+:::
